@@ -1,0 +1,20 @@
+{
+  "thirdpartyapp": "第三方应用",
+  "thirdpartyapp_icon": "sap-icon://provision",
+  "thirdpartyapp_func_application": "应用",
+  "thirdpartyapp_app_application_list": "应用列表",
+  "thirdpartyapp_app_application_choose": "应用选择",
+  "thirdpartyapp_app_application_view": "应用查看",
+  "thirdpartyapp_app_application_edit": "应用编辑",
+  "thirdpartyapp_func_user": "用户",
+  "thirdpartyapp_app_user_list": "用户列表",
+  "thirdpartyapp_app_user_choose": "用户选择",
+  "thirdpartyapp_app_user_view": "用户查看",
+  "thirdpartyapp_app_user_edit": "用户编辑",
+  "thirdpartyappusers": "我的应用",
+  "thirdpartyappusers_icon": "sap-icon://decision",
+  "thirdpartyapp_title_general": "常规信息",
+  "thirdpartyapp_title_others": "其他信息",
+  "thirdpartyapp_continue_upload_certificate": "是否继续上传证书？",
+  "thirdpartyapp_closing_delimiter": "----结束----"
+}

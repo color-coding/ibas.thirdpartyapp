@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE Domain>
+<Domain Name="ThirdPartyApp" ShortName="TPA">
+  <Model Name="Application" Description="应用" ModelType="MasterData" Mapped="${Company}_TPA_OAPP">
+    <Property Name="Code" Description="编码" DataType="Alphanumeric" DataSubType="Default" EditSize="8" Mapped="Code" UniqueKey="Yes"/>
+    <Property Name="Name" Description="名称" DataType="Alphanumeric" DataSubType="Default" EditSize="100" Mapped="Name"/>
+    <Property Name="Activated" Description="激活" DataType="Alphanumeric" DataSubType="Default" EditSize="1" DeclaredType="emYesNo" Mapped="Activated"/>
+    <Property Name="AppId" Description="应用标记" DataType="Alphanumeric" DataSubType="Default" EditSize="60" Mapped="AppId"/>
+    <Property Name="AppKey" Description="应用公钥" DataType="Alphanumeric" DataSubType="Default" EditSize="200" Mapped="AppKey"/>
+    <Property Name="AppSecret" Description="应用私钥" DataType="Alphanumeric" DataSubType="Default" EditSize="200" Mapped="AppSecret"/>
+    <Property Name="AppUrl" Description="应用地址" DataType="Alphanumeric" DataSubType="Default" EditSize="140" Mapped="AppUrl"/>
+    <Property Name="OAuthUrl" Description="认证地址" DataType="Alphanumeric" DataSubType="Default" EditSize="140" Mapped="OAuthUrl"/>
+    <Property Name="Certificate" Description="证书地址" DataType="Alphanumeric" DataSubType="Default" EditSize="120" Mapped="Certificate"/>
+    <Property Name="Account" Description="账号" DataType="Alphanumeric" DataSubType="Default" EditSize="60" Mapped="Account"/>
+    <Property Name="ReceivingUrl" Description="接收地址" DataType="Alphanumeric" DataSubType="Default" EditSize="140" Mapped="ReceivingUrl"/>
+    <Property Name="DocEntry" Description="对象编号" DataType="Numeric" DataSubType="Default" EditSize="8" Mapped="DocEntry" PrimaryKey="Yes"/>
+    <Property Name="ObjectCode" Description="对象类型" DataType="Alphanumeric" DataSubType="Default" EditSize="30" Mapped="ObjectCode"/>
+    <Property Name="CreateDate" Description="创建日期" DataType="Date" DataSubType="Default" EditSize="8" Mapped="CreateDate"/>
+    <Property Name="CreateTime" Description="创建时间" DataType="Date" DataSubType="Time" EditSize="8" Mapped="CreateTime"/>
+    <Property Name="UpdateDate" Description="修改日期" DataType="Date" DataSubType="Default" EditSize="8" Mapped="UpdateDate"/>
+    <Property Name="UpdateTime" Description="修改时间" DataType="Date" DataSubType="Time" EditSize="8" Mapped="UpdateTime"/>
+    <Property Name="DataSource" Description="数据源" DataType="Alphanumeric" DataSubType="Default" EditSize="8" Mapped="DataSource"/>
+    <Property Name="LogInst" Description="实例号（版本）" DataType="Numeric" DataSubType="Default" EditSize="8" Mapped="LogInst"/>
+    <Property Name="Series" Description="服务系列" DataType="Numeric" DataSubType="Default" EditSize="8" Mapped="Series"/>
+    <Property Name="CreateUserSign" Description="创建用户" DataType="Numeric" DataSubType="Default" EditSize="8" Mapped="Creator"/>
+    <Property Name="UpdateUserSign" Description="修改用户" DataType="Numeric" DataSubType="Default" EditSize="8" Mapped="Updator"/>
+    <Property Name="CreateActionId" Description="创建动作标识" DataType="Alphanumeric" DataSubType="Default" EditSize="36" Mapped="CreateActId"/>
+    <Property Name="UpdateActionId" Description="更新动作标识" DataType="Alphanumeric" DataSubType="Default" EditSize="36" Mapped="UpdateActId"/>
+  </Model>
+  <BusinessObject MappedModel="Application" ShortName="${Company}_TPA_APP"/>
+</Domain>

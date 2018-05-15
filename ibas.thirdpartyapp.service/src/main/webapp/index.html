@@ -1,0 +1,42 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+    <title>ibas apps</title>
+    <meta charset="utf-8" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <script type="text/javascript" src="./3rdparty/ibas/3rdparty/spin.js"></script>
+    <script type="text/javascript" src="./3rdparty/ibas/3rdparty/jquery.js"></script>
+    <script type="text/javascript" src="./3rdparty/ibas/3rdparty/require.js"></script>
+    <script type="text/javascript">
+        require([
+            "./3rdparty/shell/loader"
+        ], function () {
+            // 加载成功
+            var app = new loader.Application();
+            app.run("./3rdparty");
+        }, function () {
+            // 加载失败
+            alert(arguments[0]);
+        });
+    </script>
+</head>
+
+<body class="sapUiBody" id="content">
+    <div id="spinner"></div>
+    <script type="text/javascript">
+        (function () {
+            var opts = {
+                lines: 13, length: 28, width: 14, radius: 42, scale: 0.25, corners: 1,
+                color: '#000', opacity: 0.25, rotate: 0, direction: 1, speed: 1, trail: 60,
+                fps: 20, zIndex: 2e9, className: 'spinner', top: '50%', left: '50%', shadow: false,
+                hwaccel: false, position: 'absolute'
+            };
+            var target = document.getElementById('spinner');
+            var spinner = new Spinner(opts).spin(target);
+        }());
+    </script>
+</body>
+
+</html>
