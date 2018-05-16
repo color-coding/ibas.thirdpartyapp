@@ -180,7 +180,8 @@ namespace thirdpartyapp {
                         new ibas.Condition("activated", ibas.emConditionOperation.EQUAL, ibas.emYesNo.YES)
                     ],
                     onCompleted(selecteds: ibas.IList<initialfantasy.bo.IUser>): void {
-                        that.editData.user = selecteds.firstOrDefault().code;
+                        let selected: initialfantasy.bo.IUser = selecteds.firstOrDefault();
+                        that.editData.user = selected.code;
                     }
                 });
             }
@@ -193,7 +194,8 @@ namespace thirdpartyapp {
                         new ibas.Condition("activated", ibas.emConditionOperation.EQUAL, ibas.emYesNo.YES)
                     ],
                     onCompleted(selecteds: ibas.IList<bo.Application>): void {
-                        that.editData.application = selecteds.firstOrDefault().name;
+                        let selected: bo.Application = selecteds.firstOrDefault();
+                        that.editData.application = selected.code;
                     }
                 });
             }

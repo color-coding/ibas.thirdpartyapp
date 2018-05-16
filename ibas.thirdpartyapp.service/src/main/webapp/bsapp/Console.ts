@@ -10,6 +10,7 @@
 /// <reference path="../borep/index.ts" />
 /// <reference path="./application/index.ts" />
 /// <reference path="./user/index.ts" />
+/// <reference path="./users/index.ts" />
 
 namespace thirdpartyapp {
     export namespace app {
@@ -129,6 +130,9 @@ namespace thirdpartyapp {
                             if (opRslt.resultCode !== 0) {
                                 ibas.logger.log(ibas.emMessageLevel.ERROR, opRslt.message);
                             }
+                            for (let item of opRslt.resultObjects) {
+                                that.register(new UserApplicationFunc(item));
+                            }
                             // 通知初始化完成
                             that.fireInitialized();
                         }
@@ -137,7 +141,7 @@ namespace thirdpartyapp {
                 // 保留基类方法
                 super.run();
             }
-            /** 设置报表仓库地址 */
+            /** 设置仓库地址 */
             setRepository(address: string): boolean {
                 address = ibas.urls.normalize(address);
                 let repositoryName: string = ibas.strings.format(ibas.MODULE_REPOSITORY_NAME_TEMPLATE, CONSOLE_NAME);

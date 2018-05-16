@@ -10,6 +10,7 @@
 /// <reference path="../../index.d.ts" />
 /// <reference path="./application/index.ts" />
 /// <reference path="./user/index.ts" />
+/// <reference path="./users/index.ts" />
 
 namespace thirdpartyapp {
     export namespace ui {
@@ -39,6 +40,9 @@ namespace thirdpartyapp {
                         break;
                     case app.UserEditApp.APPLICATION_ID:
                         view = new c.UserEditView();
+                        break;
+                    case app.UserApplicationApp.APPLICATION_ID:
+                        view = new c.UserApplicationView();
                         break;
                     default:
                         break;

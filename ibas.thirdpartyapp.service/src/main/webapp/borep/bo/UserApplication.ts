@@ -9,9 +9,14 @@ namespace thirdpartyapp {
     export namespace bo {
         /** 用户应用 */
         export class UserApplication {
+            /** 编码 */
+            code: string;
+            /** 名称 */
+            name: string;
+            /** 地址 */
+            url: string;
+            /** 用户 */
             user: string;
-            application: string;
-            appUrl: string;
         }
     }
 }

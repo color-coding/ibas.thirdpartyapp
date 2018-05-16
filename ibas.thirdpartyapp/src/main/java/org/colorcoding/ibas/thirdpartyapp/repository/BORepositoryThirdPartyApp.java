@@ -1,8 +1,11 @@
 package org.colorcoding.ibas.thirdpartyapp.repository;
 
+import org.colorcoding.ibas.bobas.common.Criteria;
+import org.colorcoding.ibas.bobas.common.ICondition;
 import org.colorcoding.ibas.bobas.common.ICriteria;
 import org.colorcoding.ibas.bobas.common.IOperationResult;
 import org.colorcoding.ibas.bobas.common.OperationResult;
+import org.colorcoding.ibas.bobas.data.emYesNo;
 import org.colorcoding.ibas.bobas.repository.BORepositoryServiceApplication;
 import org.colorcoding.ibas.thirdpartyapp.bo.application.Application;
 import org.colorcoding.ibas.thirdpartyapp.bo.application.IApplication;
@@ -25,7 +28,44 @@ public class BORepositoryThirdPartyApp extends BORepositoryServiceApplication
 	public OperationResult<UserApplication> fetchUserApplications(String user, String token) {
 		OperationResult<UserApplication> opRslt = new OperationResult<UserApplication>();
 		try {
-
+			this.setUserToken(token);
+			ICriteria criteria = new Criteria();
+			ICondition condition = criteria.getConditions().create();
+			condition.setAlias(User.PROPERTY_USER.getName());
+			condition.setValue(user);
+			condition = criteria.getConditions().create();
+			condition.setAlias(User.PROPERTY_ACTIVATED.getName());
+			condition.setValue(emYesNo.YES);
+			IOperationResult<IUser> opRsltUser = this.fetchUser(criteria);
+			if (opRsltUser.getError() != null) {
+				throw opRsltUser.getError();
+			}
+			for (IUser appUser : opRsltUser.getResultObjects()) {
+				if (opRslt.getResultObjects()
+						.firstOrDefault(c -> c.getCode().equals(appUser.getApplication())) != null) {
+					continue;
+				}
+				criteria = new Criteria();
+				condition = criteria.getConditions().create();
+				condition.setAlias(Application.PROPERTY_CODE.getName());
+				condition.setValue(appUser.getApplication());
+				condition = criteria.getConditions().create();
+				condition.setAlias(Application.PROPERTY_ACTIVATED.getName());
+				condition.setValue(emYesNo.YES);
+				IOperationResult<IApplication> opRsltApp = this.fetchApplication(criteria);
+				IApplication application = opRsltApp.getResultObjects().firstOrDefault();
+				if (application == null) {
+					return opRslt;
+				}
+				if (application.getAppUrl() == null || application.getAppUrl().isEmpty()) {
+					return opRslt;
+				}
+				UserApplication userApplication = new UserApplication();
+				userApplication.setCode(application.getCode());
+				userApplication.setName(application.getName());
+				userApplication.setUrl(application.getAppUrl());
+				opRslt.addResultObjects(userApplication);
+			}
 		} catch (Exception e) {
 			opRslt.setError(e);
 		}

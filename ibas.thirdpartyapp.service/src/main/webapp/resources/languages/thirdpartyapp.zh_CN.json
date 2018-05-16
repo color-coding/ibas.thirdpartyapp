@@ -13,6 +13,7 @@
   "thirdpartyapp_app_user_edit": "用户编辑",
   "thirdpartyappusers": "我的应用",
   "thirdpartyappusers_icon": "sap-icon://decision",
+  "thirdpartyapp_app_userapplication": "我的应用-{0}",
   "thirdpartyapp_title_general": "常规信息",
   "thirdpartyapp_title_others": "其他信息",
   "thirdpartyapp_continue_upload_certificate": "是否继续上传证书？",

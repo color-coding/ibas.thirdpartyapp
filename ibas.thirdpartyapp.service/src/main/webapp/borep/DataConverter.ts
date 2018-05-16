@@ -13,6 +13,24 @@ namespace thirdpartyapp {
             protected createConverter(): ibas.BOConverter {
                 return new BOConverter;
             }
+            /**
+             * 解析业务对象数据
+             * @param data 目标类型
+             * @param sign 特殊标记
+             * @returns 本地类型
+             */
+            parsing(data: any, sign: string): any {
+                if (data.type === bo.UserApplication.name) {
+                    let remote: ibas4j.IUserApplication = data;
+                    let newData: bo.UserApplication = new bo.UserApplication();
+                    newData.code = remote.Code;
+                    newData.name = remote.Name;
+                    newData.url = remote.Url;
+                    newData.user = remote.User;
+                    return newData;
+                }
+                return super.parsing(data, sign);
+            }
         }
 
         /** 模块业务对象工厂 */
@@ -53,6 +71,26 @@ namespace thirdpartyapp {
              */
             protected parsingData(boName: string, property: string, value: any): any {
                 return super.parsingData(boName, property, value);
+            }
+        }
+        export namespace ibas4j {
+            /** ibas的java端数据声明 */
+
+            /** 操作消息 */
+            export interface IDataDeclaration {
+                /** 数据类型 */
+                type: string;
+            }
+            /** 用户应用 */
+            export interface IUserApplication extends IDataDeclaration {
+                /** 编码 */
+                Code: string;
+                /** 名称 */
+                Name: string;
+                /** 地址 */
+                Url: string;
+                /** 用户 */
+                User: string;
             }
         }
     }
