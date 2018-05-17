@@ -22,6 +22,7 @@ namespace thirdpartyapp {
                 this.id = CONSOLE_ID;
                 this.name = CONSOLE_NAME;
                 this.version = CONSOLE_VERSION;
+                this.copyright = ibas.i18n.prop("shell_license");
             }
             private _navigation: ibas.IViewNavigation;
             /** 创建视图导航 */

@@ -26,7 +26,7 @@ namespace thirdpartyapp {
                         columns: [
                             new sap.ui.table.Column("", {
                                 label: ibas.i18n.prop("bo_user_user"),
-                                template: new sap.m.Link("", {
+                                template: new sap.m.Text("", {
                                     wrapping: false,
                                 }).bindProperty("text", {
                                     path: "user",
