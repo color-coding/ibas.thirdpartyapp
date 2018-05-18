@@ -32,5 +32,9 @@
         <add key="OwnJudgerExpiry" value="-1" />
         <!-- 配置项目-连接管理员 -->
         <add key="ConnectManager|IBAS-T01" value="ConnectManagerDefault" />
+        <!-- 配置项目-连接管理员 -->
+        <add key="ConnectManager|TX-WX-02" value="ConnectManagerOAuthUrl" />
+        <!-- 配置项目-登录页面 -->
+        <add key="LoginUrl" value="http://localhost:15386/shell/index.html" />
     </appSettings>
 </ns2:configuration>

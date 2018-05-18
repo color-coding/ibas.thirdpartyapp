@@ -1,5 +1,6 @@
 package org.colorcoding.ibas.thirdpartyapp.repository;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.colorcoding.ibas.bobas.common.Criteria;
@@ -7,8 +8,11 @@ import org.colorcoding.ibas.bobas.common.ICondition;
 import org.colorcoding.ibas.bobas.common.ICriteria;
 import org.colorcoding.ibas.bobas.common.IOperationResult;
 import org.colorcoding.ibas.bobas.common.OperationResult;
+import org.colorcoding.ibas.bobas.core.fields.IFieldData;
+import org.colorcoding.ibas.bobas.core.fields.IManageFields;
 import org.colorcoding.ibas.bobas.data.emYesNo;
 import org.colorcoding.ibas.bobas.i18n.I18N;
+import org.colorcoding.ibas.bobas.message.Logger;
 import org.colorcoding.ibas.bobas.organization.OrganizationFactory;
 import org.colorcoding.ibas.initialfantasy.bo.shell.User;
 import org.colorcoding.ibas.thirdpartyapp.bo.application.Application;
@@ -54,6 +58,24 @@ public class BORepositoryJointApplication implements IBORepositoryJointApplicati
 				throw new ClassNotFoundException(I18N.prop("msg_tpa_not_found_application_connect_manager",
 						application.getName() != null ? application.getName() : application.getCode()));
 			}
+			if (params == null) {
+				params = new HashMap<>();
+			}
+			// 补充运行参数
+			for (IFieldData field : ((IManageFields) application).getFields()) {
+				if (!field.isSavable()) {
+					continue;
+				}
+				if (field.isLinkage()) {
+					continue;
+				}
+				if (field.getName().equals(Application.PROPERTY_CODE.getName())
+						|| field.getName().equals(Application.PROPERTY_NAME.getName())) {
+					params.put(String.format("App%s", field.getName()), field.getValue());
+				} else {
+					params.put(field.getName(), field.getValue());
+				}
+			}
 			User user = manager.connect(params);
 			if (user == null) {
 				throw new Exception(I18N.prop("msg_tpa_no_matching_user"));
@@ -63,6 +85,7 @@ public class BORepositoryJointApplication implements IBORepositoryJointApplicati
 			operationResult.addResultObjects(user);
 			return operationResult;
 		} catch (Exception e) {
+			Logger.log(e);
 			return new OperationResult<>(e);
 		}
 	}

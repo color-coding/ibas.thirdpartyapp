@@ -2,7 +2,6 @@ package org.colorcoding.ibas.thirdpartyapp.joint;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.colorcoding.ibas.bobas.common.Criteria;
 import org.colorcoding.ibas.bobas.common.ICondition;
@@ -28,13 +27,21 @@ import org.colorcoding.ibas.thirdpartyapp.bo.user.IUser;
  */
 public abstract class ConnectManager {
 
-	protected static final String MSG_CONNECTMANAGER_CONNECTTING = "connectManager: connecting %s.";
 	protected static final String MSG_CONNECTMANAGER_USING = "connectManager: application [%s] use [%s].";
 
 	/**
 	 * 配置项目模板-连接管理员
 	 */
 	public static final String CONFIG_ITEM_TEMPLATE_CONNECT_MANAGER = "ConnectManager|%s";
+
+	/**
+	 * 参数名称-应用编码
+	 */
+	public static final String PARAM_NAME_APP_CODE = "AppCode";
+	/**
+	 * 参数名称-应用名称
+	 */
+	public static final String PARAM_NAME_APP_NAME = "AppName";
 
 	private static Map<String, ConnectManager> managers = new HashMap<>();
 
@@ -63,10 +70,6 @@ public abstract class ConnectManager {
 				manager = (ConnectManager) Class.forName(managerName).newInstance();
 				managers.put(application.getCode(), manager);
 			}
-			if (manager.getApplication() == null
-					|| !manager.getApplication().getLogInst().equals(application.getLogInst())) {
-				manager.setApplication(application);
-			}
 			Logger.log(MessageLevel.DEBUG, MSG_CONNECTMANAGER_USING, application.getCode(),
 					manager.getClass().getName());
 			return manager;
@@ -76,38 +79,10 @@ public abstract class ConnectManager {
 		}
 	}
 
-	private IApplication application;
-
-	/**
-	 * 应用
-	 * 
-	 * @return
-	 */
-	protected final IApplication getApplication() {
-		return application;
-	}
-
-	private void setApplication(IApplication application) {
-		this.application = application;
-	}
-
 	private volatile IBORepositoryInitialFantasyApp boRepository;
 
 	public final User connect(Map<String, Object> params) {
 		try {
-			StringBuilder stringBuilder = new StringBuilder();
-			stringBuilder.append("{");
-			for (Entry<String, Object> item : params.entrySet()) {
-				if (stringBuilder.length() > 1) {
-					stringBuilder.append(",");
-					stringBuilder.append(" ");
-				}
-				stringBuilder.append(item.getKey());
-				stringBuilder.append("=");
-				stringBuilder.append(item.getValue());
-			}
-			stringBuilder.append("}");
-			Logger.log(MessageLevel.DEBUG, MSG_CONNECTMANAGER_CONNECTTING, stringBuilder.toString());
 			IUser user = this.getUser(params);
 			ICriteria criteria = new Criteria();
 			ICondition condition = criteria.getConditions().create();
