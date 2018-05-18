@@ -30,5 +30,7 @@
         <add key="OrgManagerExpiry" value="-1" />
         <!-- 配置项目-权限过期时间（建议120） -->
         <add key="OwnJudgerExpiry" value="-1" />
+        <!-- 配置项目-连接管理员 -->
+        <add key="ConnectManager|IBAS-T01" value="ConnectManagerDefault" />
     </appSettings>
 </ns2:configuration>
