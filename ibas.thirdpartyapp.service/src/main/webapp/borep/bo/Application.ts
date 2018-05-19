@@ -92,15 +92,15 @@ namespace thirdpartyapp {
                 this.setProperty(Application.PROPERTY_APPURL_NAME, value);
             }
 
-            /** 映射的属性名称-认证地址 */
-            static PROPERTY_OAUTHURL_NAME: string = "OAuthUrl";
-            /** 获取-认证地址 */
-            get oAuthUrl(): string {
-                return this.getProperty<string>(Application.PROPERTY_OAUTHURL_NAME);
+            /** 映射的属性名称-应用接口地址 */
+            static PROPERTY_APIURL_NAME: string = "ApiUrl";
+            /** 获取-应用接口地址 */
+            get apiUrl(): string {
+                return this.getProperty<string>(Application.PROPERTY_APIURL_NAME);
             }
-            /** 设置-认证地址 */
-            set oAuthUrl(value: string) {
-                this.setProperty(Application.PROPERTY_OAUTHURL_NAME, value);
+            /** 设置-应用接口地址 */
+            set apiUrl(value: string) {
+                this.setProperty(Application.PROPERTY_APIURL_NAME, value);
             }
 
             /** 映射的属性名称-证书地址 */

@@ -276,35 +276,35 @@ public class Application extends BusinessObject<Application> implements IApplica
 	}
 
 	/**
-	 * 属性名称-认证地址
+	 * 属性名称-应用接口地址
 	 */
-	private static final String PROPERTY_OAUTHURL_NAME = "OAuthUrl";
+	private static final String PROPERTY_APIURL_NAME = "ApiUrl";
 
 	/**
-	 * 认证地址 属性
+	 * 应用接口地址 属性
 	 */
-	@DbField(name = "OAuthUrl", type = DbFieldType.ALPHANUMERIC, table = DB_TABLE_NAME, primaryKey = false)
-	public static final IPropertyInfo<String> PROPERTY_OAUTHURL = registerProperty(PROPERTY_OAUTHURL_NAME, String.class,
+	@DbField(name = "ApiUrl", type = DbFieldType.ALPHANUMERIC, table = DB_TABLE_NAME, primaryKey = false)
+	public static final IPropertyInfo<String> PROPERTY_APIURL = registerProperty(PROPERTY_APIURL_NAME, String.class,
 			MY_CLASS);
 
 	/**
-	 * 获取-认证地址
+	 * 获取-应用接口地址
 	 * 
 	 * @return 值
 	 */
-	@XmlElement(name = PROPERTY_OAUTHURL_NAME)
-	public final String getOAuthUrl() {
-		return this.getProperty(PROPERTY_OAUTHURL);
+	@XmlElement(name = PROPERTY_APIURL_NAME)
+	public final String getApiUrl() {
+		return this.getProperty(PROPERTY_APIURL);
 	}
 
 	/**
-	 * 设置-认证地址
+	 * 设置-应用接口地址
 	 * 
 	 * @param value
 	 *            值
 	 */
-	public final void setOAuthUrl(String value) {
-		this.setProperty(PROPERTY_OAUTHURL, value);
+	public final void setApiUrl(String value) {
+		this.setProperty(PROPERTY_APIURL, value);
 	}
 
 	/**

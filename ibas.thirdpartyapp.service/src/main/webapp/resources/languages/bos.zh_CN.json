@@ -8,7 +8,7 @@
         "bo_application_appkey": "应用公钥",
         "bo_application_appsecret": "应用私钥",
         "bo_application_appurl": "应用地址",
-        "bo_application_oauthurl": "认证地址",
+        "bo_application_apiurl": "应用接口地址",
         "bo_application_certificate": "证书地址",
         "bo_application_account": "账号",
         "bo_application_receivingurl": "接收地址",

@@ -42,6 +42,10 @@ public abstract class ConnectManager {
 	 * 参数名称-应用名称
 	 */
 	public static final String PARAM_NAME_APP_NAME = "AppName";
+	/**
+	 * 参数名称-应用接口地址
+	 */
+	public static final String PARAM_NAME_API_URL = "ApiUrl";
 
 	private static Map<String, ConnectManager> managers = new HashMap<>();
 
@@ -81,37 +85,33 @@ public abstract class ConnectManager {
 
 	private volatile IBORepositoryInitialFantasyApp boRepository;
 
-	public final User connect(Map<String, Object> params) {
-		try {
-			IUser user = this.getUser(params);
-			ICriteria criteria = new Criteria();
-			ICondition condition = criteria.getConditions().create();
-			condition.setAlias(org.colorcoding.ibas.initialfantasy.bo.organization.User.PROPERTY_CODE.getName());
-			condition.setValue(user.getUser());
-			condition = criteria.getConditions().create();
-			condition.setAlias(org.colorcoding.ibas.initialfantasy.bo.organization.User.PROPERTY_ACTIVATED.getName());
-			condition.setValue(emYesNo.YES);
-			if (boRepository == null) {
-				synchronized (this) {
-					if (boRepository == null) {
-						boRepository = new BORepositoryInitialFantasy();
-						boRepository.setUserToken(OrganizationFactory.SYSTEM_USER.getToken());
-					}
+	public final User connect(Map<String, Object> params) throws Exception {
+		IUser user = this.getUser(params);
+		ICriteria criteria = new Criteria();
+		ICondition condition = criteria.getConditions().create();
+		condition.setAlias(org.colorcoding.ibas.initialfantasy.bo.organization.User.PROPERTY_CODE.getName());
+		condition.setValue(user.getUser());
+		condition = criteria.getConditions().create();
+		condition.setAlias(org.colorcoding.ibas.initialfantasy.bo.organization.User.PROPERTY_ACTIVATED.getName());
+		condition.setValue(emYesNo.YES);
+		if (boRepository == null) {
+			synchronized (this) {
+				if (boRepository == null) {
+					boRepository = new BORepositoryInitialFantasy();
+					boRepository.setUserToken(OrganizationFactory.SYSTEM_USER.getToken());
 				}
 			}
-			IOperationResult<org.colorcoding.ibas.initialfantasy.bo.organization.IUser> opRsltUser = boRepository
-					.fetchUser(criteria);
-			org.colorcoding.ibas.initialfantasy.bo.organization.IUser boUser = opRsltUser.getResultObjects()
-					.firstOrDefault();
-			if (boUser == null) {
-				return null;
-			}
-			User orgUser = User.create(boUser);
-			OrganizationFactory.create().createManager().register(orgUser);
-			return orgUser;
-		} catch (Exception e) {
+		}
+		IOperationResult<org.colorcoding.ibas.initialfantasy.bo.organization.IUser> opRsltUser = boRepository
+				.fetchUser(criteria);
+		org.colorcoding.ibas.initialfantasy.bo.organization.IUser boUser = opRsltUser.getResultObjects()
+				.firstOrDefault();
+		if (boUser == null) {
 			return null;
 		}
+		User orgUser = User.create(boUser);
+		OrganizationFactory.create().createManager().register(orgUser);
+		return orgUser;
 	}
 
 	protected abstract IUser getUser(Map<String, Object> params) throws Exception;

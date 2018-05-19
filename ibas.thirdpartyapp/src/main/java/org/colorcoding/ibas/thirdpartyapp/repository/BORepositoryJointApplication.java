@@ -66,9 +66,6 @@ public class BORepositoryJointApplication implements IBORepositoryJointApplicati
 				if (!field.isSavable()) {
 					continue;
 				}
-				if (field.isLinkage()) {
-					continue;
-				}
 				if (field.getName().equals(Application.PROPERTY_CODE.getName())
 						|| field.getName().equals(Application.PROPERTY_NAME.getName())) {
 					params.put(String.format("App%s", field.getName()), field.getValue());

@@ -62,11 +62,11 @@ namespace thirdpartyapp {
                             }).bindProperty("value", {
                                 path: "appUrl",
                             }),
-                            new sap.m.Label("", { text: ibas.i18n.prop("bo_application_oauthurl") }),
+                            new sap.m.Label("", { text: ibas.i18n.prop("bo_application_apiurl") }),
                             new sap.m.Input("", {
                                 type: sap.m.InputType.Text,
                             }).bindProperty("value", {
-                                path: "oAuthUrl",
+                                path: "apiUrl",
                             }),
                             new sap.m.Label("", { text: ibas.i18n.prop("bo_application_account") }),
                             new sap.m.Input("", {

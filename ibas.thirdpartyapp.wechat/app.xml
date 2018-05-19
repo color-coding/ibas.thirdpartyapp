@@ -18,8 +18,6 @@
         <add key="MasterDbUserPassword" value="1q2w3e" />
         <!-- 配置项目-序列化管理方式 -->
         <add key="SerializationWay" value="jersey" />
-        <!-- 配置项目-对象删除前重新加载 -->
-        <add key="RefetchBeforeDelete" value="true" />
         <!-- 配置项目-审批方法 -->
         <add key="ApprovalWay" value="" />
         <!-- 配置项目-组织方式 -->
@@ -30,11 +28,5 @@
         <add key="OrgManagerExpiry" value="-1" />
         <!-- 配置项目-权限过期时间（建议120） -->
         <add key="OwnJudgerExpiry" value="-1" />
-        <!-- 配置项目-连接管理员 -->
-        <add key="ConnectManager|SAP-B100" value="ConnectManagerDefault" />
-        <!-- 配置项目-连接管理员 -->
-        <add key="ConnectManager|TX-WX-02" value="ConnectManagerWechat" />
-        <!-- 配置项目-登录页面 -->
-        <add key="LoginUrl" value="http://localhost:15386/shell/index.html" />
     </appSettings>
 </ns2:configuration>

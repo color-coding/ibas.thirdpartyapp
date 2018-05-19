@@ -23,8 +23,8 @@ namespace thirdpartyapp {
             appSecret: string;
             /** 应用地址 */
             appUrl: string;
-            /** 认证地址 */
-            oAuthUrl: string;
+            /** 应用接口地址 */
+            apiUrl: string;
             /** 证书地址 */
             certificate: string;
             /** 账号 */

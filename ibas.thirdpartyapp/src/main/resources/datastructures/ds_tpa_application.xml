@@ -9,7 +9,7 @@
     <Property Name="AppKey" Description="应用公钥" DataType="Alphanumeric" DataSubType="Default" EditSize="200" Mapped="AppKey"/>
     <Property Name="AppSecret" Description="应用私钥" DataType="Alphanumeric" DataSubType="Default" EditSize="200" Mapped="AppSecret"/>
     <Property Name="AppUrl" Description="应用地址" DataType="Alphanumeric" DataSubType="Default" EditSize="140" Mapped="AppUrl"/>
-    <Property Name="OAuthUrl" Description="认证地址" DataType="Alphanumeric" DataSubType="Default" EditSize="140" Mapped="OAuthUrl"/>
+    <Property Name="ApiUrl" Description="应用接口地址" DataType="Alphanumeric" DataSubType="Default" EditSize="140" Mapped="ApiUrl"/>
     <Property Name="Certificate" Description="证书地址" DataType="Alphanumeric" DataSubType="Default" EditSize="120" Mapped="Certificate"/>
     <Property Name="Account" Description="账号" DataType="Alphanumeric" DataSubType="Default" EditSize="60" Mapped="Account"/>
     <Property Name="ReceivingUrl" Description="接收地址" DataType="Alphanumeric" DataSubType="Default" EditSize="140" Mapped="ReceivingUrl"/>
