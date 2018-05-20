@@ -32,6 +32,7 @@ public class ConnectManagerDefault extends ConnectManager {
 		condition.setAlias(User.PROPERTY_APPLICATION.getName());
 		condition.setValue(String.valueOf(params.get(PARAM_NAME_APP_CODE)));
 		BORepositoryThirdPartyApp boRepository = new BORepositoryThirdPartyApp();
+		boRepository.setRepository(this.getRepository());
 		boRepository.setUserToken(OrganizationFactory.SYSTEM_USER.getToken());
 		IOperationResult<IUser> operationResult = boRepository.fetchUser(criteria);
 		return operationResult.getResultObjects().firstOrDefault();

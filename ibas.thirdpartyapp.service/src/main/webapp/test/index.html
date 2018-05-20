@@ -5,7 +5,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title>Test Joint Connect</title>
     <script type="text/javascript" src="../3rdparty/ibas/3rdparty/jquery.js"></script>
-    <script type="text/javascript" src="http://res.wx.qq.com/connect/zh_CN/htmledition/js/wxLogin.js"></script>
+    <script src="https://res.wx.qq.com/connect/zh_CN/htmledition/js/wxLogin.js"></script>
     <script>
         var address = "http://localhost:8080/thirdpartyapp/services/rest/joint/";
         var showResult = function (opRslt) {
@@ -63,27 +63,19 @@
                 }
             });
         }
-        var testConnectWechat = function () {
-            var url = address + 'connect?app=TX-WX-02&code=1q2w3e&reutrn=unionid';
-            $.ajax({
-                type: 'get',
-                contentType: "application/json",
-                url: url,
-                success: function (data, status) {
-                    showResult(data);
-                },
-                error: function (err) {
-                    showErrors(err);
-                }
-            });
-        }
         var testLoginDefault = function () {
             var url = address + 'login?app=SAP-B100&user=manager';
-            window.open(url);
+            window.location.href = url;
         }
         var testLoginWechat = function () {
-            var url = address + 'login?app=TX-WX-02&code=1q2w3e&reutrn=unionid';
-            window.open(url);
+            var obj = new WxLogin({
+                self_redirect: true,
+                id: "weixin",
+                appid: "wx78654fba0bacb701",
+                scope: "snsapi_login",
+                state: "open",
+                redirect_uri: encodeURIComponent("http://app.avacloud.com.cn/thirdpartyapp/services/rest/joint/login/?app=TX-WX-02"),
+            });
         }
     </script>
 </head>
@@ -100,9 +92,6 @@
                 <td>
                     <input type="button" value="Default" onclick="testConnectDefault();" />
                 </td>
-                <td>
-                    <input type="button" value="Wechat" onclick="testConnectWechat();" />
-                </td>
             </tr>
             <tr>
                 <td>
@@ -118,6 +107,8 @@
         </table>
     </div>
     <br />
+    <label>可通过host将域名指向本机</label>
+    <br />
     <div>
         <label>code:</label>
         <label id="rsltCode"></label>
@@ -129,6 +120,9 @@
         <label id="rsltCount"></label>
         <br />
         <label id="rsltValues"></label>
+    </div>
+    <div id="weixin">
+
     </div>
 </body>
 
