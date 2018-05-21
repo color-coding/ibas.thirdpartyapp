@@ -1,5 +1,6 @@
 package org.colorcoding.ibas.thirdpartyapp.service.rest;
 
+import java.net.URLDecoder;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -29,6 +30,10 @@ public class JointService extends BORepositoryJointApplication {
 	 * 配置项目-登录地址
 	 */
 	public final static String CONFIG_ITEM_LOGIN_URL = "LoginUrl";
+	/**
+	 * 配置项目-登录地址
+	 */
+	public final static String PARAMETER_REDIRECT_URI = "redirect";
 
 	/**
 	 * 连接
@@ -74,14 +79,16 @@ public class JointService extends BORepositoryJointApplication {
 			if (user == null) {
 				throw new WebApplicationException(404);
 			}
-			String url = MyConfiguration.getConfigValue(CONFIG_ITEM_LOGIN_URL, "");
-			if (!url.endsWith("/index.html")) {
-				if (!url.endsWith("/")) {
-					url += "/";
-				}
-				url += "index.html";
+			String url = request.getParameter(PARAMETER_REDIRECT_URI);
+			if (url != null && !url.isEmpty()) {
+				url = URLDecoder.decode(url, "utf-8");
 			}
-			response.sendRedirect(url + String.format("?userToken=%s", user.getToken()));
+			url = MyConfiguration.getConfigValue(CONFIG_ITEM_LOGIN_URL, url);
+			if (url == null || url.isEmpty()) {
+				throw new WebApplicationException(500);
+			}
+			url += url.indexOf("?") > 0 ? "&" : "?";
+			response.sendRedirect(url + String.format("userToken=%s", user.getToken()));
 		} catch (WebApplicationException e) {
 			throw e;
 		} catch (Exception e) {

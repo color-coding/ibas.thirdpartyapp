@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.Map;
-import java.util.UUID;
 
 import javax.ws.rs.BadRequestException;
 
@@ -138,7 +137,6 @@ public class ConnectManagerWechat extends ConnectManager {
 		userIF.setSeries(MyConfiguration.getConfigValue(CONFIG_ITEM_USER_SERIES, 1));// 编号系列
 		userIF.setName(this.nodeValue(data, "nickname"));
 		userIF.setActivated(emYesNo.YES);
-		userIF.setPassword(UUID.randomUUID().toString());
 		BORepositoryInitialFantasy boRepositoryIF = new BORepositoryInitialFantasy();
 		boRepositoryIF.setRepository(this.getRepository());
 		boRepositoryIF.setUserToken(OrganizationFactory.SYSTEM_USER.getToken());
@@ -161,8 +159,8 @@ public class ConnectManagerWechat extends ConnectManager {
 		boRepositoryTA.setRepository(this.getRepository());
 		boRepositoryTA.setUserToken(OrganizationFactory.SYSTEM_USER.getToken());
 		IOperationResult<IUser> opRsltTA = boRepositoryTA.saveUser(userTA);
-		if (opRsltIF.getError() != null) {
-			throw opRsltIF.getError();
+		if (opRsltTA.getError() != null) {
+			throw opRsltTA.getError();
 		}
 		return opRsltTA.getResultObjects().firstOrDefault();
 	}
