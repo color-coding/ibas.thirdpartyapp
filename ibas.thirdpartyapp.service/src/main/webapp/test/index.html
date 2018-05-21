@@ -68,13 +68,16 @@
             window.location.href = url;
         }
         var testLoginWechat = function () {
+            var loginUri = "&redirect="
+                + encodeURIComponent(window.location.href.substring(0, window.location.href.indexOf('/test')))
+                + "/index.html";
             var obj = new WxLogin({
                 self_redirect: true,
                 id: "weixin",
                 appid: "wx78654fba0bacb701",
                 scope: "snsapi_login",
                 state: "open",
-                redirect_uri: encodeURIComponent("http://app.avacloud.com.cn/thirdpartyapp/services/rest/joint/login/?app=TX-WX-02"),
+                redirect_uri: encodeURIComponent("http://app.avacloud.com.cn/thirdpartyapp/services/rest/joint/login/?app=TX-WX-02" + loginUri),
             });
         }
     </script>

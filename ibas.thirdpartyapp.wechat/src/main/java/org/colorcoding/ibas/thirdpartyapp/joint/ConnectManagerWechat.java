@@ -161,8 +161,8 @@ public class ConnectManagerWechat extends ConnectManager {
 		boRepositoryTA.setRepository(this.getRepository());
 		boRepositoryTA.setUserToken(OrganizationFactory.SYSTEM_USER.getToken());
 		IOperationResult<IUser> opRsltTA = boRepositoryTA.saveUser(userTA);
-		if (opRsltIF.getError() != null) {
-			throw opRsltIF.getError();
+		if (opRsltTA.getError() != null) {
+			throw opRsltTA.getError();
 		}
 		return opRsltTA.getResultObjects().firstOrDefault();
 	}
