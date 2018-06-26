@@ -7,10 +7,7 @@ import java.util.Map;
 
 import javax.ws.rs.BadRequestException;
 
-import org.colorcoding.ibas.bobas.common.Criteria;
-import org.colorcoding.ibas.bobas.common.ICondition;
-import org.colorcoding.ibas.bobas.common.ICriteria;
-import org.colorcoding.ibas.bobas.common.IOperationResult;
+import org.colorcoding.ibas.bobas.common.*;
 import org.colorcoding.ibas.bobas.data.emYesNo;
 import org.colorcoding.ibas.bobas.i18n.I18N;
 import org.colorcoding.ibas.bobas.message.Logger;
@@ -132,22 +129,45 @@ public class ConnectManagerWechat extends ConnectManager {
 		if (errNode != null) {
 			throw new BadRequestException(errNode.textValue());
 		}
-		// 创建系统用户
-		org.colorcoding.ibas.initialfantasy.bo.organization.User userIF = new org.colorcoding.ibas.initialfantasy.bo.organization.User();
-		userIF.setSeries(MyConfiguration.getConfigValue(CONFIG_ITEM_USER_SERIES, 1));// 编号系列
-		userIF.setName(this.nodeValue(data, "nickname"));
-		userIF.setActivated(emYesNo.YES);
-		BORepositoryInitialFantasy boRepositoryIF = new BORepositoryInitialFantasy();
-		boRepositoryIF.setRepository(this.getRepository());
-		boRepositoryIF.setUserToken(OrganizationFactory.SYSTEM_USER.getToken());
-		IOperationResult<org.colorcoding.ibas.initialfantasy.bo.organization.IUser> opRsltIF = boRepositoryIF
-				.saveUser(userIF);
-		if (opRsltIF.getError() != null) {
-			throw opRsltIF.getError();
+		// 查询别的应用是否已映射用户
+		IUser existUser = null;
+		try {
+			ICriteria criteria = new Criteria();
+			ICondition condition = criteria.getConditions().create();
+			condition.setAlias(User.PROPERTY_APPLICATION.getName());
+			condition.setOperation(ConditionOperation.NOT_EQUAL);
+			condition.setValue(String.valueOf(params.get(PARAM_NAME_APP_CODE)));
+			condition = criteria.getConditions().create();
+			condition.setAlias(User.PROPERTY_ACTIVATED.getName());
+			condition.setValue(emYesNo.YES);
+			condition = criteria.getConditions().create();
+			condition.setAlias(User.PROPERTY_MAPPEDID.getName());
+			condition.setValue(this.nodeValue(data, "unionid"));
+			existUser = this.getUser(criteria);
+		} catch (Exception e) {
+		}
+		String code;
+		if (existUser == null) {
+			// 创建系统用户
+			org.colorcoding.ibas.initialfantasy.bo.organization.User userIF = new org.colorcoding.ibas.initialfantasy.bo.organization.User();
+			userIF.setSeries(MyConfiguration.getConfigValue(CONFIG_ITEM_USER_SERIES, 1));// 编号系列
+			userIF.setName(this.nodeValue(data, "nickname"));
+			userIF.setActivated(emYesNo.YES);
+			BORepositoryInitialFantasy boRepositoryIF = new BORepositoryInitialFantasy();
+			boRepositoryIF.setRepository(this.getRepository());
+			boRepositoryIF.setUserToken(OrganizationFactory.SYSTEM_USER.getToken());
+			IOperationResult<org.colorcoding.ibas.initialfantasy.bo.organization.IUser> opRsltIF = boRepositoryIF
+					.saveUser(userIF);
+			if (opRsltIF.getError() != null) {
+				throw opRsltIF.getError();
+			}
+			code = userIF.getCode();
+		} else {
+			code = existUser.getUser();
 		}
 		// 创建应用用户
 		IUser userTA = new User();
-		userTA.setUser(userIF.getCode());
+		userTA.setUser(code);
 		userTA.setApplication(String.valueOf(params.get(PARAM_NAME_APP_CODE)));
 		userTA.setActivated(emYesNo.YES);
 		userTA.setMappedUser(this.nodeValue(data, "openid"));
