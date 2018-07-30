@@ -25,7 +25,7 @@ public class Resolver implements ContextResolver<JAXBContext> {
 		try {
 			if (jaxbContext == null) {
 				jaxbContext = JAXBContext.newInstance(Criteria.class, OperationResult.class, UserFieldProxy.class,
-						Application.class, User.class, org.colorcoding.ibas.initialfantasy.bo.shell.User.class);
+						Application.class, User.class);
 			}
 		} catch (JAXBException e) {
 			e.printStackTrace();
