@@ -1,9 +1,0 @@
-[
-  {
-    "Id": "e25dde1f-2d1f-48de-a519-a0f9e88090ae",
-    "Name": "ThirdPartyApp",
-    "Category": "",
-    "Address": ".../",
-    "Repository": "http://localhost:8080/thirdpartyapp/services/rest/data"
-  }
-]
