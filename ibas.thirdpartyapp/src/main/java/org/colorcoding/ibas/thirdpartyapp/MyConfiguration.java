@@ -1,5 +1,7 @@
 package org.colorcoding.ibas.thirdpartyapp;
 
+import java.io.File;
+
 import org.colorcoding.ibas.bobas.configuration.ConfigurationFactory;
 import org.colorcoding.ibas.bobas.configuration.IConfigurationManager;
 
@@ -56,4 +58,17 @@ public class MyConfiguration extends org.colorcoding.ibas.bobas.MyConfiguration 
 	 */
 	public static final String NAMESPACE_SERVICE = NAMESPACE_ROOT + "service";
 
+	/**
+	 * 获取数据文件目录
+	 * 
+	 * @return
+	 */
+	public static String getFileFolder() {
+		String workFolder = MyConfiguration.getConfigValue(MyConfiguration.CONFIG_ITEM_DOCUMENT_FOLDER,
+				MyConfiguration.getDataFolder() + File.separator + "thirdpartyapp_files");
+		if (!workFolder.endsWith(File.separator)) {
+			workFolder += File.separator;
+		}
+		return workFolder;
+	}
 }

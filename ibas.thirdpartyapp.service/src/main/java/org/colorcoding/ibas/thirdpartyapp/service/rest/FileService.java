@@ -1,6 +1,5 @@
 package org.colorcoding.ibas.thirdpartyapp.service.rest;
 
-import java.io.File;
 import java.io.OutputStream;
 
 import javax.servlet.http.HttpServletResponse;
@@ -28,8 +27,7 @@ import org.glassfish.jersey.media.multipart.FormDataMultiPart;
 @Path("file")
 public class FileService extends FileRepositoryService {
 
-	public final static String WORK_FOLDER = MyConfiguration.getConfigValue(MyConfiguration.CONFIG_ITEM_DOCUMENT_FOLDER,
-			MyConfiguration.getDataFolder() + File.separator + "thirdpartyapp_files");
+	public final static String WORK_FOLDER = MyConfiguration.getFileFolder();
 
 	public FileService() {
 		// 设置工作目录

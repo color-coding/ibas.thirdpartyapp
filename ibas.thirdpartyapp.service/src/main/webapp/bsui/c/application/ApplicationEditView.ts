@@ -16,6 +16,10 @@ namespace thirdpartyapp {
                 createDataEvent: Function;
                 /** 上传证书事件 */
                 uploadCertificateEvent: Function;
+                /** 上传公钥事件 */
+                uploadAppKeyEvent: Function;
+                /** 上传私钥事件 */
+                uploadAppSecretEvent: Function;
 
                 /** 绘制视图 */
                 draw(): any {
@@ -184,6 +188,60 @@ namespace thirdpartyapp {
                                             }),
                                         ],
                                     })
+                                }),
+                                new sap.m.ToolbarSpacer(""),
+                                new sap.m.Button("", {
+                                    text: ibas.strings.format("{0}",
+                                        ibas.i18n.prop("thirdpartyapp_upload_key_file")),
+                                    icon: "sap-icon://two-keys",
+                                    press: function (event: any): void {
+                                        let popover: sap.m.Popover = new sap.m.Popover("", {
+                                            showHeader: false,
+                                            placement: sap.m.PlacementType.Bottom,
+                                            content: [
+                                                new sap.ui.unified.FileUploader("", {
+                                                    buttonOnly: true,
+                                                    multiple: false,
+                                                    uploadOnChange: false,
+                                                    width: "100%",
+                                                    style: "Transparent",
+                                                    icon: "sap-icon://key",
+                                                    buttonText: ibas.i18n.prop("bo_application_appkey"),
+                                                    change: function (oEvent: sap.ui.base.Event): void {
+                                                        popover.close();
+                                                        let files: File[] = oEvent.getParameter("files");
+                                                        if (ibas.objects.isNull(files) || files.length === 0) {
+                                                            return;
+                                                        }
+                                                        let fileData: FormData = new FormData();
+                                                        fileData.append("file", files[0]);
+                                                        that.fireViewEvents(that.uploadAppKeyEvent, fileData);
+                                                    },
+                                                }),
+                                                new sap.ui.unified.FileUploader("", {
+                                                    buttonOnly: true,
+                                                    multiple: false,
+                                                    uploadOnChange: false,
+                                                    width: "100%",
+                                                    style: "Transparent",
+                                                    icon: "sap-icon://primary-key",
+                                                    buttonText: ibas.i18n.prop("bo_application_appsecret"),
+                                                    change: function (oEvent: sap.ui.base.Event): void {
+                                                        popover.close();
+                                                        let files: File[] = oEvent.getParameter("files");
+                                                        if (ibas.objects.isNull(files) || files.length === 0) {
+                                                            return;
+                                                        }
+                                                        let fileData: FormData = new FormData();
+                                                        fileData.append("file", files[0]);
+                                                        that.fireViewEvents(that.uploadAppSecretEvent, fileData);
+                                                    },
+                                                }),
+                                            ]
+                                        });
+                                        (<any>popover).addStyleClass("sapMOTAPopover sapTntToolHeaderPopover");
+                                        popover.openBy(event.getSource(), true);
+                                    }
                                 }),
                             ]
                         }),

@@ -31,6 +31,8 @@ namespace thirdpartyapp {
                 this.view.deleteDataEvent = this.deleteData;
                 this.view.createDataEvent = this.createData;
                 this.view.uploadCertificateEvent = this.uploadCertificate;
+                this.view.uploadAppKeyEvent = this.uploadAppKey;
+                this.view.uploadAppSecretEvent = this.uploadAppSecret;
             }
             /** 视图显示后 */
             protected viewShowed(): void {
@@ -187,7 +189,55 @@ namespace thirdpartyapp {
                             that.proceeding(ibas.emMessageType.INFORMATION,
                                 ibas.i18n.prop("shell_upload") + ibas.i18n.prop("shell_sucessful"));
                             let fileData: ibas.FileData = opRslt.resultObjects.firstOrDefault();
-                            that.editData.certificate = fileData.fileName;
+                            that.editData.certificate = ibas.strings.format("file://{0}", fileData.fileName);
+                        } catch (error) {
+                            that.messages(error);
+                        }
+                    }
+                });
+            }
+            /** 上传公钥 */
+            uploadAppKey(formData: FormData): void {
+                let that: this = this;
+                this.proceeding(ibas.emMessageType.INFORMATION, ibas.i18n.prop("shell_uploading_file"));
+                this.busy(true);
+                let boRepository: bo.BORepositoryThirdPartyApp = new bo.BORepositoryThirdPartyApp();
+                boRepository.upload({
+                    fileData: formData,
+                    onCompleted(opRslt: ibas.IOperationResult<ibas.FileData>): void {
+                        try {
+                            that.busy(false);
+                            if (opRslt.resultCode !== 0) {
+                                throw new Error(opRslt.message);
+                            }
+                            that.proceeding(ibas.emMessageType.INFORMATION,
+                                ibas.i18n.prop("shell_upload") + ibas.i18n.prop("shell_sucessful"));
+                            let fileData: ibas.FileData = opRslt.resultObjects.firstOrDefault();
+                            that.editData.appKey = ibas.strings.format("file://{0}", fileData.fileName);
+                        } catch (error) {
+                            that.messages(error);
+                        }
+                    }
+                });
+            }
+            /** 上传私钥 */
+            uploadAppSecret(formData: FormData): void {
+                let that: this = this;
+                this.proceeding(ibas.emMessageType.INFORMATION, ibas.i18n.prop("shell_uploading_file"));
+                this.busy(true);
+                let boRepository: bo.BORepositoryThirdPartyApp = new bo.BORepositoryThirdPartyApp();
+                boRepository.upload({
+                    fileData: formData,
+                    onCompleted(opRslt: ibas.IOperationResult<ibas.FileData>): void {
+                        try {
+                            that.busy(false);
+                            if (opRslt.resultCode !== 0) {
+                                throw new Error(opRslt.message);
+                            }
+                            that.proceeding(ibas.emMessageType.INFORMATION,
+                                ibas.i18n.prop("shell_upload") + ibas.i18n.prop("shell_sucessful"));
+                            let fileData: ibas.FileData = opRslt.resultObjects.firstOrDefault();
+                            that.editData.appSecret = ibas.strings.format("file://{0}", fileData.fileName);
                         } catch (error) {
                             that.messages(error);
                         }
@@ -205,6 +255,10 @@ namespace thirdpartyapp {
             createDataEvent: Function;
             /** 上传证书事件 */
             uploadCertificateEvent: Function;
+            /** 上传公钥事件 */
+            uploadAppKeyEvent: Function;
+            /** 上传私钥事件 */
+            uploadAppSecretEvent: Function;
         }
     }
 }

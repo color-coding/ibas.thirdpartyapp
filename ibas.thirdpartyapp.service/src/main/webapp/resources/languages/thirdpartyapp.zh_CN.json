@@ -16,6 +16,7 @@
   "thirdpartyapp_app_userapplication": "我的应用-{0}",
   "thirdpartyapp_title_general": "常规信息",
   "thirdpartyapp_title_others": "其他信息",
+  "thirdpartyapp_upload_key_file": "上传秘钥",
   "thirdpartyapp_continue_upload_certificate": "是否继续上传证书？",
   "thirdpartyapp_closing_delimiter": "----结束----"
 }
