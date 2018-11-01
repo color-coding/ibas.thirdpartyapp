@@ -9,7 +9,7 @@ import org.colorcoding.ibas.bobas.common.ICriteria;
 import org.colorcoding.ibas.bobas.common.IOperationResult;
 import org.colorcoding.ibas.bobas.common.OperationResult;
 import org.colorcoding.ibas.bobas.core.fields.IFieldData;
-import org.colorcoding.ibas.bobas.core.fields.IManageFields;
+import org.colorcoding.ibas.bobas.core.fields.IManagedFields;
 import org.colorcoding.ibas.bobas.data.emYesNo;
 import org.colorcoding.ibas.bobas.i18n.I18N;
 import org.colorcoding.ibas.bobas.message.Logger;
@@ -62,7 +62,7 @@ public class BORepositoryJointApplication implements IBORepositoryJointApplicati
 				params = new HashMap<>();
 			}
 			// 补充运行参数
-			for (IFieldData field : ((IManageFields) application).getFields()) {
+			for (IFieldData field : ((IManagedFields) application).getFields()) {
 				if (!field.isSavable()) {
 					continue;
 				}
