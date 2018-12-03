@@ -34,7 +34,7 @@ public class ConnectManagerMiniProgram extends ConnectManager {
     /**
      * 参数名称-授权码
      */
-    public static final String PARAM_NICKNAME = "nikename";
+    public static final String PARAM_NICKNAME = "nickname";
     /**
      * 地址模板-用户认证
      */
