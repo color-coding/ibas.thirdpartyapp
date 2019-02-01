@@ -580,6 +580,8 @@ declare namespace initialfantasy {
             activated: ibas.emYesNo;
             /** 权限类型 */
             authoriseValue: ibas.emAuthoriseType;
+            /** 自动运行 */
+            automatic: ibas.emYesNo;
             /** 对象编号 */
             objectKey: number;
             /** 对象类型 */
@@ -2069,6 +2071,11 @@ declare namespace initialfantasy {
             /** 获取-权限类型 */
             /** 设置-权限类型 */
             authoriseValue: ibas.emAuthoriseType;
+            /** 映射的属性名称-自动运行 */
+            static PROPERTY_AUTOMATIC_NAME: string;
+            /** 获取-自动运行 */
+            /** 设置-自动运行 */
+            automatic: ibas.emYesNo;
             /** 映射的属性名称-对象编号 */
             static PROPERTY_OBJECTKEY_NAME: string;
             /** 获取-对象编号 */
@@ -4270,6 +4277,77 @@ declare namespace initialfantasy {
             deleteDataEvent: Function;
             /** 显示数据 */
             showData(datas: bo.Privilege[]): void;
+        }
+    }
+}
+/**
+ * @license
+ * Copyright Color-Coding Studio. All Rights Reserved.
+ *
+ * Use of this source code is governed by an Apache License, Version 2.0
+ * that can be found in the LICENSE file at http://www.apache.org/licenses/LICENSE-2.0
+ */
+declare namespace initialfantasy {
+    namespace app {
+        /** 应用-系统权限配置 */
+        class PrivilegeConfigApp extends ibas.Application<IPrivilegeConfigView> {
+            /** 应用标识 */
+            static APPLICATION_ID: string;
+            /** 应用名称 */
+            static APPLICATION_NAME: string;
+            /** 构造函数 */
+            constructor();
+            /** 注册视图 */
+            protected registerView(): void;
+            /** 视图显示后 */
+            protected viewShowed(): void;
+            /** 查询数据 */
+            private fetchRoles;
+            private privileges;
+            /** 查询数据 */
+            private fetchPrivileges;
+            /** 保存数据 */
+            private savePrivileges;
+            /** 复制权限  */
+            private copyPrivileges;
+            /** 删除权限 */
+            private deletePrivileges;
+        }
+        /** 视图-系统权限 */
+        interface IPrivilegeConfigView extends ibas.IView {
+            /** 查询角色 */
+            fetchRolesEvent: Function;
+            /** 查询权限  */
+            fetchPrivilegesEvent: Function;
+            /** 保存权限 */
+            savePrivilegesEvent: Function;
+            /** 删除权限 */
+            deletePrivilegesEvent: Function;
+            /** 复制权限  */
+            copyPrivilegesEvent: Function;
+            /** 显示角色 */
+            showRoles(datas: bo.IRole[]): void;
+            /** 显示权限 */
+            showPrivileges(datas: Privilege[]): void;
+            /** 显示平台 */
+            showPlatforms(datas: bo.ApplicationPlatform[]): void;
+        }
+        /** 系统权限 */
+        class Privilege implements ibas.IBindable {
+            constructor(data: bo.Privilege, type: bo.emElementType);
+            registerListener(listener: ibas.IPropertyChangedListener): void;
+            removeListener(listener: ibas.IPropertyChangedListener): void;
+            removeListener(recursive: boolean): void;
+            data: bo.Privilege;
+            type: bo.emElementType;
+            readonly isNew: boolean;
+            roleCode: string;
+            platformId: string;
+            moduleId: string;
+            target: string;
+            activated: ibas.emYesNo;
+            authoriseValue: ibas.emAuthoriseType;
+            automatic: ibas.emYesNo;
         }
     }
 }
