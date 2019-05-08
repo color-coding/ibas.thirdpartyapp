@@ -29,41 +29,51 @@ namespace thirdpartyapp {
                         content: [
                             new sap.ui.core.Title("", { text: ibas.i18n.prop("thirdpartyapp_title_general") }),
                             new sap.m.Label("", { text: ibas.i18n.prop("bo_application_code") }),
-                            new sap.m.Input("", {
-                                type: sap.m.InputType.Text,
-                            }).bindProperty("value", {
+                            new sap.extension.m.Input("", {
+                            }).bindProperty("bindingValue", {
                                 path: "code",
+                                type: new sap.extension.data.Alphanumeric({
+                                    maxLength: 8
+                                })
                             }).bindProperty("editable", {
                                 path: "series",
                                 formatter(data: any): any {
                                     return data > 0 ? false : true;
                                 }
                             }),
-                            new sap.m.ex.SeriesSelect("", {
+                            new sap.extension.m.SeriesSelect("", {
                                 objectCode: ibas.config.applyVariables(bo.BO_CODE_APPLICATION),
-                                bindingValue: {
-                                    path: "series",
-                                    type: "sap.ui.model.type.Integer",
+                            }).bindProperty("bindingValue", {
+                                path: "series",
+                                type: new sap.extension.data.Numeric()
+                            }).bindProperty("enabled", {
+                                path: "isNew",
+                                formatter(data: any): any {
+                                    return !!data ? true : false;
                                 }
                             }),
                             new sap.m.Label("", { text: ibas.i18n.prop("bo_application_name") }),
-                            new sap.m.Input("", {
-                                type: sap.m.InputType.Text,
-                            }).bindProperty("value", {
+                            new sap.extension.m.Input("", {
+                            }).bindProperty("bindingValue", {
                                 path: "name",
+                                type: new sap.extension.data.Alphanumeric({
+                                    maxLength: 100
+                                })
                             }),
                             new sap.m.Label("", { text: ibas.i18n.prop("bo_application_activated") }),
-                            new sap.m.Select("", {
-                                items: openui5.utils.createComboBoxItems(ibas.emYesNo),
-                            }).bindProperty("selectedKey", {
+                            new sap.extension.m.EnumSelect("", {
+                                enumType: ibas.emYesNo
+                            }).bindProperty("bindingValue", {
                                 path: "activated",
-                                type: "sap.ui.model.type.Integer",
+                                type: new sap.extension.data.YesNo()
                             }),
                             new sap.m.Label("", { text: ibas.i18n.prop("bo_application_appid") }),
-                            new sap.m.Input("", {
-                                type: sap.m.InputType.Text,
-                            }).bindProperty("value", {
+                            new sap.extension.m.Input("", {
+                            }).bindProperty("bindingValue", {
                                 path: "appId",
+                                type: new sap.extension.data.Alphanumeric({
+                                    maxLength: 60
+                                })
                             }),
                             new sap.m.Label("", { text: ibas.i18n.prop("bo_application_appurl") }),
                             new sap.m.Input("", {
@@ -72,29 +82,39 @@ namespace thirdpartyapp {
                                 path: "appUrl",
                             }),
                             new sap.m.Label("", { text: ibas.i18n.prop("bo_application_apiurl") }),
-                            new sap.m.Input("", {
-                                type: sap.m.InputType.Text,
-                            }).bindProperty("value", {
-                                path: "apiUrl",
+                            new sap.extension.m.Input("", {
+                            }).bindProperty("bindingValue", {
+                                path: "appUrl",
+                                type: new sap.extension.data.Alphanumeric({
+                                    maxLength: 140
+                                })
                             }),
                             new sap.m.Label("", { text: ibas.i18n.prop("bo_application_account") }),
-                            new sap.m.Input("", {
-                                type: sap.m.InputType.Text,
-                            }).bindProperty("value", {
+                            new sap.extension.m.Input("", {
+                            }).bindProperty("bindingValue", {
                                 path: "account",
+                                type: new sap.extension.data.Alphanumeric({
+                                    maxLength: 60
+                                })
                             }),
                             new sap.ui.core.Title("", { text: ibas.i18n.prop("thirdpartyapp_title_others") }),
                             new sap.m.Label("", { text: ibas.i18n.prop("bo_application_appkey") }),
-                            new sap.m.Input("", {
-                                type: sap.m.InputType.Text,
-                            }).bindProperty("value", {
+                            new sap.extension.m.Input("", {
+                                type: sap.m.InputType.Password
+                            }).bindProperty("bindingValue", {
                                 path: "appKey",
+                                type: new sap.extension.data.Alphanumeric({
+                                    maxLength: 200
+                                })
                             }),
                             new sap.m.Label("", { text: ibas.i18n.prop("bo_application_appsecret") }),
-                            new sap.m.Input("", {
-                                type: sap.m.InputType.Text,
-                            }).bindProperty("value", {
+                            new sap.extension.m.Input("", {
+                                type: sap.m.InputType.Password
+                            }).bindProperty("bindingValue", {
                                 path: "appSecret",
+                                type: new sap.extension.data.Alphanumeric({
+                                    maxLength: 200
+                                })
                             }),
                             new sap.m.Label("", { text: ibas.i18n.prop("bo_application_certificate") }),
                             new sap.ui.unified.FileUploader("", {
@@ -128,21 +148,20 @@ namespace thirdpartyapp {
                                 path: "certificate"
                             }),
                             new sap.m.Label("", { text: ibas.i18n.prop("bo_application_receivingurl") }),
-                            new sap.m.Input("", {
-                                type: sap.m.InputType.Text,
-                            }).bindProperty("value", {
+                            new sap.extension.m.Input("", {
+                            }).bindProperty("bindingValue", {
                                 path: "receivingUrl",
+                                type: new sap.extension.data.Alphanumeric({
+                                    maxLength: 140
+                                })
                             }),
                         ]
                     });
-                    this.layoutMain = new sap.ui.layout.VerticalLayout("", {
-                        width: "100%",
-                        content: [
-                            formTop,
-                        ]
-                    });
-                    this.page = new sap.m.Page("", {
+                    return this.page = new sap.extension.m.DataPage("", {
                         showHeader: false,
+                        dataInfo: {
+                            code: bo.Application.BUSINESS_OBJECT_CODE,
+                        },
                         subHeader: new sap.m.Toolbar("", {
                             content: [
                                 new sap.m.Button("", {
@@ -238,42 +257,23 @@ namespace thirdpartyapp {
                                                 }),
                                             ]
                                         });
-                                        (<any>popover).addStyleClass("sapMOTAPopover sapTntToolHeaderPopover");
+                                        popover.addStyleClass("sapMOTAPopover sapTntToolHeaderPopover");
                                         popover.openBy(event.getSource(), true);
                                     }
                                 }),
                             ]
                         }),
-                        content: [this.layoutMain]
+                        content: [
+                            formTop,
+                        ]
                     });
-                    return this.page;
                 }
-
-                private page: sap.m.Page;
-                private layoutMain: sap.ui.layout.VerticalLayout;
-
-                /** 改变视图状态 */
-                private changeViewStatus(data: bo.Application): void {
-                    if (ibas.objects.isNull(data)) {
-                        return;
-                    }
-                    // 新建时：禁用删除，
-                    if (data.isNew) {
-                        if (this.page.getSubHeader() instanceof sap.m.Toolbar) {
-                            openui5.utils.changeToolbarSavable(<sap.m.Toolbar>this.page.getSubHeader(), true);
-                            openui5.utils.changeToolbarDeletable(<sap.m.Toolbar>this.page.getSubHeader(), false);
-                        }
-                    }
-                }
-
+                private page: sap.extension.m.Page;
                 /** 显示数据 */
                 showApplication(data: bo.Application): void {
-                    this.layoutMain.setModel(new sap.ui.model.json.JSONModel(data));
-                    this.layoutMain.bindObject("/");
-                    // 监听属性改变，并更新控件
-                    openui5.utils.refreshModelChanged(this.layoutMain, data);
-                    // 改变视图状态
-                    this.changeViewStatus(data);
+                    this.page.setModel(new sap.extension.model.JSONModel(data));
+                    // 改变页面状态
+                    sap.extension.pages.changeStatus(this.page);
                 }
             }
         }
