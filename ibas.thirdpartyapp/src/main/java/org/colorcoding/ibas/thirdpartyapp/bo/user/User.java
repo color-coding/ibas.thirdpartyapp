@@ -11,7 +11,7 @@ import org.colorcoding.ibas.bobas.bo.IBOUserFields;
 import org.colorcoding.ibas.bobas.core.IPropertyInfo;
 import org.colorcoding.ibas.bobas.data.DateTime;
 import org.colorcoding.ibas.bobas.data.emYesNo;
-import org.colorcoding.ibas.bobas.mapping.BOCode;
+import org.colorcoding.ibas.bobas.mapping.BusinessObjectUnit;
 import org.colorcoding.ibas.bobas.mapping.DbField;
 import org.colorcoding.ibas.bobas.mapping.DbFieldType;
 import org.colorcoding.ibas.thirdpartyapp.MyConfiguration;
@@ -23,7 +23,7 @@ import org.colorcoding.ibas.thirdpartyapp.MyConfiguration;
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlType(name = User.BUSINESS_OBJECT_NAME, namespace = MyConfiguration.NAMESPACE_BO)
 @XmlRootElement(name = User.BUSINESS_OBJECT_NAME, namespace = MyConfiguration.NAMESPACE_BO)
-@BOCode(User.BUSINESS_OBJECT_CODE)
+@BusinessObjectUnit(code = User.BUSINESS_OBJECT_CODE)
 public class User extends BusinessObject<User> implements IUser, IBOUserFields {
 
 	/**
