@@ -42,7 +42,7 @@ namespace thirdpartyapp {
                                 }
                             }),
                             new sap.extension.m.SeriesSelect("", {
-                                objectCode: ibas.config.applyVariables(bo.BO_CODE_APPLICATION),
+                                objectCode: bo.BO_CODE_APPLICATION,
                             }).bindProperty("bindingValue", {
                                 path: "series",
                                 type: new sap.extension.data.Numeric()

@@ -61,8 +61,8 @@ namespace thirdpartyapp {
                                     repository: bo.BORepositoryThirdPartyApp,
                                     dataInfo: {
                                         type: bo.Application,
-                                        key: "Code",
-                                        text: "Name"
+                                        key:  bo.Application.PROPERTY_CODE_NAME,
+                                        text: bo.Application.PROPERTY_NAME_NAME
                                     },
                                 }).bindProperty("bindingValue", {
                                     path: "application",
