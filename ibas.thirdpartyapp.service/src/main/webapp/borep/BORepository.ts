@@ -82,7 +82,9 @@ namespace thirdpartyapp {
                 let method: string =
                     ibas.strings.format("fetchUserApplications?user={0}&token={1}",
                         caller.user, this.token);
-                boRepository.callRemoteMethod(method, undefined, caller);
+                boRepository.callRemoteMethod(method, undefined, (opRslt) => {
+                    caller.onCompleted.call(ibas.objects.isNull(caller.caller) ? caller : caller.caller, opRslt);
+                });
             }
 
         }
