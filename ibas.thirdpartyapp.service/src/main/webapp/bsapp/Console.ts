@@ -7,8 +7,9 @@
  */
 /// <reference path="../borep/index.ts" />
 /// <reference path="./application/index.ts" />
+/// <reference path="./applicationconfig/index.ts" />
 /// <reference path="./user/index.ts" />
-/// <reference path="./users/index.ts" />
+/// <reference path="./others/index.ts" />
 namespace thirdpartyapp {
     export namespace app {
         /** 属性-导航 */
@@ -35,6 +36,7 @@ namespace thirdpartyapp {
                 // 注册服务应用
                 this.register(new ApplicationChooseServiceMapping());
                 this.register(new UserChooseServiceMapping());
+                this.register(new ApplicationConfigChooseServiceMapping());
                 // 注册常驻应用
 
             }

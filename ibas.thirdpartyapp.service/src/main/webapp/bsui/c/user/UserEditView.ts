@@ -59,7 +59,7 @@ namespace thirdpartyapp {
                             }).bindProperty("bindingValue", {
                                 path: "application",
                                 type: new sap.extension.data.Alphanumeric({
-                                    maxLength: 30
+                                    maxLength: 20
                                 })
                             }),
                             new sap.m.Label("", { text: ibas.i18n.prop("bo_user_activated") }),

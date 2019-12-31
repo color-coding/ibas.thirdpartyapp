@@ -7,8 +7,9 @@
  */
 /// <reference path="../../index.d.ts" />
 /// <reference path="./application/index.ts" />
+/// <reference path="./applicationconfig/index.ts" />
 /// <reference path="./user/index.ts" />
-/// <reference path="./users/index.ts" />
+/// <reference path="./others/index.ts" />
 
 namespace thirdpartyapp {
     export namespace ui {
@@ -38,6 +39,15 @@ namespace thirdpartyapp {
                         break;
                     case app.UserEditApp.APPLICATION_ID:
                         view = new c.UserEditView();
+                        break;
+                    case app.ApplicationConfigListApp.APPLICATION_ID:
+                        view = new c.ApplicationConfigListView();
+                        break;
+                    case app.ApplicationConfigChooseApp.APPLICATION_ID:
+                        view = new c.ApplicationConfigChooseView();
+                        break;
+                    case app.ApplicationConfigEditApp.APPLICATION_ID:
+                        view = new c.ApplicationConfigEditView();
                         break;
                     case app.UserApplicationApp.APPLICATION_ID:
                         view = new c.UserApplicationView();

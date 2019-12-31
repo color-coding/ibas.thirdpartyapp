@@ -14,13 +14,8 @@ namespace thirdpartyapp {
                 deleteDataEvent: Function;
                 /** 新建数据事件，参数1：是否克隆 */
                 createDataEvent: Function;
-                /** 上传证书事件 */
-                uploadCertificateEvent: Function;
-                /** 上传公钥事件 */
-                uploadAppKeyEvent: Function;
-                /** 上传私钥事件 */
-                uploadAppSecretEvent: Function;
-
+                /** 选择应用配置 */
+                chooseApplicationConfigEvent: Function;
                 /** 绘制视图 */
                 draw(): any {
                     let that: this = this;
@@ -33,7 +28,7 @@ namespace thirdpartyapp {
                             }).bindProperty("bindingValue", {
                                 path: "code",
                                 type: new sap.extension.data.Alphanumeric({
-                                    maxLength: 8
+                                    maxLength: 20
                                 })
                             }).bindProperty("editable", {
                                 path: "series",
@@ -67,93 +62,102 @@ namespace thirdpartyapp {
                                 path: "activated",
                                 type: new sap.extension.data.YesNo()
                             }),
-                            new sap.m.Label("", { text: ibas.i18n.prop("bo_application_appid") }),
-                            new sap.extension.m.Input("", {
+                            new sap.m.Label("", { text: ibas.i18n.prop("bo_application_category") }),
+                            new sap.extension.m.PropertySelect("", {
+                                dataInfo: {
+                                    code: bo.Application.PROPERTY_CATEGORY_NAME,
+                                },
+                                propertyName: "category",
                             }).bindProperty("bindingValue", {
-                                path: "appId",
+                                path: "category",
                                 type: new sap.extension.data.Alphanumeric({
-                                    maxLength: 60
+                                    maxLength: 8
                                 })
                             }),
-                            new sap.m.Label("", { text: ibas.i18n.prop("bo_application_appurl") }),
-                            new sap.m.Input("", {
-                                type: sap.m.InputType.Text,
-                            }).bindProperty("value", {
-                                path: "appUrl",
-                            }),
-                            new sap.m.Label("", { text: ibas.i18n.prop("bo_application_apiurl") }),
-                            new sap.extension.m.Input("", {
+                            new sap.m.Label("", { text: ibas.i18n.prop("bo_application_remarks") }),
+                            new sap.extension.m.TextArea("", {
+                                rows: 4,
                             }).bindProperty("bindingValue", {
-                                path: "appUrl",
-                                type: new sap.extension.data.Alphanumeric({
-                                    maxLength: 140
-                                })
+                                path: "remarks",
+                                type: new sap.extension.data.Alphanumeric()
                             }),
-                            new sap.m.Label("", { text: ibas.i18n.prop("bo_application_account") }),
-                            new sap.extension.m.Input("", {
-                            }).bindProperty("bindingValue", {
-                                path: "account",
-                                type: new sap.extension.data.Alphanumeric({
-                                    maxLength: 60
-                                })
-                            }),
-                            new sap.ui.core.Title("", { text: ibas.i18n.prop("thirdpartyapp_title_others") }),
-                            new sap.m.Label("", { text: ibas.i18n.prop("bo_application_appkey") }),
-                            new sap.extension.m.Input("", {
-                                type: sap.m.InputType.Password
-                            }).bindProperty("bindingValue", {
-                                path: "appKey",
-                                type: new sap.extension.data.Alphanumeric({
-                                    maxLength: 200
-                                })
-                            }),
-                            new sap.m.Label("", { text: ibas.i18n.prop("bo_application_appsecret") }),
-                            new sap.extension.m.Input("", {
-                                type: sap.m.InputType.Password
-                            }).bindProperty("bindingValue", {
-                                path: "appSecret",
-                                type: new sap.extension.data.Alphanumeric({
-                                    maxLength: 200
-                                })
-                            }),
-                            new sap.m.Label("", { text: ibas.i18n.prop("bo_application_certificate") }),
-                            new sap.ui.unified.FileUploader("", {
-                                name: "file",
-                                width: "100%",
-                                placeholder: ibas.i18n.prop("shell_browse"),
-                                change(event: sap.ui.base.Event): void {
-                                    if (ibas.objects.isNull(event.getParameters())
-                                        || ibas.objects.isNull(event.getParameters().files)
-                                        || event.getParameters().files.length === 0) {
-                                        return;
-                                    }
-                                    let fileData: FormData = new FormData();
-                                    fileData.append("file", event.getParameters().files[0], encodeURI(event.getParameters().newValue));
-                                    that.application.viewShower.messages({
-                                        type: ibas.emMessageType.QUESTION,
-                                        title: that.application.description,
-                                        actions: [
-                                            ibas.emMessageAction.YES,
-                                            ibas.emMessageAction.NO
-                                        ],
-                                        message: ibas.i18n.prop("thirdpartyapp_continue_upload_certificate"),
-                                        onCompleted(action: ibas.emMessageAction): void {
-                                            if (action === ibas.emMessageAction.YES) {
-                                                that.fireViewEvents(that.uploadCertificateEvent, fileData);
+                            new sap.ui.core.Title("", { text: ibas.i18n.prop("bo_application") + ibas.i18n.prop("bo_application_settings") }),
+                            this.table = new sap.extension.table.Table("", {
+                                visibleRowCount: 5,
+                                rowActionCount: 1,
+                                chooseType: ibas.emChooseType.NONE,
+                                rowActionTemplate: new sap.ui.table.RowAction("", {
+                                    items: [
+                                        new sap.ui.table.RowActionItem("", {
+                                            icon: "sap-icon://browse-folder",
+                                            press: function (oEvent: sap.ui.base.Event): void {
+                                                let source: any = oEvent.getSource();
+                                                if (source instanceof sap.ui.core.Element) {
+                                                    let data: any = source.getBindingContext().getObject();
+                                                    if (data instanceof bo.ApplicationSettingItem) {
+                                                        ibas.files.open((files) => {
+                                                            if (files.length > 0) {
+                                                                data.value = files[0];
+                                                            }
+                                                        });
+                                                    }
+                                                }
+                                            },
+                                        }).bindProperty("visible", {
+                                            path: "category",
+                                            formatter(data: bo.emConfigItemCategory): boolean {
+                                                return data === bo.emConfigItemCategory.FILE ? true : false;
                                             }
-                                        }
-                                    });
-                                }
-                            }).bindProperty("value", {
-                                path: "certificate"
-                            }),
-                            new sap.m.Label("", { text: ibas.i18n.prop("bo_application_receivingurl") }),
-                            new sap.extension.m.Input("", {
-                            }).bindProperty("bindingValue", {
-                                path: "receivingUrl",
-                                type: new sap.extension.data.Alphanumeric({
-                                    maxLength: 140
-                                })
+                                        }),
+                                    ]
+                                }),
+                                rows: "{/rows}",
+                                columns: [
+                                    new sap.extension.table.Column("", {
+                                        label: ibas.i18n.prop("bo_applicationsettingitem_name"),
+                                        template: new sap.extension.m.Text("", {
+                                        }).bindProperty("bindingValue", {
+                                            path: "name",
+                                            type: new sap.extension.data.Alphanumeric(),
+                                        }),
+                                    }),
+                                    new sap.extension.table.DataColumn("", {
+                                        label: ibas.i18n.prop("bo_applicationsettingitem_description"),
+                                        template: new sap.extension.m.Text("", {
+                                        }).bindProperty("bindingValue", {
+                                            path: "description",
+                                            type: new sap.extension.data.Alphanumeric(),
+                                        }),
+                                    }),
+                                    new sap.extension.table.DataColumn("", {
+                                        label: ibas.i18n.prop("bo_applicationsettingitem_value"),
+                                        template: new sap.extension.m.Input("", {
+                                        }).bindProperty("bindingValue", {
+                                            path: "value",
+                                            type: new sap.extension.data.Unknown({
+                                                formatValue(oValue: any, sInternalType: string): any {
+                                                    if (oValue instanceof File && sInternalType === "string") {
+                                                        return oValue.name;
+                                                    }
+                                                    return oValue;
+                                                },
+                                                parseValue(oValue: any, sInternalType: string): any {
+                                                    return oValue;
+                                                }
+                                            }),
+                                        }).bindProperty("editable", {
+                                            path: "category",
+                                            formatter(data: bo.emConfigItemCategory): boolean {
+                                                return data !== bo.emConfigItemCategory.FILE ? true : false;
+                                            }
+                                        }).bindProperty("type", {
+                                            path: "category",
+                                            formatter(data: bo.emConfigItemCategory): sap.m.InputType {
+                                                return data === bo.emConfigItemCategory.PASSWORD ? sap.m.InputType.Password : sap.m.InputType.Text;
+                                            }
+                                        }),
+                                    }),
+                                ],
                             }),
                         ]
                     });
@@ -169,7 +173,26 @@ namespace thirdpartyapp {
                                     type: sap.m.ButtonType.Transparent,
                                     icon: "sap-icon://save",
                                     press: function (): void {
-                                        that.fireViewEvents(that.saveDataEvent);
+                                        let model: any = that.table.getModel();
+                                        if (model instanceof sap.extension.model.JSONModel) {
+                                            let data: any = model.getData();
+                                            if (data && data.rows instanceof Array) {
+                                                let formData: FormData = null;
+                                                for (let item of data.rows) {
+                                                    if (item instanceof bo.ApplicationSettingItem) {
+                                                        if (ibas.objects.isNull(item.value)) {
+                                                            continue;
+                                                        }
+                                                        if (formData === null) {
+                                                            formData = new FormData();
+                                                        }
+                                                        formData.append(item.name, item.value);
+                                                    }
+                                                }
+                                                that.fireViewEvents(that.saveDataEvent, formData);
+                                            }
+                                        }
+
                                     }
                                 }),
                                 new sap.m.Button("", {
@@ -209,56 +232,11 @@ namespace thirdpartyapp {
                                 }),
                                 new sap.m.ToolbarSpacer(""),
                                 new sap.m.Button("", {
-                                    text: ibas.strings.format("{0}",
-                                        ibas.i18n.prop("thirdpartyapp_upload_key_file")),
-                                    icon: "sap-icon://two-keys",
-                                    press: function (event: any): void {
-                                        let popover: sap.m.Popover = new sap.m.Popover("", {
-                                            showHeader: false,
-                                            placement: sap.m.PlacementType.Bottom,
-                                            content: [
-                                                new sap.ui.unified.FileUploader("", {
-                                                    buttonOnly: true,
-                                                    multiple: false,
-                                                    uploadOnChange: false,
-                                                    width: "100%",
-                                                    style: "Transparent",
-                                                    icon: "sap-icon://key",
-                                                    buttonText: ibas.i18n.prop("bo_application_appkey"),
-                                                    change: function (oEvent: sap.ui.base.Event): void {
-                                                        popover.close();
-                                                        let files: File[] = oEvent.getParameter("files");
-                                                        if (ibas.objects.isNull(files) || files.length === 0) {
-                                                            return;
-                                                        }
-                                                        let fileData: FormData = new FormData();
-                                                        fileData.append("file", files[0]);
-                                                        that.fireViewEvents(that.uploadAppKeyEvent, fileData);
-                                                    },
-                                                }),
-                                                new sap.ui.unified.FileUploader("", {
-                                                    buttonOnly: true,
-                                                    multiple: false,
-                                                    uploadOnChange: false,
-                                                    width: "100%",
-                                                    style: "Transparent",
-                                                    icon: "sap-icon://primary-key",
-                                                    buttonText: ibas.i18n.prop("bo_application_appsecret"),
-                                                    change: function (oEvent: sap.ui.base.Event): void {
-                                                        popover.close();
-                                                        let files: File[] = oEvent.getParameter("files");
-                                                        if (ibas.objects.isNull(files) || files.length === 0) {
-                                                            return;
-                                                        }
-                                                        let fileData: FormData = new FormData();
-                                                        fileData.append("file", files[0]);
-                                                        that.fireViewEvents(that.uploadAppSecretEvent, fileData);
-                                                    },
-                                                }),
-                                            ]
-                                        });
-                                        popover.addStyleClass("sapMOTAPopover sapTntToolHeaderPopover");
-                                        popover.openBy(event.getSource(), true);
+                                    text: ibas.i18n.prop("shell_data_new") + ibas.i18n.prop("bo_application_settings"),
+                                    type: sap.m.ButtonType.Transparent,
+                                    icon: "sap-icon://add-equipment",
+                                    press: function (): void {
+                                        that.fireViewEvents(that.chooseApplicationConfigEvent);
                                     }
                                 }),
                             ]
@@ -269,11 +247,16 @@ namespace thirdpartyapp {
                     });
                 }
                 private page: sap.extension.m.Page;
+                private table: sap.extension.table.Table;
                 /** 显示数据 */
                 showApplication(data: bo.Application): void {
                     this.page.setModel(new sap.extension.model.JSONModel(data));
                     // 改变页面状态
                     sap.extension.pages.changeStatus(this.page);
+                }
+                /** 显示可用配置 */
+                showApplicationSettingItems(datas: bo.ApplicationSettingItem[]): void {
+                    this.table.setModel(new sap.extension.model.JSONModel({ rows: datas }));
                 }
             }
         }

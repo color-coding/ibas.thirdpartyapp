@@ -48,92 +48,48 @@ namespace thirdpartyapp {
                 this.setProperty(Application.PROPERTY_ACTIVATED_NAME, value);
             }
 
-            /** 映射的属性名称-应用标记 */
-            static PROPERTY_APPID_NAME: string = "AppId";
-            /** 获取-应用标记 */
-            get appId(): string {
-                return this.getProperty<string>(Application.PROPERTY_APPID_NAME);
+            /** 映射的属性名称-类别 */
+            static PROPERTY_CATEGORY_NAME: string = "Category";
+            /** 获取-类别 */
+            get category(): string {
+                return this.getProperty<string>(Application.PROPERTY_CATEGORY_NAME);
             }
-            /** 设置-应用标记 */
-            set appId(value: string) {
-                this.setProperty(Application.PROPERTY_APPID_NAME, value);
-            }
-
-            /** 映射的属性名称-应用公钥 */
-            static PROPERTY_APPKEY_NAME: string = "AppKey";
-            /** 获取-应用公钥 */
-            get appKey(): string {
-                return this.getProperty<string>(Application.PROPERTY_APPKEY_NAME);
-            }
-            /** 设置-应用公钥 */
-            set appKey(value: string) {
-                this.setProperty(Application.PROPERTY_APPKEY_NAME, value);
+            /** 设置-类别 */
+            set category(value: string) {
+                this.setProperty(Application.PROPERTY_CATEGORY_NAME, value);
             }
 
-            /** 映射的属性名称-应用私钥 */
-            static PROPERTY_APPSECRET_NAME: string = "AppSecret";
-            /** 获取-应用私钥 */
-            get appSecret(): string {
-                return this.getProperty<string>(Application.PROPERTY_APPSECRET_NAME);
+            /** 映射的属性名称-配置 */
+            static PROPERTY_CONFIG_NAME: string = "Config";
+            /** 获取-配置 */
+            get config(): string {
+                return this.getProperty<string>(Application.PROPERTY_CONFIG_NAME);
             }
-            /** 设置-应用私钥 */
-            set appSecret(value: string) {
-                this.setProperty(Application.PROPERTY_APPSECRET_NAME, value);
-            }
-
-            /** 映射的属性名称-应用地址 */
-            static PROPERTY_APPURL_NAME: string = "AppUrl";
-            /** 获取-应用地址 */
-            get appUrl(): string {
-                return this.getProperty<string>(Application.PROPERTY_APPURL_NAME);
-            }
-            /** 设置-应用地址 */
-            set appUrl(value: string) {
-                this.setProperty(Application.PROPERTY_APPURL_NAME, value);
+            /** 设置-配置 */
+            set config(value: string) {
+                this.setProperty(Application.PROPERTY_CONFIG_NAME, value);
             }
 
-            /** 映射的属性名称-应用接口地址 */
-            static PROPERTY_APIURL_NAME: string = "ApiUrl";
-            /** 获取-应用接口地址 */
-            get apiUrl(): string {
-                return this.getProperty<string>(Application.PROPERTY_APIURL_NAME);
+            /** 映射的属性名称-设置 */
+            static PROPERTY_SETTINGS_NAME: string = "Settings";
+            /** 获取-设置 */
+            get settings(): string {
+                return this.getProperty<string>(Application.PROPERTY_SETTINGS_NAME);
             }
-            /** 设置-应用接口地址 */
-            set apiUrl(value: string) {
-                this.setProperty(Application.PROPERTY_APIURL_NAME, value);
-            }
-
-            /** 映射的属性名称-证书地址 */
-            static PROPERTY_CERTIFICATE_NAME: string = "Certificate";
-            /** 获取-证书地址 */
-            get certificate(): string {
-                return this.getProperty<string>(Application.PROPERTY_CERTIFICATE_NAME);
-            }
-            /** 设置-证书地址 */
-            set certificate(value: string) {
-                this.setProperty(Application.PROPERTY_CERTIFICATE_NAME, value);
+            /** 设置-设置 */
+            set settings(value: string) {
+                this.setProperty(Application.PROPERTY_SETTINGS_NAME, value);
             }
 
-            /** 映射的属性名称-账号 */
-            static PROPERTY_ACCOUNT_NAME: string = "Account";
-            /** 获取-账号 */
-            get account(): string {
-                return this.getProperty<string>(Application.PROPERTY_ACCOUNT_NAME);
+            /** 映射的属性名称-备注 */
+            static PROPERTY_REMARKS_NAME: string = "Remarks";
+            /** 获取-备注 */
+            get remarks(): string {
+                return this.getProperty<string>(Application.PROPERTY_REMARKS_NAME);
             }
-            /** 设置-账号 */
-            set account(value: string) {
-                this.setProperty(Application.PROPERTY_ACCOUNT_NAME, value);
-            }
-
-            /** 映射的属性名称-接收地址 */
-            static PROPERTY_RECEIVINGURL_NAME: string = "ReceivingUrl";
-            /** 获取-接收地址 */
-            get receivingUrl(): string {
-                return this.getProperty<string>(Application.PROPERTY_RECEIVINGURL_NAME);
-            }
-            /** 设置-接收地址 */
-            set receivingUrl(value: string) {
-                this.setProperty(Application.PROPERTY_RECEIVINGURL_NAME, value);
+            /** 设置-备注 */
+            set remarks(value: string) {
+                this.setProperty(Application.PROPERTY_REMARKS_NAME, value);
             }
 
             /** 映射的属性名称-对象编号 */

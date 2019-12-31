@@ -52,7 +52,20 @@ namespace thirdpartyapp {
             saveApplication(saver: ibas.ISaveCaller<bo.Application>): void {
                 super.save(bo.Application.name, saver);
             }
-
+            /**
+             * 查询 应用配置
+             * @param fetcher 查询者
+             */
+            fetchApplicationConfig(fetcher: ibas.IFetchCaller<bo.ApplicationConfig>): void {
+                super.fetch(bo.ApplicationConfig.name, fetcher);
+            }
+            /**
+             * 保存 应用配置
+             * @param saver 保存者
+             */
+            saveApplicationConfig(saver: ibas.ISaveCaller<bo.ApplicationConfig>): void {
+                super.save(bo.ApplicationConfig.name, saver);
+            }
             /**
              * 查询 用户
              * @param fetcher 查询者
@@ -86,7 +99,21 @@ namespace thirdpartyapp {
                     caller.onCompleted.call(ibas.objects.isNull(caller.caller) ? caller : caller.caller, opRslt);
                 });
             }
-
+            /**
+             * 保存 应用配置
+             * @param caller 查询者
+             */
+            saveApplicationSetting(caller: IApplicationSettingSaver): void {
+                if (!this.address.endsWith("/")) { this.address += "/"; }
+                let fileRepository: ibas.FileRepositoryUploadAjax = new ibas.FileRepositoryUploadAjax();
+                fileRepository.address = this.address.replace("/services/rest/data/", "/services/rest/file/");
+                fileRepository.token = this.token;
+                fileRepository.converter = this.createConverter();
+                fileRepository.upload(ibas.strings.format("saveApplicationSetting?application={0}", caller.application), {
+                    fileData: caller.formData,
+                    onCompleted: caller.onCompleted,
+                });
+            }
         }
         /**
          * 用户相关调用者
@@ -96,6 +123,15 @@ namespace thirdpartyapp {
             user: string;
             /** 平台 */
             platform?: string;
+        }
+        /**
+         * 应用配置保存者
+         */
+        export interface IApplicationSettingSaver extends ibas.IMethodCaller<IApplication> {
+            /** 应用 */
+            application: string;
+            /** 提交数据 */
+            formData: FormData;
         }
     }
 }

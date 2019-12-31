@@ -38,7 +38,7 @@
         </dependency>
         <dependency>
             <groupId>org.colorcoding.apps</groupId>
-            <artifactId>ibas.thirdpartyapp.wechat</artifactId>
+            <artifactId>ibas.thirdpartyapp.webapi</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

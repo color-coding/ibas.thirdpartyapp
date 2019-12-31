@@ -3,7 +3,7 @@
 <Domain Name="ThirdPartyApp" ShortName="TPA">
   <Model Name="User" Description="用户" ModelType="Simple" Mapped="${Company}_TPA_USER">
     <Property Name="User" Description="用户" DataType="Alphanumeric" DataSubType="Default" EditSize="8" Mapped="User" UniqueKey="Yes"/>
-    <Property Name="Application" Description="应用" DataType="Alphanumeric" DataSubType="Default" EditSize="30" Mapped="Application" UniqueKey="Yes"/>
+    <Property Name="Application" Description="应用" DataType="Alphanumeric" DataSubType="Default" EditSize="20" Mapped="Application" UniqueKey="Yes"/>
     <Property Name="Activated" Description="激活" DataType="Alphanumeric" DataSubType="Default" EditSize="1" DeclaredType="emYesNo" Mapped="Activated"/>
     <Property Name="MappedId" Description="映射标记" DataType="Alphanumeric" DataSubType="Default" EditSize="120" Mapped="MappedId"/>
     <Property Name="MappedUser" Description="映射用户" DataType="Alphanumeric" DataSubType="Default" EditSize="60" Mapped="MappedUser"/>

@@ -10,8 +10,9 @@ import javax.ws.rs.core.MediaType;
 import org.colorcoding.ibas.bobas.common.Criteria;
 import org.colorcoding.ibas.bobas.common.OperationResult;
 import org.colorcoding.ibas.thirdpartyapp.bo.application.Application;
+import org.colorcoding.ibas.thirdpartyapp.bo.applicationconfig.ApplicationConfig;
+import org.colorcoding.ibas.thirdpartyapp.bo.other.UserApplication;
 import org.colorcoding.ibas.thirdpartyapp.bo.user.User;
-import org.colorcoding.ibas.thirdpartyapp.data.UserApplication;
 import org.colorcoding.ibas.thirdpartyapp.repository.BORepositoryThirdPartyApp;
 
 /**
@@ -23,10 +24,8 @@ public class DataService extends BORepositoryThirdPartyApp {
 	/**
 	 * 查询-用户应用
 	 * 
-	 * @param user
-	 *            用户
-	 * @param token
-	 *            口令
+	 * @param user  用户
+	 * @param token 口令
 	 * @return 操作结果
 	 */
 	@POST
@@ -42,10 +41,8 @@ public class DataService extends BORepositoryThirdPartyApp {
 	/**
 	 * 查询-应用
 	 * 
-	 * @param criteria
-	 *            查询
-	 * @param token
-	 *            口令
+	 * @param criteria 查询
+	 * @param token    口令
 	 * @return 操作结果
 	 */
 	@POST
@@ -59,10 +56,8 @@ public class DataService extends BORepositoryThirdPartyApp {
 	/**
 	 * 保存-应用
 	 * 
-	 * @param bo
-	 *            对象实例
-	 * @param token
-	 *            口令
+	 * @param bo    对象实例
+	 * @param token 口令
 	 * @return 操作结果
 	 */
 	@POST
@@ -77,10 +72,8 @@ public class DataService extends BORepositoryThirdPartyApp {
 	/**
 	 * 查询-用户
 	 * 
-	 * @param criteria
-	 *            查询
-	 * @param token
-	 *            口令
+	 * @param criteria 查询
+	 * @param token    口令
 	 * @return 操作结果
 	 */
 	@POST
@@ -94,10 +87,8 @@ public class DataService extends BORepositoryThirdPartyApp {
 	/**
 	 * 保存-用户
 	 * 
-	 * @param bo
-	 *            对象实例
-	 * @param token
-	 *            口令
+	 * @param bo    对象实例
+	 * @param token 口令
 	 * @return 操作结果
 	 */
 	@POST
@@ -106,6 +97,39 @@ public class DataService extends BORepositoryThirdPartyApp {
 	@Path("saveUser")
 	public OperationResult<User> saveUser(User bo, @QueryParam("token") String token) {
 		return super.saveUser(bo, token);
+	}
+
+	// --------------------------------------------------------------------------------------------//
+	/**
+	 * 查询-应用配置
+	 * 
+	 * @param criteria 查询
+	 * @param token    口令
+	 * @return 操作结果
+	 */
+	@POST
+	@Produces(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Path("fetchApplicationConfig")
+	public OperationResult<ApplicationConfig> fetchApplicationConfig(Criteria criteria,
+			@QueryParam("token") String token) {
+		return super.fetchApplicationConfig(criteria, token);
+	}
+
+	/**
+	 * 保存-应用配置
+	 * 
+	 * @param bo    对象实例
+	 * @param token 口令
+	 * @return 操作结果
+	 */
+	@POST
+	@Produces(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Path("saveApplicationConfig")
+	public OperationResult<ApplicationConfig> saveApplicationConfig(ApplicationConfig bo,
+			@QueryParam("token") String token) {
+		return super.saveApplicationConfig(bo, token);
 	}
 
 	// --------------------------------------------------------------------------------------------//

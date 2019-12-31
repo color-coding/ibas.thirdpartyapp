@@ -15,22 +15,14 @@ namespace thirdpartyapp {
             name: string;
             /** 激活 */
             activated: ibas.emYesNo;
-            /** 应用标记 */
-            appId: string;
-            /** 应用公钥 */
-            appKey: string;
-            /** 应用私钥 */
-            appSecret: string;
-            /** 应用地址 */
-            appUrl: string;
-            /** 应用接口地址 */
-            apiUrl: string;
-            /** 证书地址 */
-            certificate: string;
-            /** 账号 */
-            account: string;
-            /** 接收地址 */
-            receivingUrl: string;
+            /** 类别 */
+            category: string;
+            /** 配置 */
+            config: string;
+            /** 设置 */
+            settings: string;
+            /** 备注 */
+            remarks: string;
             /** 对象编号 */
             docEntry: number;
             /** 对象类型 */
@@ -57,7 +49,6 @@ namespace thirdpartyapp {
             createActionId: string;
             /** 更新动作标识 */
             updateActionId: string;
-
         }
 
 

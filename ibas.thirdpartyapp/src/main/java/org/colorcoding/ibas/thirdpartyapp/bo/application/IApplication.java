@@ -20,8 +20,7 @@ public interface IApplication extends IBOMasterData {
 	/**
 	 * 设置-编码
 	 * 
-	 * @param value
-	 *            值
+	 * @param value 值
 	 */
 	void setCode(String value);
 
@@ -35,8 +34,7 @@ public interface IApplication extends IBOMasterData {
 	/**
 	 * 设置-名称
 	 * 
-	 * @param value
-	 *            值
+	 * @param value 值
 	 */
 	void setName(String value);
 
@@ -50,130 +48,65 @@ public interface IApplication extends IBOMasterData {
 	/**
 	 * 设置-激活
 	 * 
-	 * @param value
-	 *            值
+	 * @param value 值
 	 */
 	void setActivated(emYesNo value);
 
 	/**
-	 * 获取-应用标记
+	 * 获取-类别
 	 * 
 	 * @return 值
 	 */
-	String getAppId();
+	String getCategory();
 
 	/**
-	 * 设置-应用标记
+	 * 设置-类别
 	 * 
-	 * @param value
-	 *            值
+	 * @param value 值
 	 */
-	void setAppId(String value);
+	void setCategory(String value);
 
 	/**
-	 * 获取-应用公钥
-	 * 
-	 * @return 值
-	 */
-	String getAppKey();
-
-	/**
-	 * 设置-应用公钥
-	 * 
-	 * @param value
-	 *            值
-	 */
-	void setAppKey(String value);
-
-	/**
-	 * 获取-应用私钥
+	 * 获取-配置
 	 * 
 	 * @return 值
 	 */
-	String getAppSecret();
+	String getConfig();
 
 	/**
-	 * 设置-应用私钥
+	 * 设置-配置
 	 * 
-	 * @param value
-	 *            值
+	 * @param value 值
 	 */
-	void setAppSecret(String value);
+	void setConfig(String value);
 
 	/**
-	 * 获取-应用地址
-	 * 
-	 * @return 值
-	 */
-	String getAppUrl();
-
-	/**
-	 * 设置-应用地址
-	 * 
-	 * @param value
-	 *            值
-	 */
-	void setAppUrl(String value);
-
-	/**
-	 * 获取-应用接口地址
+	 * 获取-设置
 	 * 
 	 * @return 值
 	 */
-	String getApiUrl();
+	String getSettings();
 
 	/**
-	 * 设置-应用接口地址
+	 * 设置-设置
 	 * 
-	 * @param value
-	 *            值
+	 * @param value 值
 	 */
-	void setApiUrl(String value);
+	void setSettings(String value);
 
 	/**
-	 * 获取-证书地址
-	 * 
-	 * @return 值
-	 */
-	String getCertificate();
-
-	/**
-	 * 设置-证书地址
-	 * 
-	 * @param value
-	 *            值
-	 */
-	void setCertificate(String value);
-
-	/**
-	 * 获取-账号
+	 * 获取-备注
 	 * 
 	 * @return 值
 	 */
-	String getAccount();
+	String getRemarks();
 
 	/**
-	 * 设置-账号
+	 * 设置-备注
 	 * 
-	 * @param value
-	 *            值
+	 * @param value 值
 	 */
-	void setAccount(String value);
-
-	/**
-	 * 获取-接收地址
-	 * 
-	 * @return 值
-	 */
-	String getReceivingUrl();
-
-	/**
-	 * 设置-接收地址
-	 * 
-	 * @param value
-	 *            值
-	 */
-	void setReceivingUrl(String value);
+	void setRemarks(String value);
 
 	/**
 	 * 获取-对象编号
@@ -185,8 +118,7 @@ public interface IApplication extends IBOMasterData {
 	/**
 	 * 设置-对象编号
 	 * 
-	 * @param value
-	 *            值
+	 * @param value 值
 	 */
 	void setDocEntry(Integer value);
 
@@ -200,8 +132,7 @@ public interface IApplication extends IBOMasterData {
 	/**
 	 * 设置-对象类型
 	 * 
-	 * @param value
-	 *            值
+	 * @param value 值
 	 */
 	void setObjectCode(String value);
 
@@ -215,8 +146,7 @@ public interface IApplication extends IBOMasterData {
 	/**
 	 * 设置-创建日期
 	 * 
-	 * @param value
-	 *            值
+	 * @param value 值
 	 */
 	void setCreateDate(DateTime value);
 
@@ -230,8 +160,7 @@ public interface IApplication extends IBOMasterData {
 	/**
 	 * 设置-创建时间
 	 * 
-	 * @param value
-	 *            值
+	 * @param value 值
 	 */
 	void setCreateTime(Short value);
 
@@ -245,8 +174,7 @@ public interface IApplication extends IBOMasterData {
 	/**
 	 * 设置-修改日期
 	 * 
-	 * @param value
-	 *            值
+	 * @param value 值
 	 */
 	void setUpdateDate(DateTime value);
 
@@ -260,8 +188,7 @@ public interface IApplication extends IBOMasterData {
 	/**
 	 * 设置-修改时间
 	 * 
-	 * @param value
-	 *            值
+	 * @param value 值
 	 */
 	void setUpdateTime(Short value);
 
@@ -275,8 +202,7 @@ public interface IApplication extends IBOMasterData {
 	/**
 	 * 设置-数据源
 	 * 
-	 * @param value
-	 *            值
+	 * @param value 值
 	 */
 	void setDataSource(String value);
 
@@ -290,8 +216,7 @@ public interface IApplication extends IBOMasterData {
 	/**
 	 * 设置-实例号（版本）
 	 * 
-	 * @param value
-	 *            值
+	 * @param value 值
 	 */
 	void setLogInst(Integer value);
 
@@ -305,8 +230,7 @@ public interface IApplication extends IBOMasterData {
 	/**
 	 * 设置-服务系列
 	 * 
-	 * @param value
-	 *            值
+	 * @param value 值
 	 */
 	void setSeries(Integer value);
 
@@ -320,8 +244,7 @@ public interface IApplication extends IBOMasterData {
 	/**
 	 * 设置-创建用户
 	 * 
-	 * @param value
-	 *            值
+	 * @param value 值
 	 */
 	void setCreateUserSign(Integer value);
 
@@ -335,8 +258,7 @@ public interface IApplication extends IBOMasterData {
 	/**
 	 * 设置-修改用户
 	 * 
-	 * @param value
-	 *            值
+	 * @param value 值
 	 */
 	void setUpdateUserSign(Integer value);
 
@@ -350,8 +272,7 @@ public interface IApplication extends IBOMasterData {
 	/**
 	 * 设置-创建动作标识
 	 * 
-	 * @param value
-	 *            值
+	 * @param value 值
 	 */
 	void setCreateActionId(String value);
 
@@ -365,8 +286,7 @@ public interface IApplication extends IBOMasterData {
 	/**
 	 * 设置-更新动作标识
 	 * 
-	 * @param value
-	 *            值
+	 * @param value 值
 	 */
 	void setUpdateActionId(String value);
 

@@ -39,6 +39,16 @@ namespace thirdpartyapp {
              * @param saver 保存者
              */
             saveUser(saver: ibas.ISaveCaller<bo.IUser>): void;
+            /**
+             * 查询 应用配置
+             * @param fetcher 查询者
+             */
+            fetchApplicationConfig(fetcher: ibas.IFetchCaller<bo.IApplicationConfig>): void;
+            /**
+             * 保存 应用配置
+             * @param saver 保存者
+             */
+            saveApplicationConfig(saver: ibas.ISaveCaller<bo.IApplicationConfig>): void;
 
         }
     }

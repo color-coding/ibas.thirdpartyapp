@@ -30,6 +30,7 @@ namespace thirdpartyapp {
                 // 其他事件
                 this.view.editDataEvent = this.editData;
                 this.view.deleteDataEvent = this.deleteData;
+                this.view.applicationConfigEvent = this.applicationConfig;
             }
             /** 视图显示后 */
             protected viewShowed(): void {
@@ -147,6 +148,12 @@ namespace thirdpartyapp {
                     }
                 });
             }
+            private applicationConfig(): void {
+                let app: ApplicationConfigListApp = new ApplicationConfigListApp();
+                app.navigation = this.navigation;
+                app.viewShower = this.viewShower;
+                app.run();
+            }
         }
         /** 视图-应用 */
         export interface IApplicationListView extends ibas.IBOListView {
@@ -156,6 +163,8 @@ namespace thirdpartyapp {
             deleteDataEvent: Function;
             /** 显示数据 */
             showData(datas: bo.Application[]): void;
+            /** 应用配置 */
+            applicationConfigEvent: Function;
         }
     }
 }

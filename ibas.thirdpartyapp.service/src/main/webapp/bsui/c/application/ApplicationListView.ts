@@ -18,6 +18,8 @@ namespace thirdpartyapp {
                 editDataEvent: Function;
                 /** 删除数据事件，参数：删除对象集合 */
                 deleteDataEvent: Function;
+                /** 应用配置 */
+                applicationConfigEvent: Function;
                 /** 绘制视图 */
                 draw(): any {
                     let that: this = this;
@@ -33,7 +35,7 @@ namespace thirdpartyapp {
                                 template: new sap.extension.m.Text("", {
                                 }).bindProperty("bindingValue", {
                                     path: "code",
-                                    type: new sap.extension.data.Alphanumeric()
+                                    type: new sap.extension.data.Alphanumeric(),
                                 }),
                             }),
                             new sap.extension.table.DataColumn("", {
@@ -41,7 +43,7 @@ namespace thirdpartyapp {
                                 template: new sap.extension.m.Text("", {
                                 }).bindProperty("bindingValue", {
                                     path: "name",
-                                    type: new sap.extension.data.Alphanumeric()
+                                    type: new sap.extension.data.Alphanumeric(),
                                 }),
                             }),
                             new sap.extension.table.DataColumn("", {
@@ -49,16 +51,29 @@ namespace thirdpartyapp {
                                 template: new sap.extension.m.Text("", {
                                 }).bindProperty("bindingValue", {
                                     path: "activated",
-                                    type: new sap.extension.data.YesNo(true)
+                                    type: new sap.extension.data.YesNo(true),
                                 }),
                             }),
                             new sap.extension.table.DataColumn("", {
-                                label: ibas.i18n.prop("bo_application_account"),
+                                label: ibas.i18n.prop("bo_application_category"),
+                                template: new sap.extension.m.PropertyText("", {
+                                    dataInfo: {
+                                        code: bo.Application.PROPERTY_CATEGORY_NAME,
+                                    },
+                                    propertyName: "category",
+                                }).bindProperty("bindingValue", {
+                                    path: "category",
+                                    type: new sap.extension.data.Alphanumeric(),
+                                }),
+                            }),
+                            new sap.extension.table.DataColumn("", {
+                                label: ibas.i18n.prop("bo_application_remarks"),
                                 template: new sap.extension.m.Text("", {
                                 }).bindProperty("bindingValue", {
-                                    path: "account",
-                                    type: new sap.extension.data.Alphanumeric()
+                                    path: "remarks",
+                                    type: new sap.extension.data.Alphanumeric(),
                                 }),
+                                width: "20rem",
                             }),
                         ],
                         nextDataSet(event: sap.ui.base.Event): void {
@@ -105,6 +120,15 @@ namespace thirdpartyapp {
                                     icon: "sap-icon://delete",
                                     press: function (): void {
                                         that.fireViewEvents(that.deleteDataEvent, that.table.getSelecteds());
+                                    }
+                                }),
+                                new sap.m.ToolbarSeparator(""),
+                                new sap.m.Button("", {
+                                    text: ibas.i18n.prop("thirdpartyapp_func_applicationconfig"),
+                                    type: sap.m.ButtonType.Transparent,
+                                    icon: "sap-icon://settings",
+                                    press: function (): void {
+                                        that.fireViewEvents(that.applicationConfigEvent);
                                     }
                                 }),
                                 new sap.m.ToolbarSpacer(""),

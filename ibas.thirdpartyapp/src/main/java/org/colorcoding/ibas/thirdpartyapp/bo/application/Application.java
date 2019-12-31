@@ -77,8 +77,7 @@ public class Application extends BusinessObject<Application> implements IApplica
 	/**
 	 * 设置-编码
 	 * 
-	 * @param value
-	 *            值
+	 * @param value 值
 	 */
 	public final void setCode(String value) {
 		this.setProperty(PROPERTY_CODE, value);
@@ -109,8 +108,7 @@ public class Application extends BusinessObject<Application> implements IApplica
 	/**
 	 * 设置-名称
 	 * 
-	 * @param value
-	 *            值
+	 * @param value 值
 	 */
 	public final void setName(String value) {
 		this.setProperty(PROPERTY_NAME, value);
@@ -141,267 +139,134 @@ public class Application extends BusinessObject<Application> implements IApplica
 	/**
 	 * 设置-激活
 	 * 
-	 * @param value
-	 *            值
+	 * @param value 值
 	 */
 	public final void setActivated(emYesNo value) {
 		this.setProperty(PROPERTY_ACTIVATED, value);
 	}
 
 	/**
-	 * 属性名称-应用标记
+	 * 属性名称-类别
 	 */
-	private static final String PROPERTY_APPID_NAME = "AppId";
+	private static final String PROPERTY_CATEGORY_NAME = "Category";
 
 	/**
-	 * 应用标记 属性
+	 * 类别 属性
 	 */
-	@DbField(name = "AppId", type = DbFieldType.ALPHANUMERIC, table = DB_TABLE_NAME, primaryKey = false)
-	public static final IPropertyInfo<String> PROPERTY_APPID = registerProperty(PROPERTY_APPID_NAME, String.class,
+	@DbField(name = "Category", type = DbFieldType.ALPHANUMERIC, table = DB_TABLE_NAME, primaryKey = false)
+	public static final IPropertyInfo<String> PROPERTY_CATEGORY = registerProperty(PROPERTY_CATEGORY_NAME, String.class,
 			MY_CLASS);
 
 	/**
-	 * 获取-应用标记
+	 * 获取-类别
 	 * 
 	 * @return 值
 	 */
-	@XmlElement(name = PROPERTY_APPID_NAME)
-	public final String getAppId() {
-		return this.getProperty(PROPERTY_APPID);
+	@XmlElement(name = PROPERTY_CATEGORY_NAME)
+	public final String getCategory() {
+		return this.getProperty(PROPERTY_CATEGORY);
 	}
 
 	/**
-	 * 设置-应用标记
+	 * 设置-类别
 	 * 
-	 * @param value
-	 *            值
+	 * @param value 值
 	 */
-	public final void setAppId(String value) {
-		this.setProperty(PROPERTY_APPID, value);
+	public final void setCategory(String value) {
+		this.setProperty(PROPERTY_CATEGORY, value);
 	}
 
 	/**
-	 * 属性名称-应用公钥
+	 * 属性名称-配置
 	 */
-	private static final String PROPERTY_APPKEY_NAME = "AppKey";
+	private static final String PROPERTY_CONFIG_NAME = "Config";
 
 	/**
-	 * 应用公钥 属性
+	 * 配置 属性
 	 */
-	@DbField(name = "AppKey", type = DbFieldType.ALPHANUMERIC, table = DB_TABLE_NAME, primaryKey = false)
-	public static final IPropertyInfo<String> PROPERTY_APPKEY = registerProperty(PROPERTY_APPKEY_NAME, String.class,
+	@DbField(name = "Config", type = DbFieldType.ALPHANUMERIC, table = DB_TABLE_NAME, primaryKey = false)
+	public static final IPropertyInfo<String> PROPERTY_CONFIG = registerProperty(PROPERTY_CONFIG_NAME, String.class,
 			MY_CLASS);
 
 	/**
-	 * 获取-应用公钥
+	 * 获取-配置
 	 * 
 	 * @return 值
 	 */
-	@XmlElement(name = PROPERTY_APPKEY_NAME)
-	public final String getAppKey() {
-		return this.getProperty(PROPERTY_APPKEY);
+	@XmlElement(name = PROPERTY_CONFIG_NAME)
+	public final String getConfig() {
+		return this.getProperty(PROPERTY_CONFIG);
 	}
 
 	/**
-	 * 设置-应用公钥
+	 * 设置-配置
 	 * 
-	 * @param value
-	 *            值
+	 * @param value 值
 	 */
-	public final void setAppKey(String value) {
-		this.setProperty(PROPERTY_APPKEY, value);
+	public final void setConfig(String value) {
+		this.setProperty(PROPERTY_CONFIG, value);
 	}
 
 	/**
-	 * 属性名称-应用私钥
+	 * 属性名称-设置
 	 */
-	private static final String PROPERTY_APPSECRET_NAME = "AppSecret";
+	private static final String PROPERTY_SETTINGS_NAME = "Settings";
 
 	/**
-	 * 应用私钥 属性
+	 * 设置 属性
 	 */
-	@DbField(name = "AppSecret", type = DbFieldType.ALPHANUMERIC, table = DB_TABLE_NAME, primaryKey = false)
-	public static final IPropertyInfo<String> PROPERTY_APPSECRET = registerProperty(PROPERTY_APPSECRET_NAME,
-			String.class, MY_CLASS);
-
-	/**
-	 * 获取-应用私钥
-	 * 
-	 * @return 值
-	 */
-	@XmlElement(name = PROPERTY_APPSECRET_NAME)
-	public final String getAppSecret() {
-		return this.getProperty(PROPERTY_APPSECRET);
-	}
-
-	/**
-	 * 设置-应用私钥
-	 * 
-	 * @param value
-	 *            值
-	 */
-	public final void setAppSecret(String value) {
-		this.setProperty(PROPERTY_APPSECRET, value);
-	}
-
-	/**
-	 * 属性名称-应用地址
-	 */
-	private static final String PROPERTY_APPURL_NAME = "AppUrl";
-
-	/**
-	 * 应用地址 属性
-	 */
-	@DbField(name = "AppUrl", type = DbFieldType.ALPHANUMERIC, table = DB_TABLE_NAME, primaryKey = false)
-	public static final IPropertyInfo<String> PROPERTY_APPURL = registerProperty(PROPERTY_APPURL_NAME, String.class,
+	@DbField(name = "Settings", type = DbFieldType.MEMO, table = DB_TABLE_NAME, primaryKey = false)
+	public static final IPropertyInfo<String> PROPERTY_SETTINGS = registerProperty(PROPERTY_SETTINGS_NAME, String.class,
 			MY_CLASS);
 
 	/**
-	 * 获取-应用地址
+	 * 获取-设置
 	 * 
 	 * @return 值
 	 */
-	@XmlElement(name = PROPERTY_APPURL_NAME)
-	public final String getAppUrl() {
-		return this.getProperty(PROPERTY_APPURL);
+	@XmlElement(name = PROPERTY_SETTINGS_NAME)
+	public final String getSettings() {
+		return this.getProperty(PROPERTY_SETTINGS);
 	}
 
 	/**
-	 * 设置-应用地址
+	 * 设置-设置
 	 * 
-	 * @param value
-	 *            值
+	 * @param value 值
 	 */
-	public final void setAppUrl(String value) {
-		this.setProperty(PROPERTY_APPURL, value);
+	public final void setSettings(String value) {
+		this.setProperty(PROPERTY_SETTINGS, value);
 	}
 
 	/**
-	 * 属性名称-应用接口地址
+	 * 属性名称-备注
 	 */
-	private static final String PROPERTY_APIURL_NAME = "ApiUrl";
+	private static final String PROPERTY_REMARKS_NAME = "Remarks";
 
 	/**
-	 * 应用接口地址 属性
+	 * 备注 属性
 	 */
-	@DbField(name = "ApiUrl", type = DbFieldType.ALPHANUMERIC, table = DB_TABLE_NAME, primaryKey = false)
-	public static final IPropertyInfo<String> PROPERTY_APIURL = registerProperty(PROPERTY_APIURL_NAME, String.class,
+	@DbField(name = "Remarks", type = DbFieldType.MEMO, table = DB_TABLE_NAME, primaryKey = false)
+	public static final IPropertyInfo<String> PROPERTY_REMARKS = registerProperty(PROPERTY_REMARKS_NAME, String.class,
 			MY_CLASS);
 
 	/**
-	 * 获取-应用接口地址
+	 * 获取-备注
 	 * 
 	 * @return 值
 	 */
-	@XmlElement(name = PROPERTY_APIURL_NAME)
-	public final String getApiUrl() {
-		return this.getProperty(PROPERTY_APIURL);
+	@XmlElement(name = PROPERTY_REMARKS_NAME)
+	public final String getRemarks() {
+		return this.getProperty(PROPERTY_REMARKS);
 	}
 
 	/**
-	 * 设置-应用接口地址
+	 * 设置-备注
 	 * 
-	 * @param value
-	 *            值
+	 * @param value 值
 	 */
-	public final void setApiUrl(String value) {
-		this.setProperty(PROPERTY_APIURL, value);
-	}
-
-	/**
-	 * 属性名称-证书地址
-	 */
-	private static final String PROPERTY_CERTIFICATE_NAME = "Certificate";
-
-	/**
-	 * 证书地址 属性
-	 */
-	@DbField(name = "Certificate", type = DbFieldType.ALPHANUMERIC, table = DB_TABLE_NAME, primaryKey = false)
-	public static final IPropertyInfo<String> PROPERTY_CERTIFICATE = registerProperty(PROPERTY_CERTIFICATE_NAME,
-			String.class, MY_CLASS);
-
-	/**
-	 * 获取-证书地址
-	 * 
-	 * @return 值
-	 */
-	@XmlElement(name = PROPERTY_CERTIFICATE_NAME)
-	public final String getCertificate() {
-		return this.getProperty(PROPERTY_CERTIFICATE);
-	}
-
-	/**
-	 * 设置-证书地址
-	 * 
-	 * @param value
-	 *            值
-	 */
-	public final void setCertificate(String value) {
-		this.setProperty(PROPERTY_CERTIFICATE, value);
-	}
-
-	/**
-	 * 属性名称-账号
-	 */
-	private static final String PROPERTY_ACCOUNT_NAME = "Account";
-
-	/**
-	 * 账号 属性
-	 */
-	@DbField(name = "Account", type = DbFieldType.ALPHANUMERIC, table = DB_TABLE_NAME, primaryKey = false)
-	public static final IPropertyInfo<String> PROPERTY_ACCOUNT = registerProperty(PROPERTY_ACCOUNT_NAME, String.class,
-			MY_CLASS);
-
-	/**
-	 * 获取-账号
-	 * 
-	 * @return 值
-	 */
-	@XmlElement(name = PROPERTY_ACCOUNT_NAME)
-	public final String getAccount() {
-		return this.getProperty(PROPERTY_ACCOUNT);
-	}
-
-	/**
-	 * 设置-账号
-	 * 
-	 * @param value
-	 *            值
-	 */
-	public final void setAccount(String value) {
-		this.setProperty(PROPERTY_ACCOUNT, value);
-	}
-
-	/**
-	 * 属性名称-接收地址
-	 */
-	private static final String PROPERTY_RECEIVINGURL_NAME = "ReceivingUrl";
-
-	/**
-	 * 接收地址 属性
-	 */
-	@DbField(name = "ReceivingUrl", type = DbFieldType.ALPHANUMERIC, table = DB_TABLE_NAME, primaryKey = false)
-	public static final IPropertyInfo<String> PROPERTY_RECEIVINGURL = registerProperty(PROPERTY_RECEIVINGURL_NAME,
-			String.class, MY_CLASS);
-
-	/**
-	 * 获取-接收地址
-	 * 
-	 * @return 值
-	 */
-	@XmlElement(name = PROPERTY_RECEIVINGURL_NAME)
-	public final String getReceivingUrl() {
-		return this.getProperty(PROPERTY_RECEIVINGURL);
-	}
-
-	/**
-	 * 设置-接收地址
-	 * 
-	 * @param value
-	 *            值
-	 */
-	public final void setReceivingUrl(String value) {
-		this.setProperty(PROPERTY_RECEIVINGURL, value);
+	public final void setRemarks(String value) {
+		this.setProperty(PROPERTY_REMARKS, value);
 	}
 
 	/**
@@ -429,8 +294,7 @@ public class Application extends BusinessObject<Application> implements IApplica
 	/**
 	 * 设置-对象编号
 	 * 
-	 * @param value
-	 *            值
+	 * @param value 值
 	 */
 	public final void setDocEntry(Integer value) {
 		this.setProperty(PROPERTY_DOCENTRY, value);
@@ -461,8 +325,7 @@ public class Application extends BusinessObject<Application> implements IApplica
 	/**
 	 * 设置-对象类型
 	 * 
-	 * @param value
-	 *            值
+	 * @param value 值
 	 */
 	public final void setObjectCode(String value) {
 		this.setProperty(PROPERTY_OBJECTCODE, value);
@@ -493,8 +356,7 @@ public class Application extends BusinessObject<Application> implements IApplica
 	/**
 	 * 设置-创建日期
 	 * 
-	 * @param value
-	 *            值
+	 * @param value 值
 	 */
 	public final void setCreateDate(DateTime value) {
 		this.setProperty(PROPERTY_CREATEDATE, value);
@@ -525,8 +387,7 @@ public class Application extends BusinessObject<Application> implements IApplica
 	/**
 	 * 设置-创建时间
 	 * 
-	 * @param value
-	 *            值
+	 * @param value 值
 	 */
 	public final void setCreateTime(Short value) {
 		this.setProperty(PROPERTY_CREATETIME, value);
@@ -557,8 +418,7 @@ public class Application extends BusinessObject<Application> implements IApplica
 	/**
 	 * 设置-修改日期
 	 * 
-	 * @param value
-	 *            值
+	 * @param value 值
 	 */
 	public final void setUpdateDate(DateTime value) {
 		this.setProperty(PROPERTY_UPDATEDATE, value);
@@ -589,8 +449,7 @@ public class Application extends BusinessObject<Application> implements IApplica
 	/**
 	 * 设置-修改时间
 	 * 
-	 * @param value
-	 *            值
+	 * @param value 值
 	 */
 	public final void setUpdateTime(Short value) {
 		this.setProperty(PROPERTY_UPDATETIME, value);
@@ -621,8 +480,7 @@ public class Application extends BusinessObject<Application> implements IApplica
 	/**
 	 * 设置-数据源
 	 * 
-	 * @param value
-	 *            值
+	 * @param value 值
 	 */
 	public final void setDataSource(String value) {
 		this.setProperty(PROPERTY_DATASOURCE, value);
@@ -653,8 +511,7 @@ public class Application extends BusinessObject<Application> implements IApplica
 	/**
 	 * 设置-实例号（版本）
 	 * 
-	 * @param value
-	 *            值
+	 * @param value 值
 	 */
 	public final void setLogInst(Integer value) {
 		this.setProperty(PROPERTY_LOGINST, value);
@@ -685,8 +542,7 @@ public class Application extends BusinessObject<Application> implements IApplica
 	/**
 	 * 设置-服务系列
 	 * 
-	 * @param value
-	 *            值
+	 * @param value 值
 	 */
 	public final void setSeries(Integer value) {
 		this.setProperty(PROPERTY_SERIES, value);
@@ -717,8 +573,7 @@ public class Application extends BusinessObject<Application> implements IApplica
 	/**
 	 * 设置-创建用户
 	 * 
-	 * @param value
-	 *            值
+	 * @param value 值
 	 */
 	public final void setCreateUserSign(Integer value) {
 		this.setProperty(PROPERTY_CREATEUSERSIGN, value);
@@ -749,8 +604,7 @@ public class Application extends BusinessObject<Application> implements IApplica
 	/**
 	 * 设置-修改用户
 	 * 
-	 * @param value
-	 *            值
+	 * @param value 值
 	 */
 	public final void setUpdateUserSign(Integer value) {
 		this.setProperty(PROPERTY_UPDATEUSERSIGN, value);
@@ -781,8 +635,7 @@ public class Application extends BusinessObject<Application> implements IApplica
 	/**
 	 * 设置-创建动作标识
 	 * 
-	 * @param value
-	 *            值
+	 * @param value 值
 	 */
 	public final void setCreateActionId(String value) {
 		this.setProperty(PROPERTY_CREATEACTIONID, value);
@@ -813,16 +666,10 @@ public class Application extends BusinessObject<Application> implements IApplica
 	/**
 	 * 设置-更新动作标识
 	 * 
-	 * @param value
-	 *            值
+	 * @param value 值
 	 */
 	public final void setUpdateActionId(String value) {
 		this.setProperty(PROPERTY_UPDATEACTIONID, value);
-	}
-
-	@Override
-	public void setSeriesValue(Object value) {
-		this.setCode(String.valueOf(value));
 	}
 
 	/**
@@ -833,7 +680,11 @@ public class Application extends BusinessObject<Application> implements IApplica
 		super.initialize();// 基类初始化，不可去除
 		this.setObjectCode(MyConfiguration.applyVariables(BUSINESS_OBJECT_CODE));
 		this.setActivated(emYesNo.YES);
+	}
 
+	@Override
+	public void setSeriesValue(Object value) {
+		this.setCode(String.valueOf(value));
 	}
 
 }

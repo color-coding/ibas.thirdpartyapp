@@ -20,6 +20,24 @@ namespace thirdpartyapp {
         export const BO_CODE_APPLICATION: string = "${Company}_TPA_APP";
         /** 业务对象编码-用户 */
         export const BO_CODE_USER: string = "${Company}_TPA_USER";
+        /** 业务对象编码-应用配置 */
+        export const BO_CODE_APPLICATIONCONFIG: string = "${Company}_TPA_APPCFG";
+
+
+        export enum emConfigItemCategory {
+            /**
+             * 文本
+             */
+            TEXT,
+            /**
+             * 密码
+             */
+            PASSWORD,
+            /**
+             * 文件
+             */
+            FILE,
+        }
     }
 
     export namespace app {

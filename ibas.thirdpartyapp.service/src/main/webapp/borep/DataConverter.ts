@@ -59,6 +59,11 @@ namespace thirdpartyapp {
              * @returns 转换的值
              */
             protected convertData(boName: string, property: string, value: any): any {
+                if (boName === bo.ApplicationConfigItem.name) {
+                    if (property === bo.ApplicationConfigItem.PROPERTY_CATEGORY_NAME) {
+                        return ibas.enums.toString(bo.emConfigItemCategory, value);
+                    }
+                }
                 return super.convertData(boName, property, value);
             }
 
@@ -70,6 +75,11 @@ namespace thirdpartyapp {
              * @returns 解析的值
              */
             protected parsingData(boName: string, property: string, value: any): any {
+                if (boName === bo.ApplicationConfigItem.name) {
+                    if (property === bo.ApplicationConfigItem.PROPERTY_CATEGORY_NAME) {
+                        return ibas.enums.valueOf(bo.emConfigItemCategory, value);
+                    }
+                }
                 return super.parsingData(boName, property, value);
             }
         }
@@ -91,6 +101,28 @@ namespace thirdpartyapp {
                 Url: string;
                 /** 用户 */
                 User: string;
+            }
+            /** 应用设置 */
+            export interface IApplicationSetting {
+                /** 名称 */
+                Name: string;
+                /** 组 */
+                Group: string;
+                /** 描述 */
+                Description: string;
+                /** 设置项目 */
+                SettingItems: ibas.IList<IApplicationSettingItem>;
+            }
+            /** 应用设置项目 */
+            export interface IApplicationSettingItem {
+                /** 名称 */
+                Name: string;
+                /** 类型 */
+                Category: string;
+                /** 描述 */
+                Description: string;
+                /** 值 */
+                Value: string;
             }
         }
     }

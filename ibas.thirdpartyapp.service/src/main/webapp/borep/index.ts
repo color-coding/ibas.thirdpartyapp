@@ -7,8 +7,9 @@
  */
 /// <reference path="../api/index.ts" />
 /// <reference path="./bo/Application.ts" />
+/// <reference path="./bo/ApplicationConfig.ts" />
 /// <reference path="./bo/User.ts" />
-/// <reference path="./bo/UserApplication.ts" />
+/// <reference path="./bo/Others.ts" />
 /// <reference path="./DataConverter.ts" />
 /// <reference path="./BORepository.ts" />
 
@@ -19,5 +20,6 @@ namespace thirdpartyapp {
         // 注册业务对象到工厂
         boFactory.register(Application.BUSINESS_OBJECT_CODE, Application);
         boFactory.register(User.BUSINESS_OBJECT_CODE, User);
+        boFactory.register(ApplicationConfig.BUSINESS_OBJECT_CODE, ApplicationConfig);
     }
 }

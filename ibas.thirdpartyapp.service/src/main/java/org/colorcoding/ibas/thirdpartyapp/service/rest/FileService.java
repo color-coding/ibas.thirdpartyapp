@@ -1,6 +1,8 @@
 package org.colorcoding.ibas.thirdpartyapp.service.rest;
 
+import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
+import java.util.Base64;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.Consumes;
@@ -19,9 +21,22 @@ import org.colorcoding.ibas.bobas.common.ICondition;
 import org.colorcoding.ibas.bobas.common.IOperationResult;
 import org.colorcoding.ibas.bobas.common.OperationResult;
 import org.colorcoding.ibas.bobas.data.FileData;
+import org.colorcoding.ibas.bobas.i18n.I18N;
 import org.colorcoding.ibas.bobas.repository.FileRepository;
 import org.colorcoding.ibas.bobas.repository.jersey.FileRepositoryService;
+import org.colorcoding.ibas.bobas.serialization.ISerializer;
+import org.colorcoding.ibas.bobas.serialization.SerializerFactory;
 import org.colorcoding.ibas.thirdpartyapp.MyConfiguration;
+import org.colorcoding.ibas.thirdpartyapp.bo.application.Application;
+import org.colorcoding.ibas.thirdpartyapp.bo.application.IApplication;
+import org.colorcoding.ibas.thirdpartyapp.bo.applicationconfig.ApplicationConfig;
+import org.colorcoding.ibas.thirdpartyapp.bo.applicationconfig.IApplicationConfig;
+import org.colorcoding.ibas.thirdpartyapp.bo.applicationconfig.IApplicationConfigItem;
+import org.colorcoding.ibas.thirdpartyapp.bo.other.ApplicationSetting;
+import org.colorcoding.ibas.thirdpartyapp.bo.other.ApplicationSettingItem;
+import org.colorcoding.ibas.thirdpartyapp.data.emConfigItemCategory;
+import org.colorcoding.ibas.thirdpartyapp.repository.BORepositoryThirdPartyApp;
+import org.glassfish.jersey.media.multipart.FormDataBodyPart;
 import org.glassfish.jersey.media.multipart.FormDataMultiPart;
 
 @Path("file")
@@ -105,6 +120,88 @@ public class FileService extends FileRepositoryService {
 			throw e;
 		} catch (Exception e) {
 			throw new WebApplicationException(e);
+		}
+	}
+
+	@POST
+	@Path("saveApplicationSetting")
+	@Consumes(MediaType.MULTIPART_FORM_DATA)
+	@Produces(MediaType.APPLICATION_JSON)
+	public OperationResult<Application> saveApplicationSetting(FormDataMultiPart formData,
+			@QueryParam("application") String appCode, @QueryParam("token") String token) {
+		try {
+			OperationResult<Application> operationResult = new OperationResult<>();
+			Criteria criteria = new Criteria();
+			criteria.setResultCount(1);
+			ICondition condition = criteria.getConditions().create();
+			condition.setAlias(Application.PROPERTY_CODE.getName());
+			condition.setValue(appCode);
+			BORepositoryThirdPartyApp boRepository = new BORepositoryThirdPartyApp();
+			boRepository.setUserToken(token);
+			IOperationResult<IApplication> opRsltApp = boRepository.fetchApplication(criteria);
+			if (opRsltApp.getError() != null) {
+				throw opRsltApp.getError();
+			}
+			IApplication application = opRsltApp.getResultObjects().firstOrDefault();
+			if (application == null) {
+				throw new Exception(I18N.prop("msg_tpa_invaild_application", appCode));
+			}
+			criteria = new Criteria();
+			condition = criteria.getConditions().create();
+			condition.setAlias(ApplicationConfig.PROPERTY_CODE.getName());
+			condition.setValue(application.getConfig());
+			IOperationResult<IApplicationConfig> opRsltConf = boRepository.fetchApplicationConfig(criteria);
+			IApplicationConfig applicationConfig = opRsltConf.getResultObjects().firstOrDefault();
+			if (applicationConfig == null) {
+				throw new Exception(I18N.prop("msg_tpa_invaild_application_config", application.getConfig()));
+			}
+			OperationResult<FileData> opRsltFile;
+			ApplicationSetting appSetting = new ApplicationSetting();
+			appSetting.setName(application.getCode());
+			appSetting.setGroup(application.getConfig());
+			appSetting.setDescription(application.getName());
+			appSetting.setSecretKey(MyConfiguration.getConfigValue(
+					org.colorcoding.ibas.initialfantasy.MyConfiguration.CONFIG_ITEM_USER_TOKEN_KEY,
+					applicationConfig.getCreateActionId()));
+			for (IApplicationConfigItem configItem : applicationConfig.getApplicationConfigItems()) {
+				ApplicationSettingItem appSettingItem = appSetting.getSettingItems().create();
+				appSettingItem.setName(configItem.getName());
+				appSettingItem.setDescription(configItem.getDescription());
+				appSettingItem.setCategory(configItem.getCategory());
+				FormDataBodyPart bodyPart = formData.getField(appSettingItem.getName());
+				if (bodyPart != null) {
+					if (appSettingItem.getCategory() == emConfigItemCategory.FILE
+							&& bodyPart.getMediaType() != MediaType.TEXT_PLAIN_TYPE) {
+						opRsltFile = super.save(bodyPart, token);
+						if (opRsltFile.getError() != null) {
+							throw opRsltFile.getError();
+						}
+						FileData fileData = opRsltFile.getResultObjects().firstOrDefault();
+						if (fileData == null) {
+							throw new Exception(
+									I18N.prop("msg_tpa_invaild_application_setting_item", appSettingItem.getName()));
+						}
+						appSettingItem.setValue(fileData.getFileName());
+					} else {
+						appSettingItem.setValue(bodyPart.getValue());
+					}
+				}
+			}
+			try (ByteArrayOutputStream writer = new ByteArrayOutputStream()) {
+				ISerializer<?> serializer = SerializerFactory.create().createManager().create("json");
+				serializer.serialize(appSetting.getSettingItems(), writer, ApplicationSettingItem.class);
+				application.setSettings(Base64.getEncoder().encodeToString(writer.toByteArray()));
+			} catch (Exception e) {
+				throw e;
+			}
+			opRsltApp = boRepository.saveApplication(application);
+			if (opRsltApp.getError() != null) {
+				throw opRsltApp.getError();
+			}
+			operationResult.addResultObjects(opRsltApp.getResultObjects().firstOrDefault());
+			return operationResult;
+		} catch (Exception e) {
+			return new OperationResult<>(e);
 		}
 	}
 }

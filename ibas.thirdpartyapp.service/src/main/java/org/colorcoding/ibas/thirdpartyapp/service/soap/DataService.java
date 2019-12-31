@@ -8,8 +8,8 @@ import org.colorcoding.ibas.bobas.common.Criteria;
 import org.colorcoding.ibas.bobas.common.OperationResult;
 import org.colorcoding.ibas.bobas.cxf.WebServicePath;
 import org.colorcoding.ibas.thirdpartyapp.bo.application.Application;
+import org.colorcoding.ibas.thirdpartyapp.bo.other.UserApplication;
 import org.colorcoding.ibas.thirdpartyapp.bo.user.User;
-import org.colorcoding.ibas.thirdpartyapp.data.UserApplication;
 import org.colorcoding.ibas.thirdpartyapp.repository.BORepositoryThirdPartyApp;
 
 /**

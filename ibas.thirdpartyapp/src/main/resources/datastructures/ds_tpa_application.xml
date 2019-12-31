@@ -2,17 +2,13 @@
 <!DOCTYPE Domain>
 <Domain Name="ThirdPartyApp" ShortName="TPA">
   <Model Name="Application" Description="应用" ModelType="MasterData" Mapped="${Company}_TPA_OAPP">
-    <Property Name="Code" Description="编码" DataType="Alphanumeric" DataSubType="Default" EditSize="8" Mapped="Code" UniqueKey="Yes"/>
+    <Property Name="Code" Description="编码" DataType="Alphanumeric" DataSubType="Default" EditSize="20" Mapped="Code" UniqueKey="Yes"/>
     <Property Name="Name" Description="名称" DataType="Alphanumeric" DataSubType="Default" EditSize="100" Mapped="Name"/>
     <Property Name="Activated" Description="激活" DataType="Alphanumeric" DataSubType="Default" EditSize="1" DeclaredType="emYesNo" Mapped="Activated"/>
-    <Property Name="AppId" Description="应用标记" DataType="Alphanumeric" DataSubType="Default" EditSize="60" Mapped="AppId"/>
-    <Property Name="AppKey" Description="应用公钥" DataType="Alphanumeric" DataSubType="Default" EditSize="200" Mapped="AppKey"/>
-    <Property Name="AppSecret" Description="应用私钥" DataType="Alphanumeric" DataSubType="Default" EditSize="200" Mapped="AppSecret"/>
-    <Property Name="AppUrl" Description="应用地址" DataType="Alphanumeric" DataSubType="Default" EditSize="140" Mapped="AppUrl"/>
-    <Property Name="ApiUrl" Description="应用接口地址" DataType="Alphanumeric" DataSubType="Default" EditSize="140" Mapped="ApiUrl"/>
-    <Property Name="Certificate" Description="证书地址" DataType="Alphanumeric" DataSubType="Default" EditSize="120" Mapped="Certificate"/>
-    <Property Name="Account" Description="账号" DataType="Alphanumeric" DataSubType="Default" EditSize="60" Mapped="Account"/>
-    <Property Name="ReceivingUrl" Description="接收地址" DataType="Alphanumeric" DataSubType="Default" EditSize="140" Mapped="ReceivingUrl"/>
+    <Property Name="Category" Description="类别" DataType="Alphanumeric" DataSubType="Default" EditSize="30" Mapped="Category"/>
+    <Property Name="Config" Description="配置" DataType="Alphanumeric" DataSubType="Default" EditSize="15" Mapped="Config"/>
+    <Property Name="Settings" Description="设置" DataType="Memo" DataSubType="Default" EditSize="8" Mapped="Settings"/>
+    <Property Name="Remarks" Description="备注" DataType="Memo" DataSubType="Default" EditSize="8" Mapped="Remarks"/>
     <Property Name="DocEntry" Description="对象编号" DataType="Numeric" DataSubType="Default" EditSize="8" Mapped="DocEntry" PrimaryKey="Yes"/>
     <Property Name="ObjectCode" Description="对象类型" DataType="Alphanumeric" DataSubType="Default" EditSize="30" Mapped="ObjectCode"/>
     <Property Name="CreateDate" Description="创建日期" DataType="Date" DataSubType="Default" EditSize="8" Mapped="CreateDate"/>

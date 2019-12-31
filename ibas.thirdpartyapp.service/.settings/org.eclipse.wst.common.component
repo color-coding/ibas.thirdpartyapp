@@ -6,7 +6,7 @@
         <dependent-module archiveName="ibas.thirdpartyapp-0.1.0.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/ibas.thirdpartyapp/ibas.thirdpartyapp">
             <dependency-type>uses</dependency-type>
         </dependent-module>
-        <dependent-module archiveName="ibas.thirdpartyapp.wechat-0.1.0.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/ibas.thirdpartyapp.wechat/ibas.thirdpartyapp.wechat">
+        <dependent-module archiveName="ibas.thirdpartyapp.webapi-0.1.0.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/ibas.thirdpartyapp.webapi/ibas.thirdpartyapp.webapi">
             <dependency-type>uses</dependency-type>
         </dependent-module>
         <dependent-module archiveName="ibas.initialfantasy-0.1.0.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/ibas.initialfantasy/ibas.initialfantasy">
