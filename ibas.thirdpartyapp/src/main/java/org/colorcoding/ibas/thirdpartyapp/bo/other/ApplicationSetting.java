@@ -9,6 +9,7 @@ import javax.xml.bind.annotation.XmlType;
 
 import org.colorcoding.ibas.bobas.serialization.Serializable;
 import org.colorcoding.ibas.thirdpartyapp.MyConfiguration;
+import org.colorcoding.ibas.thirdpartyapp.data.DataConvert;
 
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlType(name = "ApplicationSetting", namespace = MyConfiguration.NAMESPACE_BO)
@@ -69,6 +70,34 @@ public class ApplicationSetting extends Serializable {
 			this.settingItems = new ApplicationSettingItems(this);
 		}
 		return settingItems;
+	}
+
+	@SuppressWarnings("unchecked")
+	public final <T> T paramValue(String name, T defaultValue) {
+		String value = this.paramValue(name);
+		if (value == null) {
+			return defaultValue;
+		}
+		if (defaultValue == null) {
+			return (T) value;
+		} else {
+			return (T) DataConvert.convert(defaultValue.getClass(), value);
+		}
+	}
+
+	public final String paramValue(String name) {
+		String value = null;
+		for (ApplicationSettingItem item : this.getSettingItems()) {
+			if (item.getName() == null) {
+				continue;
+			}
+			if (!item.getName().equalsIgnoreCase(name)) {
+				continue;
+			}
+			value = item.getValue();
+			break;
+		}
+		return value;
 	}
 
 	@Override

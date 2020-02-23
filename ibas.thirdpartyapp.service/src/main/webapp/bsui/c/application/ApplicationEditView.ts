@@ -65,7 +65,7 @@ namespace thirdpartyapp {
                             new sap.m.Label("", { text: ibas.i18n.prop("bo_application_category") }),
                             new sap.extension.m.PropertySelect("", {
                                 dataInfo: {
-                                    code: bo.Application.PROPERTY_CATEGORY_NAME,
+                                    code: bo.Application.BUSINESS_OBJECT_CODE,
                                 },
                                 propertyName: "category",
                             }).bindProperty("bindingValue", {

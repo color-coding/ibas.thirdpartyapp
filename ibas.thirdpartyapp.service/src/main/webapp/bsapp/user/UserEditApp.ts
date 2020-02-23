@@ -178,7 +178,7 @@ namespace thirdpartyapp {
                 ibas.servicesManager.runChooseService<initialfantasy.bo.IUser>({
                     boCode: initialfantasy.bo.BO_CODE_USER,
                     criteria: [
-                        new ibas.Condition("Activated", ibas.emConditionOperation.EQUAL, ibas.emYesNo.YES)
+                        new ibas.Condition(bo.User.PROPERTY_ACTIVATED_NAME, ibas.emConditionOperation.EQUAL, ibas.emYesNo.YES)
                     ],
                     onCompleted(selecteds: ibas.IList<initialfantasy.bo.IUser>): void {
                         let selected: initialfantasy.bo.IUser = selecteds.firstOrDefault();
@@ -192,7 +192,8 @@ namespace thirdpartyapp {
                 ibas.servicesManager.runChooseService<bo.Application>({
                     boCode: bo.Application.BUSINESS_OBJECT_CODE,
                     criteria: [
-                        new ibas.Condition("Activated", ibas.emConditionOperation.EQUAL, ibas.emYesNo.YES)
+                        new ibas.Condition(bo.Application.PROPERTY_ACTIVATED_NAME, ibas.emConditionOperation.EQUAL, ibas.emYesNo.YES),
+                        new ibas.Condition(bo.Application.PROPERTY_CATEGORY_NAME, ibas.emConditionOperation.EQUAL, "WebApp")
                     ],
                     onCompleted(selecteds: ibas.IList<bo.Application>): void {
                         let selected: bo.Application = selecteds.firstOrDefault();

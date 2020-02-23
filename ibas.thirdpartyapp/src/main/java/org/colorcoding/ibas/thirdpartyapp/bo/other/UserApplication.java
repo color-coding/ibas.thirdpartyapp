@@ -15,6 +15,11 @@ public class UserApplication extends Serializable {
 
 	private static final long serialVersionUID = -3351635492148194096L;
 
+	/**
+	 * 参数名称-应用地址
+	 */
+	public static final String PARAM_NAME_APP_URL = "AppUrl";
+
 	private String code;
 
 	@XmlElement(name = "Code")

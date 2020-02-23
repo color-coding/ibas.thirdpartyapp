@@ -6,11 +6,16 @@ import org.colorcoding.ibas.bobas.common.ICriteria;
 import org.colorcoding.ibas.bobas.common.IOperationResult;
 import org.colorcoding.ibas.bobas.common.OperationResult;
 import org.colorcoding.ibas.bobas.data.emYesNo;
+import org.colorcoding.ibas.bobas.i18n.I18N;
 import org.colorcoding.ibas.bobas.repository.BORepositoryServiceApplication;
+import org.colorcoding.ibas.thirdpartyapp.MyConfiguration;
 import org.colorcoding.ibas.thirdpartyapp.bo.application.Application;
 import org.colorcoding.ibas.thirdpartyapp.bo.application.IApplication;
 import org.colorcoding.ibas.thirdpartyapp.bo.applicationconfig.ApplicationConfig;
 import org.colorcoding.ibas.thirdpartyapp.bo.applicationconfig.IApplicationConfig;
+import org.colorcoding.ibas.thirdpartyapp.bo.applicationconfig.IApplicationConfigItem;
+import org.colorcoding.ibas.thirdpartyapp.bo.other.ApplicationSetting;
+import org.colorcoding.ibas.thirdpartyapp.bo.other.ApplicationSettingItem;
 import org.colorcoding.ibas.thirdpartyapp.bo.other.UserApplication;
 import org.colorcoding.ibas.thirdpartyapp.bo.user.IUser;
 import org.colorcoding.ibas.thirdpartyapp.bo.user.User;
@@ -22,6 +27,34 @@ public class BORepositoryThirdPartyApp extends BORepositoryServiceApplication
 		implements IBORepositoryThirdPartyAppSvc, IBORepositoryThirdPartyAppApp {
 
 	// --------------------------------------------------------------------------------------------//
+	public ApplicationSetting createApplicationSetting(IApplication application) throws Exception {
+		ICriteria criteria = new Criteria();
+		ICondition condition = criteria.getConditions().create();
+		condition.setAlias(ApplicationConfig.PROPERTY_CODE.getName());
+		condition.setValue(application.getConfig());
+		IOperationResult<IApplicationConfig> opRsltConfig = this.fetchApplicationConfig(criteria);
+		IApplicationConfig applicationConfig = opRsltConfig.getResultObjects().firstOrDefault();
+		if (applicationConfig == null) {
+			throw new Exception(I18N.prop("msg_tpa_invaild_application_config", application.getConfig()));
+		}
+		ApplicationSetting appSetting = new ApplicationSetting();
+		appSetting.setName(application.getCode());
+		appSetting.setGroup(application.getConfig());
+		appSetting.setDescription(application.getName());
+		appSetting.setSecretKey(MyConfiguration.getConfigValue(
+				org.colorcoding.ibas.initialfantasy.MyConfiguration.CONFIG_ITEM_USER_TOKEN_KEY,
+				applicationConfig.getCreateActionId()));
+		for (IApplicationConfigItem configItem : applicationConfig.getApplicationConfigItems()) {
+			ApplicationSettingItem appSettingItem = appSetting.getSettingItems().create();
+			appSettingItem.setName(configItem.getName());
+			appSettingItem.setDescription(configItem.getDescription());
+			appSettingItem.setCategory(configItem.getCategory());
+		}
+		if (application.getSettings() != null && !application.getSettings().isEmpty()) {
+			appSetting.getSettingItems().decode(application.getSettings());
+		}
+		return appSetting;
+	}
 
 	public IOperationResult<UserApplication> fetchUserApplications(String user) {
 		return this.fetchUserApplications(user, this.getUserToken());
@@ -57,16 +90,21 @@ public class BORepositoryThirdPartyApp extends BORepositoryServiceApplication
 				IOperationResult<IApplication> opRsltApp = this.fetchApplication(criteria);
 				IApplication application = opRsltApp.getResultObjects().firstOrDefault();
 				if (application == null) {
-					return opRslt;
+					continue;
 				}
-				/*
-				 * if (application.getAppUrl() == null || application.getAppUrl().isEmpty()) {
-				 * return opRslt; } UserApplication userApplication = new UserApplication();
-				 * userApplication.setCode(application.getCode());
-				 * userApplication.setName(application.getName());
-				 * userApplication.setUrl(application.getAppUrl());
-				 * opRslt.addResultObjects(userApplication);
-				 */
+				ApplicationSetting appSetting = this.createApplicationSetting(application);
+				if (appSetting == null) {
+					continue;
+				}
+				String appUrl = appSetting.paramValue(UserApplication.PARAM_NAME_APP_URL);
+				if (appUrl == null || appUrl.isEmpty()) {
+					continue;
+				}
+				UserApplication userApplication = new UserApplication();
+				userApplication.setCode(application.getCode());
+				userApplication.setName(application.getName());
+				userApplication.setUrl(appUrl);
+				opRslt.addResultObjects(userApplication);
 			}
 		} catch (Exception e) {
 			opRslt.setError(e);
