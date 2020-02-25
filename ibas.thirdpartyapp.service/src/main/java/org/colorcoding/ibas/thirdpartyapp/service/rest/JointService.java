@@ -18,13 +18,14 @@ import javax.ws.rs.core.MediaType;
 import org.colorcoding.ibas.bobas.common.OperationResult;
 import org.colorcoding.ibas.initialfantasy.bo.shell.User;
 import org.colorcoding.ibas.thirdpartyapp.MyConfiguration;
-import org.colorcoding.ibas.thirdpartyapp.repository.BORepositoryJointApplication;
+import org.colorcoding.ibas.thirdpartyapp.client.ApplicationClient;
+import org.colorcoding.ibas.thirdpartyapp.client.ApplicationClientManager;
 
 /**
  * 联合应用
  */
 @Path("joint")
-public class JointService extends BORepositoryJointApplication {
+public class JointService {
 
 	/**
 	 * 配置项目-登录地址
@@ -45,24 +46,31 @@ public class JointService extends BORepositoryJointApplication {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Path("connect")
 	public OperationResult<User> connect(@Context HttpServletRequest request) {
-		String app = "";
-		Map<String, Object> params = new HashMap<>();
-		for (Entry<String, String[]> item : request.getParameterMap().entrySet()) {
-			String key = item.getKey();
-			StringBuilder stringBuilder = new StringBuilder();
-			for (String value : item.getValue()) {
-				if (stringBuilder.length() > 0) {
-					stringBuilder.append(",");
+		OperationResult<User> operationResult = new OperationResult<User>();
+		try {
+			String app = "";
+			Map<String, Object> params = new HashMap<>();
+			for (Entry<String, String[]> item : request.getParameterMap().entrySet()) {
+				String key = item.getKey();
+				StringBuilder stringBuilder = new StringBuilder();
+				for (String value : item.getValue()) {
+					if (stringBuilder.length() > 0) {
+						stringBuilder.append(",");
+					}
+					stringBuilder.append(value);
 				}
-				stringBuilder.append(value);
+				if (key.equalsIgnoreCase("app")) {
+					app = stringBuilder.toString();
+					continue;
+				}
+				params.put(key, stringBuilder.toString());
 			}
-			if (key.equalsIgnoreCase("app")) {
-				app = stringBuilder.toString();
-				continue;
-			}
-			params.put(key, stringBuilder.toString());
+			ApplicationClient appClient = ApplicationClientManager.newInstance().create(app);
+			operationResult.addResultObjects(appClient.authenticate(params));
+		} catch (Exception e) {
+			operationResult.setError(e);
 		}
-		return super.jointConnect(app, params);
+		return operationResult;
 	}
 
 	@GET

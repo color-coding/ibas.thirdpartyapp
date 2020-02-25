@@ -13,6 +13,7 @@ import org.colorcoding.ibas.bobas.data.ArrayList;
 import org.colorcoding.ibas.bobas.serialization.ISerializer;
 import org.colorcoding.ibas.bobas.serialization.SerializerFactory;
 import org.colorcoding.ibas.thirdpartyapp.MyConfiguration;
+import org.colorcoding.ibas.thirdpartyapp.data.emConfigItemCategory;
 
 @XmlType(name = "ApplicationSettingItems", namespace = MyConfiguration.NAMESPACE_BO)
 @XmlSeeAlso({ ApplicationSettingItem.class })
@@ -80,7 +81,14 @@ public class ApplicationSettingItems extends ArrayList<ApplicationSettingItem> {
 					ApplicationSettingItem cItem = this
 							.firstOrDefault(c -> c.getName() != null && c.getName().equals(item.getName()));
 					if (cItem != null) {
-						cItem.setValue(item.getValue());
+						if (cItem.getCategory() == emConfigItemCategory.PASSWORD) {
+							// 取消加密再赋值，避免二次加密
+							cItem.setCategory(emConfigItemCategory.TEXT);
+							cItem.setValue(item.getValue());
+							cItem.setCategory(emConfigItemCategory.PASSWORD);
+						} else {
+							cItem.setValue(item.getValue());
+						}
 					} else {
 						this.add(item);
 					}

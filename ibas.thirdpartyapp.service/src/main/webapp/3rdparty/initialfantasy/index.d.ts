@@ -39,6 +39,8 @@ declare namespace initialfantasy {
         const BO_CODE_USER: string;
         /** 业务对象编码-业务对象信息 */
         const BO_CODE_BOINFORMATION: string;
+        /** 业务对象编码-业务对象属性 */
+        const BO_CODE_BOPROPERTY: string;
         /** 业务对象编码-系统变量 */
         const BO_CODE_SYSTEM_VARIABLE: string;
         /** 业务对象编码-系统配置 */
@@ -92,8 +94,14 @@ declare namespace initialfantasy {
         enum emFilteringCategory {
             /** 读取 */
             READ = 0,
-            /** 写入 */
-            SAVE = 1
+            /** 保存 */
+            SAVE = 1,
+            /** 新建 */
+            CREATE = 2,
+            /** 更新 */
+            UPDATE = 3,
+            /** 删除 */
+            DELETE = 4
         }
         /** 分配-角色 */
         interface IRole {
@@ -139,6 +147,24 @@ declare namespace initialfantasy {
             AND = 1,
             /** 或者 */
             OR = 2
+        }
+        enum emSearchedValue {
+            /** 默认值 */
+            DEFAULT = 0,
+            /** 否 */
+            NO = 1,
+            /** 是 */
+            YES = 2
+        }
+        enum emAuthorisedValue {
+            /** 默认值 */
+            DEFAULT = 0,
+            /** 完全 */
+            ALL = 1,
+            /** 只读 */
+            READ = 2,
+            /** 没有 */
+            NONE = 3
         }
     }
     namespace app {
@@ -912,9 +938,9 @@ declare namespace initialfantasy {
             /** 位置 */
             position: number;
             /** 检索的 */
-            searched: ibas.emYesNo;
+            searched: emSearchedValue;
             /** 权限 */
-            authorised: ibas.emAuthoriseType;
+            authorised: emAuthorisedValue;
             /** 对象编号 */
             objectKey: number;
             /** 对象类型 */
@@ -3143,15 +3169,15 @@ declare namespace initialfantasy {
             /** 映射的属性名称-检索的 */
             static PROPERTY_SEARCHED_NAME: string;
             /** 获取-检索的 */
-            get searched(): ibas.emYesNo;
+            get searched(): emSearchedValue;
             /** 设置-检索的 */
-            set searched(value: ibas.emYesNo);
+            set searched(value: emSearchedValue);
             /** 映射的属性名称-权限 */
             static PROPERTY_AUTHORISED_NAME: string;
             /** 获取-权限 */
-            get authorised(): ibas.emAuthoriseType;
+            get authorised(): emAuthorisedValue;
             /** 设置-权限 */
-            set authorised(value: ibas.emAuthoriseType);
+            set authorised(value: emAuthorisedValue);
             /** 映射的属性名称-对象编号 */
             static PROPERTY_OBJECTKEY_NAME: string;
             /** 获取-对象编号 */
@@ -4601,6 +4627,48 @@ declare namespace initialfantasy {
             boNumberingEvent: Function;
             /** 显示数据 */
             showData(datas: bo.BOInformation[]): void;
+        }
+    }
+}
+/**
+ * @license
+ * Copyright Color-Coding Studio. All Rights Reserved.
+ *
+ * Use of this source code is governed by an Apache License, Version 2.0
+ * that can be found in the LICENSE file at http://www.apache.org/licenses/LICENSE-2.0
+ */
+declare namespace initialfantasy {
+    namespace app {
+        /** 应用-业务对象信息 */
+        class BOPropertyChooseApp extends ibas.BOChooseService<IBOPropertyChooseView, bo.IBOPropertyInformation> {
+            /** 应用标识 */
+            static APPLICATION_ID: string;
+            /** 应用名称 */
+            static APPLICATION_NAME: string;
+            /** 业务对象编码 */
+            static BUSINESS_OBJECT_CODE: string;
+            /** 构造函数 */
+            constructor();
+            /** 注册视图 */
+            protected registerView(): void;
+            /** 视图显示后 */
+            protected viewShowed(): void;
+            /** 查询数据 */
+            protected fetchData(criteria: ibas.ICriteria): void;
+            /** 新建数据 */
+            protected newData(): void;
+        }
+        /** 视图-业务对象信息 */
+        interface IBOPropertyChooseView extends ibas.IBOChooseView {
+            /** 显示数据 */
+            showData(datas: bo.IBOPropertyInformation[]): void;
+        }
+        /** 业务对象信息选择服务映射 */
+        class BOPropertyChooseServiceMapping extends ibas.BOChooseServiceMapping {
+            /** 构造函数 */
+            constructor();
+            /** 创建服务实例 */
+            create(): ibas.IService<ibas.IBOChooseServiceCaller<bo.IBOPropertyInformation>>;
         }
     }
 }
@@ -6065,10 +6133,10 @@ declare namespace initialfantasy {
             get editType(): string;
             get editSize(): number;
             get systemed(): ibas.emYesNo;
-            get searched(): ibas.emYesNo;
-            set searched(value: ibas.emYesNo);
-            get authorised(): ibas.emAuthoriseType;
-            set authorised(value: ibas.emAuthoriseType);
+            get searched(): bo.emSearchedValue;
+            set searched(value: bo.emSearchedValue);
+            get authorised(): bo.emAuthorisedValue;
+            set authorised(value: bo.emAuthorisedValue);
             get position(): number;
             set position(value: number);
             protected firePropertyChanged(property: string): void;

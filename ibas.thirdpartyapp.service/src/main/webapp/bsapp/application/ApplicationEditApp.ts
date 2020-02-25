@@ -218,8 +218,12 @@ namespace thirdpartyapp {
                         this.editData.config = selected.code;
                         this.editData.settings = undefined;
                         if (!(this.editData.series > 0)) {
-                            this.editData.code = selected.code;
-                            this.editData.name = selected.name;
+                            if (ibas.strings.isEmpty(this.editData.code)) {
+                                this.editData.code = selected.code;
+                            }
+                            if (ibas.strings.isEmpty(this.editData.name)) {
+                                this.editData.name = selected.name;
+                            }
                         }
                         let settings: Array<bo.ApplicationSettingItem> = new Array<bo.ApplicationSettingItem>();
                         for (let item of selected.applicationConfigItems) {

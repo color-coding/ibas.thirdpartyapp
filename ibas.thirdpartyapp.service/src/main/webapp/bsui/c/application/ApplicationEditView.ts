@@ -153,6 +153,9 @@ namespace thirdpartyapp {
                                         }).bindProperty("type", {
                                             path: "category",
                                             formatter(data: bo.emConfigItemCategory): sap.m.InputType {
+                                                if (ibas.config.get(ibas.CONFIG_ITEM_DEBUG_MODE, false)) {
+                                                    return sap.m.InputType.Text;
+                                                }
                                                 return data === bo.emConfigItemCategory.PASSWORD ? sap.m.InputType.Password : sap.m.InputType.Text;
                                             }
                                         }),

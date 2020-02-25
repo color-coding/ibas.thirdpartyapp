@@ -1,31 +1,39 @@
-package org.colorcoding.ibas.thirdpartyapp.wechat;
+package org.colorcoding.ibas.thirdpartyapp.client;
 
-import java.io.IOException;
-import java.net.URL;
-import java.net.URLConnection;
 import java.util.Map;
 
 import javax.ws.rs.BadRequestException;
 
-import org.colorcoding.ibas.bobas.common.*;
+import org.colorcoding.ibas.bobas.common.ConditionOperation;
+import org.colorcoding.ibas.bobas.common.Criteria;
+import org.colorcoding.ibas.bobas.common.ICondition;
+import org.colorcoding.ibas.bobas.common.ICriteria;
+import org.colorcoding.ibas.bobas.common.IOperationResult;
 import org.colorcoding.ibas.bobas.data.emYesNo;
 import org.colorcoding.ibas.bobas.i18n.I18N;
-import org.colorcoding.ibas.bobas.message.Logger;
-import org.colorcoding.ibas.bobas.message.MessageLevel;
 import org.colorcoding.ibas.bobas.organization.OrganizationFactory;
 import org.colorcoding.ibas.initialfantasy.repository.BORepositoryInitialFantasy;
 import org.colorcoding.ibas.thirdpartyapp.MyConfiguration;
 import org.colorcoding.ibas.thirdpartyapp.bo.user.IUser;
 import org.colorcoding.ibas.thirdpartyapp.bo.user.User;
-import org.colorcoding.ibas.thirdpartyapp.joint.ConnectManager;
 import org.colorcoding.ibas.thirdpartyapp.repository.BORepositoryThirdPartyApp;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
-public class ConnectManagerWechat extends ConnectManager {
+public class Wechat extends WebApp {
 
-	protected static final String MSG_CONNECTING_URL = "connectManager: open url [%s].";
+	/**
+	 * 参数名称-应用编码
+	 */
+	public static final String PARAM_NAME_APP_CODE = "AppCode";
+	/**
+	 * 参数名称-应用名称
+	 */
+	public static final String PARAM_NAME_APP_NAME = "AppName";
+	/**
+	 * 参数名称-应用接口地址
+	 */
+	public static final String PARAM_NAME_API_URL = "ApiUrl";
 	/**
 	 * 配置项目-用户编号系列
 	 */
@@ -44,25 +52,24 @@ public class ConnectManagerWechat extends ConnectManager {
 	public static final String URL_TEMPLATE_USER_INFO = "https://api.weixin.qq.com/sns/userinfo?access_token=${AccessToken}&openid=${OpenId}&lang=zh_CN";
 
 	@Override
-	protected IUser getUser(Map<String, Object> params) throws Exception {
+	public IUser fetchUser(Map<String, Object> params) throws Exception {
 		if (params.get(PARAM_NAME_CODE) == null) {
 			throw new Exception(I18N.prop("msg_tpa_no_param", PARAM_NAME_CODE));
 		}
-		String app = String.valueOf(params.get(PARAM_NAME_APP_CODE));
 		String url = this.applyVariables(URL_TEMPLATE_OAUTH, params);
 		JsonNode data = this.doGet(url);
 		if (data == null) {
-			throw new BadRequestException(I18N.prop("msg_tpa_faild_oauth_request"));
+			throw new Exception(I18N.prop("msg_tpa_faild_oauth_request"));
 		}
 		JsonNode errNode = data.get("errmsg");
 		if (errNode != null) {
-			throw new BadRequestException(errNode.textValue());
+			throw new Exception(errNode.textValue());
 		}
 		IUser user = null;
 		ICriteria criteria = new Criteria();
 		ICondition condition = criteria.getConditions().create();
 		condition.setAlias(User.PROPERTY_APPLICATION.getName());
-		condition.setValue(app);
+		condition.setValue(this.getName());
 		condition = criteria.getConditions().create();
 		condition.setAlias(User.PROPERTY_ACTIVATED.getName());
 		condition.setValue(emYesNo.YES);
@@ -70,54 +77,31 @@ public class ConnectManagerWechat extends ConnectManager {
 		try {
 			// 使用unionid查询用户
 			condition.setAlias(User.PROPERTY_MAPPEDID.getName());
-			condition.setValue(this.nodeValue(data, "unionid"));
+			condition.setValue(this.paramValue("unionid", data));
 			params.put("UnionId", condition.getValue());
-			user = this.getUser(criteria);
+			user = this.fetchUser(criteria);
 		} catch (Exception e) {
 			// 使用openid查询用户
 			condition.setAlias(User.PROPERTY_MAPPEDUSER.getName());
-			condition.setValue(this.nodeValue(data, "openid"));
+			condition.setValue(this.paramValue("openid", data));
 			params.put("OpenId", condition.getValue());
-			user = this.getUser(criteria);
+			user = this.fetchUser(criteria);
 		}
 		if (user == null) {
-			params.put("AccessToken", this.nodeValue(data, "access_token"));
+			params.put("AccessToken", this.paramValue("access_token", data));
 			user = this.createUser(params);
 		}
 		return user;
 	}
 
-	protected String nodeValue(JsonNode data, String name) throws BadRequestException {
-		JsonNode node = data.get(name);
-		if (node == null) {
-			throw new BadRequestException(I18N.prop("msg_tpa_no_return_value", name));
-		}
-		return node.textValue();
-	}
-
-	protected IUser getUser(ICriteria criteria) throws Exception {
+	protected IUser fetchUser(ICriteria criteria) throws Exception {
 		BORepositoryThirdPartyApp boRepository = new BORepositoryThirdPartyApp();
-		boRepository.setRepository(this.getRepository());
 		boRepository.setUserToken(OrganizationFactory.SYSTEM_USER.getToken());
 		IOperationResult<IUser> operationResult = boRepository.fetchUser(criteria);
 		if (operationResult.getError() != null) {
 			throw operationResult.getError();
 		}
 		return operationResult.getResultObjects().firstOrDefault();
-	}
-
-	protected JsonNode doGet(String url) throws IOException {
-		Logger.log(MessageLevel.DEBUG, MSG_CONNECTING_URL, url);
-		URL realUrl = new URL(url);
-		// 打开和URL之间的连接
-		URLConnection connection = realUrl.openConnection();
-		// 设置通用的请求属性
-		connection.setRequestProperty("accept", "*/*");
-		connection.setRequestProperty("connection", "Keep-Alive");
-		connection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
-		// 建立实际的连接
-		connection.connect();
-		return new ObjectMapper().readTree(connection.getInputStream());
 	}
 
 	protected IUser createUser(Map<String, Object> params) throws Exception {
@@ -143,8 +127,8 @@ public class ConnectManagerWechat extends ConnectManager {
 			condition.setValue(emYesNo.YES);
 			condition = criteria.getConditions().create();
 			condition.setAlias(User.PROPERTY_MAPPEDID.getName());
-			condition.setValue(this.nodeValue(data, "unionid"));
-			existUser = this.getUser(criteria);
+			condition.setValue(this.paramValue("unionid", data));
+			existUser = this.fetchUser(criteria);
 		} catch (Exception e) {
 		}
 		String code;
@@ -152,10 +136,9 @@ public class ConnectManagerWechat extends ConnectManager {
 			// 创建系统用户
 			org.colorcoding.ibas.initialfantasy.bo.organization.User userIF = new org.colorcoding.ibas.initialfantasy.bo.organization.User();
 			userIF.setSeries(MyConfiguration.getConfigValue(CONFIG_ITEM_USER_SERIES, 1));// 编号系列
-			userIF.setName(this.nodeValue(data, "nickname"));
+			userIF.setName(this.paramValue("nickname", data));
 			userIF.setActivated(emYesNo.YES);
 			BORepositoryInitialFantasy boRepositoryIF = new BORepositoryInitialFantasy();
-			boRepositoryIF.setRepository(this.getRepository());
 			boRepositoryIF.setUserToken(OrganizationFactory.SYSTEM_USER.getToken());
 			IOperationResult<org.colorcoding.ibas.initialfantasy.bo.organization.IUser> opRsltIF = boRepositoryIF
 					.saveUser(userIF);
@@ -171,18 +154,22 @@ public class ConnectManagerWechat extends ConnectManager {
 		userTA.setUser(code);
 		userTA.setApplication(String.valueOf(params.get(PARAM_NAME_APP_CODE)));
 		userTA.setActivated(emYesNo.YES);
-		userTA.setMappedUser(this.nodeValue(data, "openid"));
+		userTA.setMappedUser(this.paramValue("openid", data));
 		try {
-			userTA.setMappedId(this.nodeValue(data, "unionid"));
+			userTA.setMappedId(this.paramValue("unionid", data));
 		} catch (Exception e) {
 		}
 		BORepositoryThirdPartyApp boRepositoryTA = new BORepositoryThirdPartyApp();
-		boRepositoryTA.setRepository(this.getRepository());
 		boRepositoryTA.setUserToken(OrganizationFactory.SYSTEM_USER.getToken());
 		IOperationResult<IUser> opRsltTA = boRepositoryTA.saveUser(userTA);
 		if (opRsltTA.getError() != null) {
 			throw opRsltTA.getError();
 		}
 		return opRsltTA.getResultObjects().firstOrDefault();
+	}
+
+	@Override
+	public <P> IOperationResult<P> execute(String instruct, Map<String, Object> params) throws NotImplementedException {
+		throw new NotImplementedException();
 	}
 }
