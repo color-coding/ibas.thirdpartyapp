@@ -103,8 +103,6 @@ namespace thirdpartyapp {
                 }
                 super.run.apply(this, arguments);
             }
-            /** 待编辑的数据 */
-            protected editData: bo.Application;
             /** 保存数据 */
             protected saveData(formData?: FormData): void {
                 this.busy(true);
