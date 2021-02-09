@@ -56,7 +56,7 @@ namespace thirdpartyapp {
                                     repository: bo.BORepositoryThirdPartyApp,
                                     dataInfo: {
                                         type: bo.Application,
-                                        key:  bo.Application.PROPERTY_CODE_NAME,
+                                        key: bo.Application.PROPERTY_CODE_NAME,
                                         text: bo.Application.PROPERTY_NAME_NAME
                                     },
                                 }).bindProperty("bindingValue", {
@@ -90,7 +90,7 @@ namespace thirdpartyapp {
                             that.fireViewEvents(that.fetchDataEvent, criteria);
                         }
                     });
-                    return new sap.extension.m.Dialog("", {
+                    return new sap.m.Dialog("", {
                         title: this.title,
                         type: sap.m.DialogType.Standard,
                         state: sap.ui.core.ValueState.None,
@@ -123,7 +123,7 @@ namespace thirdpartyapp {
                                 }
                             }),
                         ],
-                    });
+                    }).addStyleClass("sapUiNoContentPadding");
                 }
                 private table: sap.extension.table.Table;
                 /** 显示数据 */

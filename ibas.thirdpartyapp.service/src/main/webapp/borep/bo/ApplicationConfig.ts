@@ -217,7 +217,7 @@ namespace thirdpartyapp {
             /** 初始化数据 */
             protected init(): void {
                 this.applicationConfigItems = new ApplicationConfigItems(this);
-                this.objectCode = ibas.config.applyVariables(Application.BUSINESS_OBJECT_CODE);
+                this.objectCode = ibas.config.applyVariables(ApplicationConfig.BUSINESS_OBJECT_CODE);
             }
         }
 

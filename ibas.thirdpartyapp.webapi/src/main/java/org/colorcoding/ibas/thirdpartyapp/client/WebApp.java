@@ -29,8 +29,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 public abstract class WebApp extends ApplicationClient {
 
-	protected static final String MSG_CONNECTING_URL = "connectManager: connection [%s] will open [%s].";
-	protected static final String MSG_CONNECTED_URL = "connectManager: connection [%s] was connected.";
+	protected static final String MSG_CONNECTING_URL = "Application Client: connection [%s] will open [%s].";
+	protected static final String MSG_CONNECTED_URL = "Application Client: connection [%s] was connected.";
 
 	protected String normalizeUrl(String... values) {
 		StringBuilder builder = new StringBuilder();

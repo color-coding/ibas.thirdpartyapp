@@ -41,10 +41,10 @@ namespace thirdpartyapp {
                             }).bindProperty("bindingValue", {
                                 path: "series",
                                 type: new sap.extension.data.Numeric()
-                            }).bindProperty("enabled", {
+                            }).bindProperty("editable", {
                                 path: "isNew",
                                 formatter(data: any): any {
-                                    return !!data ? true : false;
+                                    return data === false ? false : true;
                                 }
                             }),
                             new sap.m.Label("", { text: ibas.i18n.prop("bo_application_name") }),
