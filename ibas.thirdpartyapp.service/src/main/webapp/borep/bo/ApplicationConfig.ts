@@ -424,6 +424,18 @@ namespace thirdpartyapp {
                 this.setProperty(ApplicationConfigItem.PROPERTY_VALUE_NAME, value);
             }
 
+            /** 映射的属性名称-用户的 */
+            static PROPERTY_FORUSER_NAME: string = "ForUser";
+            /** 获取-用户的 */
+            get forUser(): ibas.emYesNo {
+                return this.getProperty<ibas.emYesNo>(ApplicationConfigItem.PROPERTY_FORUSER_NAME);
+            }
+            /** 设置-用户的 */
+            set forUser(value: ibas.emYesNo) {
+                this.setProperty(ApplicationConfigItem.PROPERTY_FORUSER_NAME, value);
+            }
+
+
             /** 初始化数据 */
             protected init(): void {
                 this.category = emConfigItemCategory.TEXT;

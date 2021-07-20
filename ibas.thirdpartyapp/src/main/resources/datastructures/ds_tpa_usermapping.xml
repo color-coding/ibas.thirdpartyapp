@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE Domain>
 <Domain Name="ThirdPartyApp" ShortName="TPA">
-  <Model Name="User" Description="用户" ModelType="Simple" Mapped="${Company}_TPA_USER">
-    <Property Name="User" Description="用户" DataType="Alphanumeric" DataSubType="Default" EditSize="8" Mapped="User" UniqueKey="Yes"/>
+  <Model Name="UserMapping" Description="用户映射" ModelType="Simple" Mapped="${Company}_TPA_OUSM">
     <Property Name="Application" Description="应用" DataType="Alphanumeric" DataSubType="Default" EditSize="20" Mapped="Application" UniqueKey="Yes"/>
-    <Property Name="Activated" Description="激活" DataType="Alphanumeric" DataSubType="Default" EditSize="1" DeclaredType="emYesNo" Mapped="Activated"/>
-    <Property Name="MappedId" Description="映射标记" DataType="Alphanumeric" DataSubType="Default" EditSize="120" Mapped="MappedId"/>
-    <Property Name="MappedUser" Description="映射用户" DataType="Alphanumeric" DataSubType="Default" EditSize="60" Mapped="MappedUser"/>
-    <Property Name="MappedPassword" Description="映射密码" DataType="Alphanumeric" DataSubType="Default" EditSize="30" Mapped="MappedPassword"/>
+    <Property Name="User" Description="用户" DataType="Alphanumeric" DataSubType="Default" EditSize="8" Mapped="User" UniqueKey="Yes"/>
+    <Property Name="Settings" Description="设置" DataType="Memo" DataSubType="Default" EditSize="8" Mapped="Settings"/>
+    <Property Name="Account" Description="应用账户" DataType="Alphanumeric" DataSubType="Default" EditSize="200" Mapped="Account"/>
+    <Property Name="AccessData" Description="访问数据" DataType="Memo" DataSubType="Default" EditSize="8" Mapped="AccessData"/>
+    <Property Name="Remarks" Description="备注" DataType="Memo" DataSubType="Default" EditSize="8" Mapped="Remarks"/>
     <Property Name="ObjectKey" Description="对象编号" DataType="Numeric" DataSubType="Default" EditSize="8" Mapped="ObjectKey" PrimaryKey="Yes"/>
     <Property Name="ObjectCode" Description="对象类型" DataType="Alphanumeric" DataSubType="Default" EditSize="30" Mapped="ObjectCode"/>
     <Property Name="LogInst" Description="实例号" DataType="Numeric" DataSubType="Default" EditSize="8" Mapped="LogInst"/>
@@ -22,5 +22,5 @@
     <Property Name="CreateActionId" Description="创建动作标识" DataType="Alphanumeric" DataSubType="Default" EditSize="36" Mapped="CreateActId"/>
     <Property Name="UpdateActionId" Description="更新动作标识" DataType="Alphanumeric" DataSubType="Default" EditSize="36" Mapped="UpdateActId"/>
   </Model>
-  <BusinessObject MappedModel="User" ShortName="${Company}_TPA_USER"/>
+  <BusinessObject MappedModel="UserMapping" ShortName="${Company}_TPA_USERMAPPING"/>
 </Domain>

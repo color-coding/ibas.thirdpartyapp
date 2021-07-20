@@ -38,6 +38,7 @@
     <Property Name="Description" Description="描述" DataType="Alphanumeric" DataSubType="Default" EditSize="100" Mapped="Description"/>
     <Property Name="Category" Description="类别" DataType="Alphanumeric" DataSubType="Default" EditSize="1" DeclaredType="emConfigItemCategory" Mapped="Category"/>
     <Property Name="Value" Description="值" DataType="Alphanumeric" DataSubType="Default" EditSize="200" Mapped="Value"/>
+    <Property Name="ForUser" Description="用户的" DataType="Alphanumeric" DataSubType="Default" EditSize="1" DeclaredType="emYesNo" Mapped="ForUser"/>
   </Model>
   <BusinessObject MappedModel="ApplicationConfig" ShortName="${Company}_TPA_APPCFG">
     <RelatedBO Relation="OneToMany" MappedModel="ApplicationConfigItem"/>

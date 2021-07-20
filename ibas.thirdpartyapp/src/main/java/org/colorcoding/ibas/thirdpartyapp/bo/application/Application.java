@@ -60,7 +60,7 @@ public class Application extends BusinessObject<Application> implements IApplica
 	/**
 	 * 编码 属性
 	 */
-	@DbField(name = "Code", type = DbFieldType.ALPHANUMERIC, table = DB_TABLE_NAME, primaryKey = false)
+	@DbField(name = "Code", type = DbFieldType.ALPHANUMERIC, table = DB_TABLE_NAME, uniqueKey = true)
 	public static final IPropertyInfo<String> PROPERTY_CODE = registerProperty(PROPERTY_CODE_NAME, String.class,
 			MY_CLASS);
 
@@ -208,6 +208,37 @@ public class Application extends BusinessObject<Application> implements IApplica
 	}
 
 	/**
+	 * 属性名称-图片
+	 */
+	private static final String PROPERTY_PICTURE_NAME = "Picture";
+
+	/**
+	 * 图片 属性
+	 */
+	@DbField(name = "Picture", type = DbFieldType.ALPHANUMERIC, table = DB_TABLE_NAME, primaryKey = false)
+	public static final IPropertyInfo<String> PROPERTY_PICTURE = registerProperty(PROPERTY_PICTURE_NAME, String.class,
+			MY_CLASS);
+
+	/**
+	 * 获取-图片
+	 * 
+	 * @return 值
+	 */
+	@XmlElement(name = PROPERTY_PICTURE_NAME)
+	public final String getPicture() {
+		return this.getProperty(PROPERTY_PICTURE);
+	}
+
+	/**
+	 * 设置-图片
+	 * 
+	 * @param value 值
+	 */
+	public final void setPicture(String value) {
+		this.setProperty(PROPERTY_PICTURE, value);
+	}
+
+	/**
 	 * 属性名称-设置
 	 */
 	private static final String PROPERTY_SETTINGS_NAME = "Settings";
@@ -224,7 +255,6 @@ public class Application extends BusinessObject<Application> implements IApplica
 	 * 
 	 * @return 值
 	 */
-	@XmlElement(name = PROPERTY_SETTINGS_NAME)
 	public final String getSettings() {
 		return this.getProperty(PROPERTY_SETTINGS);
 	}

@@ -28,11 +28,10 @@ namespace thirdpartyapp {
         export const BO_REPOSITORY_THIRDPARTYAPP: string = ibas.strings.format(ibas.MODULE_REPOSITORY_NAME_TEMPLATE, CONSOLE_NAME);
         /** 业务对象编码-应用 */
         export const BO_CODE_APPLICATION: string = "${Company}_TPA_APP";
-        /** 业务对象编码-用户 */
-        export const BO_CODE_USER: string = "${Company}_TPA_USER";
+        /** 业务对象编码-用户映射 */
+        export const BO_CODE_USERMAPPING: string = "${Company}_TPA_USERMAPPING";
         /** 业务对象编码-应用配置 */
         export const BO_CODE_APPLICATIONCONFIG: string = "${Company}_TPA_APPCFG";
-
 
         export enum emConfigItemCategory {
             /**
@@ -51,6 +50,17 @@ namespace thirdpartyapp {
     }
 
     export namespace app {
+        /** 应用设置服务契约 */
+        export interface IApplicationSettingContract extends ibas.IServiceContract {
+            /** 应用 */
+            application: string;
+            /** 用户 */
+            user?: number | string;
+        }
+        /** 应用设置服务代理 */
+        export class ApplicationSettingServiceProxy extends ibas.ServiceProxy<IApplicationSettingContract> {
+
+        }
 
     }
 }

@@ -1,9 +1,8 @@
 package org.colorcoding.ibas.thirdpartyapp.service.rest;
 
 import java.net.URLDecoder;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Properties;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -49,7 +48,7 @@ public class JointService {
 		OperationResult<User> operationResult = new OperationResult<User>();
 		try {
 			String app = "";
-			Map<String, Object> params = new HashMap<>();
+			Properties params = new Properties();
 			for (Entry<String, String[]> item : request.getParameterMap().entrySet()) {
 				String key = item.getKey();
 				StringBuilder stringBuilder = new StringBuilder();

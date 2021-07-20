@@ -51,10 +51,13 @@ namespace thirdpartyapp {
                 this.firePropertyChanged("description");
             }
             /** 子项 */
-            get settingItems(): string {
+            get settingItems(): ibas.IList<ApplicationSettingItem> {
+                if (ibas.objects.isNull(this[PROPERTY_SETTINGITEMS])) {
+                    this[PROPERTY_SETTINGITEMS] = new ibas.ArrayList<ApplicationSettingItem>();
+                }
                 return this[PROPERTY_SETTINGITEMS];
             }
-            set settingItems(value: string) {
+            set settingItems(value: ibas.IList<ApplicationSettingItem>) {
                 this[PROPERTY_SETTINGITEMS] = value;
                 this.firePropertyChanged("settingItems");
             }

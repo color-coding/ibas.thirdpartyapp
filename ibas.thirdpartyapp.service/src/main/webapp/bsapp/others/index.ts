@@ -7,3 +7,4 @@
  */
 /// <reference path="./UserApplicationFunc.ts" />
 /// <reference path="./UserApplicationApp.ts" />
+/// <reference path="./ApplicationSettingService.ts" />

@@ -1,6 +1,6 @@
 package org.colorcoding.ibas.thirdpartyapp.client;
 
-public class NotImplementedException extends Exception {
+public class NotImplementedException extends ApplicationException {
 
 	private static final long serialVersionUID = 7519825555035916452L;
 

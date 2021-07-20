@@ -19,6 +19,8 @@ namespace thirdpartyapp {
             category: string;
             /** 配置 */
             config: string;
+            /** 图片 */
+            picture: string;
             /** 设置 */
             settings: string;
             /** 备注 */

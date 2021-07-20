@@ -1,6 +1,6 @@
 package org.colorcoding.ibas.thirdpartyapp.client;
 
-public class AuthenticationException extends Exception {
+public class AuthenticationException extends ApplicationException {
 
 	private static final long serialVersionUID = -8630668493398522261L;
 

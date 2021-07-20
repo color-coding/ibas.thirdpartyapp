@@ -7,20 +7,18 @@
  */
 namespace thirdpartyapp {
     export namespace bo {
-        /** 用户 */
-        export interface IUser extends ibas.IBOSimple {
-            /** 用户 */
-            user: string;
+        /** 用户映射 */
+        export interface IUserMapping extends ibas.IBOSimple {
             /** 应用 */
             application: string;
-            /** 激活 */
-            activated: ibas.emYesNo;
-            /** 映射标记 */
-            mappedId: string;
-            /** 映射用户 */
-            mappedUser: string;
-            /** 映射密码 */
-            mappedPassword: string;
+            /** 用户 */
+            user: string;
+            /** 应用账户 */
+            account: string;
+            /** 访问数据 */
+            accessData: string;
+            /** 备注 */
+            remarks: string;
             /** 对象编号 */
             objectKey: number;
             /** 对象类型 */

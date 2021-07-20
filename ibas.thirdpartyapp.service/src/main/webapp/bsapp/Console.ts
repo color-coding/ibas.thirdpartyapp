@@ -8,7 +8,7 @@
 /// <reference path="../borep/index.ts" />
 /// <reference path="./application/index.ts" />
 /// <reference path="./applicationconfig/index.ts" />
-/// <reference path="./user/index.ts" />
+/// <reference path="./usermapping/index.ts" />
 /// <reference path="./others/index.ts" />
 namespace thirdpartyapp {
     export namespace app {
@@ -32,11 +32,11 @@ namespace thirdpartyapp {
             protected registers(): void {
                 // 注册功能
                 this.register(new ApplicationFunc());
-                this.register(new UserFunc());
+                this.register(new UserMappingFunc());
                 // 注册服务应用
                 this.register(new ApplicationChooseServiceMapping());
-                this.register(new UserChooseServiceMapping());
                 this.register(new ApplicationConfigChooseServiceMapping());
+                this.register(new ApplicationSettingServiceMapping());
                 // 注册常驻应用
 
             }
