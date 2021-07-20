@@ -6,7 +6,7 @@ import org.colorcoding.ibas.bobas.repository.IBORepositorySmartService;
 import org.colorcoding.ibas.thirdpartyapp.bo.application.Application;
 import org.colorcoding.ibas.thirdpartyapp.bo.applicationconfig.ApplicationConfig;
 import org.colorcoding.ibas.thirdpartyapp.bo.other.UserApplication;
-import org.colorcoding.ibas.thirdpartyapp.bo.user.User;
+import org.colorcoding.ibas.thirdpartyapp.bo.usermapping.UserMapping;
 
 /**
  * ThirdPartyApp仓库服务
@@ -44,25 +44,6 @@ public interface IBORepositoryThirdPartyAppSvc extends IBORepositorySmartService
 
 	// --------------------------------------------------------------------------------------------//
 	/**
-	 * 查询-用户
-	 * 
-	 * @param criteria 查询
-	 * @param token    口令
-	 * @return 操作结果
-	 */
-	OperationResult<User> fetchUser(ICriteria criteria, String token);
-
-	/**
-	 * 保存-用户
-	 * 
-	 * @param bo    对象实例
-	 * @param token 口令
-	 * @return 操作结果
-	 */
-	OperationResult<User> saveUser(User bo, String token);
-
-	// --------------------------------------------------------------------------------------------//
-	/**
 	 * 查询-应用配置
 	 * 
 	 * @param criteria 查询
@@ -79,6 +60,26 @@ public interface IBORepositoryThirdPartyAppSvc extends IBORepositorySmartService
 	 * @return 操作结果
 	 */
 	OperationResult<ApplicationConfig> saveApplicationConfig(ApplicationConfig bo, String token);
+
+	// --------------------------------------------------------------------------------------------//
+	/**
+	 * 查询-用户映射
+	 * 
+	 * @param criteria 查询
+	 * @param token    口令
+	 * @return 操作结果
+	 */
+	OperationResult<UserMapping> fetchUserMapping(ICriteria criteria, String token);
+
+	/**
+	 * 保存-用户映射
+	 * 
+	 * @param bo    对象实例
+	 * @param token 口令
+	 * @return 操作结果
+	 */
+	OperationResult<UserMapping> saveUserMapping(UserMapping bo, String token);
+
 	// --------------------------------------------------------------------------------------------//
 
 }

@@ -120,6 +120,16 @@ namespace thirdpartyapp {
                                                 enumType: bo.emConfigItemCategory,
                                             }),
                                         }),
+                                        width: "8rem",
+                                    }),
+                                    new sap.extension.table.DataColumn("", {
+                                        label: ibas.i18n.prop("bo_applicationconfigitem_foruser"),
+                                        template: new sap.extension.m.CheckBox("", {
+                                        }).bindProperty("bindingValue", {
+                                            path: "forUser",
+                                            type: new sap.extension.data.YesNo(),
+                                        }),
+                                        width: "5rem",
                                     }),
                                     new sap.extension.table.DataColumn("", {
                                         label: ibas.i18n.prop("bo_applicationconfigitem_value"),
@@ -130,6 +140,7 @@ namespace thirdpartyapp {
                                                 maxLength: 200
                                             }),
                                         }),
+                                        width: "100%",
                                     }),
                                 ]
                             }),

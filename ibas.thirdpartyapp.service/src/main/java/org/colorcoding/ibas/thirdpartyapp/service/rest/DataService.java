@@ -12,7 +12,7 @@ import org.colorcoding.ibas.bobas.common.OperationResult;
 import org.colorcoding.ibas.thirdpartyapp.bo.application.Application;
 import org.colorcoding.ibas.thirdpartyapp.bo.applicationconfig.ApplicationConfig;
 import org.colorcoding.ibas.thirdpartyapp.bo.other.UserApplication;
-import org.colorcoding.ibas.thirdpartyapp.bo.user.User;
+import org.colorcoding.ibas.thirdpartyapp.bo.usermapping.UserMapping;
 import org.colorcoding.ibas.thirdpartyapp.repository.BORepositoryThirdPartyApp;
 
 /**
@@ -70,37 +70,6 @@ public class DataService extends BORepositoryThirdPartyApp {
 
 	// --------------------------------------------------------------------------------------------//
 	/**
-	 * 查询-用户
-	 * 
-	 * @param criteria 查询
-	 * @param token    口令
-	 * @return 操作结果
-	 */
-	@POST
-	@Produces(MediaType.APPLICATION_JSON)
-	@Consumes(MediaType.APPLICATION_JSON)
-	@Path("fetchUser")
-	public OperationResult<User> fetchUser(Criteria criteria, @QueryParam("token") String token) {
-		return super.fetchUser(criteria, token);
-	}
-
-	/**
-	 * 保存-用户
-	 * 
-	 * @param bo    对象实例
-	 * @param token 口令
-	 * @return 操作结果
-	 */
-	@POST
-	@Produces(MediaType.APPLICATION_JSON)
-	@Consumes(MediaType.APPLICATION_JSON)
-	@Path("saveUser")
-	public OperationResult<User> saveUser(User bo, @QueryParam("token") String token) {
-		return super.saveUser(bo, token);
-	}
-
-	// --------------------------------------------------------------------------------------------//
-	/**
 	 * 查询-应用配置
 	 * 
 	 * @param criteria 查询
@@ -130,6 +99,22 @@ public class DataService extends BORepositoryThirdPartyApp {
 	public OperationResult<ApplicationConfig> saveApplicationConfig(ApplicationConfig bo,
 			@QueryParam("token") String token) {
 		return super.saveApplicationConfig(bo, token);
+	}
+
+	// --------------------------------------------------------------------------------------------//
+	/**
+	 * 查询-用户映射
+	 * 
+	 * @param criteria 查询
+	 * @param token    口令
+	 * @return 操作结果
+	 */
+	@POST
+	@Produces(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Path("fetchUserMapping")
+	public OperationResult<UserMapping> fetchUserMapping(Criteria criteria, @QueryParam("token") String token) {
+		return super.fetchUserMapping(criteria, token);
 	}
 
 	// --------------------------------------------------------------------------------------------//

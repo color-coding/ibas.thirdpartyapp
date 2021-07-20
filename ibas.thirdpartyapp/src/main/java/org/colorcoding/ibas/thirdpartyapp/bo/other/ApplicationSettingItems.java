@@ -10,6 +10,7 @@ import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlType;
 
 import org.colorcoding.ibas.bobas.data.ArrayList;
+import org.colorcoding.ibas.bobas.message.Logger;
 import org.colorcoding.ibas.bobas.serialization.ISerializer;
 import org.colorcoding.ibas.bobas.serialization.SerializerFactory;
 import org.colorcoding.ibas.thirdpartyapp.MyConfiguration;
@@ -95,7 +96,7 @@ public class ApplicationSettingItems extends ArrayList<ApplicationSettingItem> {
 				}
 			}
 		} catch (Exception e) {
-			throw e;
+			Logger.log(e);
 		}
 	}
 }

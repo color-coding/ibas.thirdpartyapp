@@ -8,6 +8,7 @@ import javax.xml.bind.annotation.XmlType;
 import org.colorcoding.ibas.bobas.bo.BusinessObject;
 import org.colorcoding.ibas.bobas.core.IPropertyInfo;
 import org.colorcoding.ibas.bobas.data.DateTime;
+import org.colorcoding.ibas.bobas.data.emYesNo;
 import org.colorcoding.ibas.bobas.mapping.DbField;
 import org.colorcoding.ibas.bobas.mapping.DbFieldType;
 import org.colorcoding.ibas.thirdpartyapp.MyConfiguration;
@@ -571,6 +572,37 @@ public class ApplicationConfigItem extends BusinessObject<ApplicationConfigItem>
 	 */
 	public final void setValue(String value) {
 		this.setProperty(PROPERTY_VALUE, value);
+	}
+
+	/**
+	 * 属性名称-用户的
+	 */
+	private static final String PROPERTY_FORUSER_NAME = "ForUser";
+
+	/**
+	 * 用户的 属性
+	 */
+	@DbField(name = "ForUser", type = DbFieldType.ALPHANUMERIC, table = DB_TABLE_NAME)
+	public static final IPropertyInfo<emYesNo> PROPERTY_FORUSER = registerProperty(PROPERTY_FORUSER_NAME, emYesNo.class,
+			MY_CLASS);
+
+	/**
+	 * 获取-用户的
+	 * 
+	 * @return 值
+	 */
+	@XmlElement(name = PROPERTY_FORUSER_NAME)
+	public final emYesNo getForUser() {
+		return this.getProperty(PROPERTY_FORUSER);
+	}
+
+	/**
+	 * 设置-用户的
+	 * 
+	 * @param value 值
+	 */
+	public final void setForUser(emYesNo value) {
+		this.setProperty(PROPERTY_FORUSER, value);
 	}
 
 	/**

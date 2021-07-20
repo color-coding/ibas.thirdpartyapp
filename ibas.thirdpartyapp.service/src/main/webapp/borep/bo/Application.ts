@@ -69,6 +69,16 @@ namespace thirdpartyapp {
             set config(value: string) {
                 this.setProperty(Application.PROPERTY_CONFIG_NAME, value);
             }
+            /** 映射的属性名称-图片 */
+            static PROPERTY_PICTURE_NAME: string = "Picture";
+            /** 获取-图片 */
+            get picture(): string {
+                return this.getProperty<string>(Application.PROPERTY_PICTURE_NAME);
+            }
+            /** 设置-图片 */
+            set picture(value: string) {
+                this.setProperty(Application.PROPERTY_PICTURE_NAME, value);
+            }
 
             /** 映射的属性名称-设置 */
             static PROPERTY_SETTINGS_NAME: string = "Settings";

@@ -16,6 +16,8 @@ namespace thirdpartyapp {
                 createDataEvent: Function;
                 /** 选择应用配置 */
                 chooseApplicationConfigEvent: Function;
+                /** 上传图片事件 */
+                uploadPictureEvent: Function;
                 /** 绘制视图 */
                 draw(): any {
                     let that: this = this;
@@ -73,6 +75,52 @@ namespace thirdpartyapp {
                                 type: new sap.extension.data.Alphanumeric({
                                     maxLength: 8
                                 })
+                            }),
+                            new sap.m.Label("", { text: ibas.i18n.prop("bo_application_picture"), }),
+                            new sap.m.FlexBox("", {
+                                width: "100%",
+                                justifyContent: sap.m.FlexJustifyContent.Start,
+                                renderType: sap.m.FlexRendertype.Bare,
+                                items: [
+                                    new sap.extension.m.Input("", {
+                                        showValueHelp: true,
+                                        valueHelpRequest: function (): void {
+                                            ibas.files.open((files) => {
+                                                if (files.length > 0) {
+                                                    let fileData: FormData = new FormData();
+                                                    fileData.append("file", files[0], encodeURI(files[0].name));
+                                                    that.fireViewEvents(that.uploadPictureEvent, fileData);
+                                                }
+                                            }, { accept: "image/gif,image/jpeg,image/jpg,image/png" });
+                                        }
+                                    }).bindProperty("bindingValue", {
+                                        path: "picture",
+                                        type: new sap.extension.data.Alphanumeric({
+                                            maxLength: 250
+                                        })
+                                    }),
+                                    new sap.m.Button("", {
+                                        width: "auto",
+                                        icon: "sap-icon://show",
+                                        tooltip: {
+                                            path: "picture",
+                                            type: new sap.extension.data.Alphanumeric({
+                                                maxLength: 250
+                                            })
+                                        },
+                                        press: function (this: sap.m.Button): void {
+                                            new sap.m.LightBox("", {
+                                                imageContent: [
+                                                    new sap.m.LightBoxItem("", {
+                                                        subtitle: undefined,
+                                                        title: undefined,
+                                                        imageSrc: new bo.BORepositoryThirdPartyApp().toUrl(String(this.getTooltip())),
+                                                    })
+                                                ]
+                                            }).open();
+                                        }
+                                    }).addStyleClass("sapUiTinyMarginBegin"),
+                                ]
                             }),
                             new sap.m.Label("", { text: ibas.i18n.prop("bo_application_remarks") }),
                             new sap.extension.m.TextArea("", {
@@ -159,6 +207,7 @@ namespace thirdpartyapp {
                                                 return data === bo.emConfigItemCategory.PASSWORD ? sap.m.InputType.Password : sap.m.InputType.Text;
                                             }
                                         }),
+                                        width: "100%",
                                     }),
                                 ],
                             }),

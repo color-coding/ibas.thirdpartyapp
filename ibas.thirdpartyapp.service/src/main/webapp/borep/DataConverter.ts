@@ -28,6 +28,27 @@ namespace thirdpartyapp {
                     newData.url = remote.Url;
                     newData.user = remote.User;
                     return newData;
+                } else if (data.type === bo.ApplicationSetting.name) {
+                    let remote: ibas4j.IApplicationSetting = data;
+                    let newData: bo.ApplicationSetting = new bo.ApplicationSetting();
+                    newData.name = remote.Name;
+                    newData.description = remote.Description;
+                    newData.group = remote.Group;
+                    if (remote.SettingItems instanceof Array) {
+                        for (let item of remote.SettingItems) {
+                            item.type = bo.ApplicationSettingItem.name;
+                            newData.settingItems.add(this.parsing(item, sign));
+                        }
+                    }
+                    return newData;
+                } else if (data.type === bo.ApplicationSettingItem.name) {
+                    let remote: ibas4j.IApplicationSettingItem = data;
+                    let newData: bo.ApplicationSettingItem = new bo.ApplicationSettingItem();
+                    newData.name = remote.Name;
+                    newData.description = remote.Description;
+                    newData.category = ibas.enums.valueOf(bo.emConfigItemCategory, remote.Category);
+                    newData.value = remote.Value;
+                    return newData;
                 }
                 return super.parsing(data, sign);
             }
@@ -62,6 +83,8 @@ namespace thirdpartyapp {
                 if (boName === bo.ApplicationConfigItem.name) {
                     if (property === bo.ApplicationConfigItem.PROPERTY_CATEGORY_NAME) {
                         return ibas.enums.toString(bo.emConfigItemCategory, value);
+                    } else if (property === bo.ApplicationConfigItem.PROPERTY_FORUSER_NAME) {
+                        return ibas.enums.toString(ibas.emYesNo, value);
                     }
                 }
                 return super.convertData(boName, property, value);
@@ -78,6 +101,8 @@ namespace thirdpartyapp {
                 if (boName === bo.ApplicationConfigItem.name) {
                     if (property === bo.ApplicationConfigItem.PROPERTY_CATEGORY_NAME) {
                         return ibas.enums.valueOf(bo.emConfigItemCategory, value);
+                    } else if (property === bo.ApplicationConfigItem.PROPERTY_FORUSER_NAME) {
+                        return ibas.enums.valueOf(ibas.emYesNo, value);
                     }
                 }
                 return super.parsingData(boName, property, value);
@@ -103,7 +128,7 @@ namespace thirdpartyapp {
                 User: string;
             }
             /** 应用设置 */
-            export interface IApplicationSetting {
+            export interface IApplicationSetting extends IDataDeclaration {
                 /** 名称 */
                 Name: string;
                 /** 组 */
@@ -114,7 +139,7 @@ namespace thirdpartyapp {
                 SettingItems: ibas.IList<IApplicationSettingItem>;
             }
             /** 应用设置项目 */
-            export interface IApplicationSettingItem {
+            export interface IApplicationSettingItem extends IDataDeclaration {
                 /** 名称 */
                 Name: string;
                 /** 类型 */

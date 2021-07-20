@@ -1,3 +1,4 @@
 ibas.thirdpartyapp
 ibas.thirdpartyapp.webapi
+ibas.thirdpartyapp.email
 ibas.thirdpartyapp.service

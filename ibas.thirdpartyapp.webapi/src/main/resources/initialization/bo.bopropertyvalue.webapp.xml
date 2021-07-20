@@ -4,5 +4,5 @@
 	<Code>${Company}_TPA_APP</Code>
 	<Property>Category</Property>
 	<Value>WebApp</Value>
-	<Description>Web应用</Description>
+	<Description>WEB应用</Description>
 </ns2:BOPropertyValue>

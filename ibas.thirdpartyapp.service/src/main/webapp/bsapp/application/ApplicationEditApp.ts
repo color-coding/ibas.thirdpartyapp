@@ -31,6 +31,7 @@ namespace thirdpartyapp {
                 this.view.deleteDataEvent = this.deleteData;
                 this.view.createDataEvent = this.createData;
                 this.view.chooseApplicationConfigEvent = this.chooseApplicationConfig;
+                this.view.uploadPictureEvent = this.uploadPicture;
             }
             /** 视图显示后 */
             protected viewShowed(): void {
@@ -40,23 +41,33 @@ namespace thirdpartyapp {
                     // 创建编辑对象实例
                     this.editData = new bo.Application();
                     this.proceeding(ibas.emMessageType.WARNING, ibas.i18n.prop("shell_data_created_new"));
-                }
-                let settings: Array<bo.ApplicationSettingItem> = new Array<bo.ApplicationSettingItem>();
-                if (!ibas.strings.isEmpty(this.editData.settings)) {
-                    let setting: any = JSON.parse(ibas.strings.utf8To16(atob(this.editData.settings)));
-                    if (setting instanceof Array) {
-                        for (let item of setting) {
-                            let setting: bo.ApplicationSettingItem = new bo.ApplicationSettingItem();
-                            setting.name = ibas.objects.propertyValue(item, "name");
-                            setting.description = ibas.objects.propertyValue(item, "description");
-                            setting.category = ibas.enums.valueOf(bo.emConfigItemCategory, ibas.objects.propertyValue(item, "category"));
-                            setting.value = ibas.objects.propertyValue(item, "value");
-                            settings.push(setting);
-                        }
+                    this.view.showApplication(this.editData);
+                    this.view.showApplicationSettingItems([]);
+                } else {
+                    this.view.showApplication(this.editData);
+                    if (this.editData.isNew) {
+                        this.view.showApplicationSettingItems([]);
+                    } else {
+                        let boRepository: bo.BORepositoryThirdPartyApp = new bo.BORepositoryThirdPartyApp();
+                        boRepository.fetchApplicationSetting({
+                            application: this.editData.code,
+                            onCompleted: (opRslt) => {
+                                try {
+                                    if (opRslt.resultCode !== 0) {
+                                        throw new Error(opRslt.message);
+                                    }
+                                    if (opRslt.resultObjects.length <= 0) {
+                                        throw new Error(ibas.i18n.prop("thirdpartyapp_not_found_application_setting", this.editData.name));
+                                    }
+                                    this.view.showApplicationSettingItems(opRslt.resultObjects.firstOrDefault().settingItems);
+                                } catch (error) {
+                                    this.view.showApplicationSettingItems([]);
+                                    this.messages(error);
+                                }
+                            }
+                        });
                     }
                 }
-                this.view.showApplication(this.editData);
-                this.view.showApplicationSettingItems(settings);
             }
             run(): void;
             run(data: bo.Application): void;
@@ -130,14 +141,23 @@ namespace thirdpartyapp {
                                     boRepository.saveApplicationSetting({
                                         application: that.editData.code,
                                         formData: formData,
-                                        onCompleted(opRslt: ibas.IOperationResult<bo.Application>): void {
+                                        onCompleted(opRslt: ibas.IOperationResult<bo.ApplicationSetting>): void {
                                             try {
-                                                that.editData = opRslt.resultObjects.firstOrDefault();
-                                                // 刷新当前视图
-                                                that.viewShowed();
+                                                if (opRslt.resultCode !== 0) {
+                                                    throw new Error(opRslt.message);
+                                                }
+                                                // 增加版本号
+                                                that.editData.logInst++;
+                                                that.editData.markOld();
+                                                that.view.showApplication(that.editData);
+                                                if (opRslt.resultObjects.length <= 0) {
+                                                    throw new Error(ibas.i18n.prop("thirdpartyapp_not_found_application_setting", that.editData.name));
+                                                }
+                                                that.view.showApplicationSettingItems(opRslt.resultObjects.firstOrDefault().settingItems);
                                                 that.messages(ibas.emMessageType.SUCCESS,
                                                     ibas.i18n.prop("shell_data_save") + ibas.i18n.prop("shell_sucessful"));
                                             } catch (error) {
+                                                that.view.showApplicationSettingItems([]);
                                                 that.messages(error);
                                             }
                                         }
@@ -225,6 +245,9 @@ namespace thirdpartyapp {
                         }
                         let settings: Array<bo.ApplicationSettingItem> = new Array<bo.ApplicationSettingItem>();
                         for (let item of selected.applicationConfigItems) {
+                            if (item.forUser === ibas.emYesNo.YES) {
+                                continue;
+                            }
                             let setting: bo.ApplicationSettingItem = new bo.ApplicationSettingItem();
                             setting.name = item.name;
                             setting.description = item.description;
@@ -233,6 +256,30 @@ namespace thirdpartyapp {
                             settings.push(setting);
                         }
                         this.view.showApplicationSettingItems(settings);
+                    }
+                });
+            }
+            /** 上传图片事件 */
+            private uploadPicture(formData: FormData): void {
+                let that: this = this;
+                this.proceeding(ibas.emMessageType.INFORMATION, ibas.i18n.prop("shell_uploading_file"));
+                this.busy(true);
+                let boRepository: bo.BORepositoryThirdPartyApp = new bo.BORepositoryThirdPartyApp();
+                boRepository.upload({
+                    fileData: formData,
+                    onCompleted(opRslt: ibas.IOperationResult<ibas.FileData>): void {
+                        try {
+                            that.busy(false);
+                            if (opRslt.resultCode !== 0) {
+                                throw new Error(opRslt.message);
+                            }
+                            that.proceeding(ibas.emMessageType.INFORMATION,
+                                ibas.i18n.prop("shell_upload") + ibas.i18n.prop("shell_sucessful"));
+                            let fileData: ibas.FileData = opRslt.resultObjects.firstOrDefault();
+                            that.editData.picture = fileData.fileName;
+                        } catch (error) {
+                            that.messages(error);
+                        }
                     }
                 });
             }
@@ -249,6 +296,8 @@ namespace thirdpartyapp {
             chooseApplicationConfigEvent: Function;
             /** 显示可用配置 */
             showApplicationSettingItems(datas: bo.ApplicationSettingItem[]): void;
+            /** 上传图片事件 */
+            uploadPictureEvent: Function;
         }
     }
 }

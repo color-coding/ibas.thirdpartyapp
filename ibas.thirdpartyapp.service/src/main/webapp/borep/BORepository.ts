@@ -15,6 +15,15 @@ namespace thirdpartyapp {
                 return new DataConverter;
             }
             /**
+             * 获取地址
+             */
+            toUrl(filename: string): string {
+                if (!this.address.endsWith("/")) { this.address += "/"; }
+                let url: string = this.address.replace("/services/rest/data/", "/services/rest/file/");
+                url += ibas.strings.format("{0}?token={1}", filename, this.token);
+                return encodeURI(url);
+            }
+            /**
              * 上传文件
              * @param caller 调用者
              */
@@ -67,20 +76,6 @@ namespace thirdpartyapp {
                 super.save(bo.ApplicationConfig.name, saver);
             }
             /**
-             * 查询 用户
-             * @param fetcher 查询者
-             */
-            fetchUser(fetcher: ibas.IFetchCaller<bo.User>): void {
-                super.fetch(bo.User.name, fetcher);
-            }
-            /**
-             * 保存 用户
-             * @param saver 保存者
-             */
-            saveUser(saver: ibas.ISaveCaller<bo.User>): void {
-                super.save(bo.User.name, saver);
-            }
-            /**
              * 查询 用户应用
              * @param caller 查询者
              */
@@ -109,10 +104,95 @@ namespace thirdpartyapp {
                 fileRepository.address = this.address.replace("/services/rest/data/", "/services/rest/file/");
                 fileRepository.token = this.token;
                 fileRepository.converter = this.createConverter();
-                fileRepository.upload(ibas.strings.format("saveApplicationSetting?application={0}", caller.application), {
+                let builder: ibas.StringBuilder = new ibas.StringBuilder();
+                builder.append("saveApplicationSetting");
+                builder.append("?");
+                builder.append("application");
+                builder.append("=");
+                builder.append(encodeURIComponent(caller.application));
+                if (!ibas.strings.isEmpty(caller.user)) {
+                    builder.append("&");
+                    builder.append("user");
+                    builder.append("=");
+                    builder.append(caller.user);
+                }
+                fileRepository.upload(builder.toString(), {
                     fileData: caller.formData,
                     onCompleted: caller.onCompleted,
                 });
+            }
+            /**
+             * 查询 应用配置
+             * @param caller 查询者
+             */
+            fetchApplicationSetting(caller: IApplicationSettingFetcher): void {
+                if (!this.address.endsWith("/")) { this.address += "/"; }
+                let boRepository: ibas.BORepositoryAjax = new ibas.BORepositoryAjax();
+                boRepository.address = this.address.replace("/services/rest/data/", "/services/rest/file/");
+                boRepository.token = this.token;
+                boRepository.converter = this.createConverter();
+                if (ibas.objects.isNull(boRepository)) {
+                    throw new Error(ibas.i18n.prop("sys_invalid_parameter", "remoteRepository"));
+                }
+                let builder: ibas.StringBuilder = new ibas.StringBuilder();
+                builder.append("fetchApplicationSetting");
+                builder.append("?");
+                builder.append("application");
+                builder.append("=");
+                builder.append(encodeURIComponent(caller.application));
+                if (!ibas.strings.isEmpty(caller.user)) {
+                    builder.append("&");
+                    builder.append("user");
+                    builder.append("=");
+                    builder.append(caller.user);
+                }
+                builder.append("&");
+                builder.append("token");
+                builder.append("=");
+                builder.append(this.token);
+                boRepository.callRemoteMethod(builder.toString(), undefined, (opRslt) => {
+                    caller.onCompleted.call(ibas.objects.isNull(caller.caller) ? caller : caller.caller, opRslt);
+                });
+            }
+            /**
+             * 移除 用户应用配置
+             * @param caller 查询者
+             */
+            removeApplicationSetting(caller: IApplicationSettingRemover): void {
+                if (!this.address.endsWith("/")) { this.address += "/"; }
+                let boRepository: ibas.BORepositoryAjax = new ibas.BORepositoryAjax();
+                boRepository.address = this.address.replace("/services/rest/data/", "/services/rest/file/");
+                boRepository.token = this.token;
+                boRepository.converter = this.createConverter();
+                if (ibas.objects.isNull(boRepository)) {
+                    throw new Error(ibas.i18n.prop("sys_invalid_parameter", "remoteRepository"));
+                }
+                let builder: ibas.StringBuilder = new ibas.StringBuilder();
+                builder.append("removeApplicationSetting");
+                builder.append("?");
+                builder.append("application");
+                builder.append("=");
+                builder.append(encodeURIComponent(caller.application));
+                if (!ibas.strings.isEmpty(caller.user)) {
+                    builder.append("&");
+                    builder.append("user");
+                    builder.append("=");
+                    builder.append(caller.user);
+                }
+                builder.append("&");
+                builder.append("token");
+                builder.append("=");
+                builder.append(this.token);
+                boRepository.callRemoteMethod(builder.toString(), undefined, (opRslt) => {
+                    caller.onCompleted.call(ibas.objects.isNull(caller.caller) ? caller : caller.caller, opRslt);
+                });
+            }
+            /**
+             * 查询 用户映射
+             * @param fetcher 查询者
+             */
+            fetchUserMapping(fetcher: ibas.IFetchCaller<bo.UserMapping>): void {
+                super.fetch(bo.UserMapping.name, fetcher);
             }
         }
         /**
@@ -127,11 +207,31 @@ namespace thirdpartyapp {
         /**
          * 应用配置保存者
          */
-        export interface IApplicationSettingSaver extends ibas.IMethodCaller<IApplication> {
+        export interface IApplicationSettingSaver extends ibas.IMethodCaller<ApplicationSetting> {
             /** 应用 */
             application: string;
+            /** 用户 */
+            user?: string;
             /** 提交数据 */
             formData: FormData;
+        }
+        /**
+         * 应用配置查询者
+         */
+        export interface IApplicationSettingFetcher extends ibas.IMethodCaller<ApplicationSetting> {
+            /** 应用 */
+            application: string;
+            /** 用户 */
+            user?: string;
+        }
+        /**
+         * 应用配置查询者
+         */
+        export interface IApplicationSettingRemover extends ibas.IMethodCaller<void> {
+            /** 应用 */
+            application: string;
+            /** 用户 */
+            user: string;
         }
     }
 }

@@ -10,7 +10,8 @@ import org.colorcoding.ibas.bobas.bo.UserFieldProxy;
 import org.colorcoding.ibas.bobas.common.Criteria;
 import org.colorcoding.ibas.bobas.common.OperationResult;
 import org.colorcoding.ibas.thirdpartyapp.bo.application.Application;
-import org.colorcoding.ibas.thirdpartyapp.bo.user.User;
+import org.colorcoding.ibas.thirdpartyapp.bo.other.ApplicationSetting;
+import org.colorcoding.ibas.thirdpartyapp.bo.usermapping.UserMapping;
 
 /**
  * 序列化解释器
@@ -25,7 +26,7 @@ public class Resolver implements ContextResolver<JAXBContext> {
 		try {
 			if (jaxbContext == null) {
 				jaxbContext = JAXBContext.newInstance(Criteria.class, OperationResult.class, UserFieldProxy.class,
-						Application.class, User.class);
+						Application.class, UserMapping.class, ApplicationSetting.class);
 			}
 		} catch (JAXBException e) {
 			e.printStackTrace();

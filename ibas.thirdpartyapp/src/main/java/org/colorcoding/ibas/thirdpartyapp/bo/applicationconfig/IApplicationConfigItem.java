@@ -2,6 +2,7 @@ package org.colorcoding.ibas.thirdpartyapp.bo.applicationconfig;
 
 import org.colorcoding.ibas.bobas.bo.IBOMasterDataLine;
 import org.colorcoding.ibas.bobas.data.DateTime;
+import org.colorcoding.ibas.bobas.data.emYesNo;
 import org.colorcoding.ibas.thirdpartyapp.data.emConfigItemCategory;
 
 /**
@@ -247,5 +248,19 @@ public interface IApplicationConfigItem extends IBOMasterDataLine {
 	 * @param value 值
 	 */
 	void setValue(String value);
+
+	/**
+	 * 获取-用户的
+	 * 
+	 * @return 值
+	 */
+	emYesNo getForUser();
+
+	/**
+	 * 设置-用户的
+	 * 
+	 * @param value 值
+	 */
+	void setForUser(emYesNo value);
 
 }

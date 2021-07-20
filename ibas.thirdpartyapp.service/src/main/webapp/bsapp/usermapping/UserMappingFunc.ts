@@ -7,22 +7,21 @@
  */
 namespace thirdpartyapp {
     export namespace app {
-        export class UserFunc extends ibas.ModuleFunction {
-
+        export class UserMappingFunc extends ibas.ModuleFunction {
             /** 功能标识 */
-            static FUNCTION_ID = "5396d9a5-eeaa-46f6-8f9a-380fcb01a8c7";
+            static FUNCTION_ID = "1ba73bce-f4ae-44d1-9bcc-7322d16ec6f2";
             /** 功能名称 */
-            static FUNCTION_NAME = "thirdpartyapp_func_user";
+            static FUNCTION_NAME = "thirdpartyapp_func_usermapping";
             /** 构造函数 */
             constructor() {
                 super();
-                this.id = UserFunc.FUNCTION_ID;
-                this.name = UserFunc.FUNCTION_NAME;
+                this.id = UserMappingFunc.FUNCTION_ID;
+                this.name = UserMappingFunc.FUNCTION_NAME;
                 this.description = ibas.i18n.prop(this.name);
             }
             /** 默认功能 */
             default(): ibas.IApplication<ibas.IView> {
-                let app: UserListApp = new UserListApp();
+                let app: UserMappingListApp = new UserMappingListApp();
                 app.navigation = this.navigation;
                 return app;
             }

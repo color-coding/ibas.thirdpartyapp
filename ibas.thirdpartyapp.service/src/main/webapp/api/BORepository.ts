@@ -30,16 +30,6 @@ namespace thirdpartyapp {
              */
             saveApplication(saver: ibas.ISaveCaller<bo.IApplication>): void;
             /**
-             * 查询 用户
-             * @param fetcher 查询者
-             */
-            fetchUser(fetcher: ibas.IFetchCaller<bo.IUser>): void;
-            /**
-             * 保存 用户
-             * @param saver 保存者
-             */
-            saveUser(saver: ibas.ISaveCaller<bo.IUser>): void;
-            /**
              * 查询 应用配置
              * @param fetcher 查询者
              */
@@ -49,6 +39,11 @@ namespace thirdpartyapp {
              * @param saver 保存者
              */
             saveApplicationConfig(saver: ibas.ISaveCaller<bo.IApplicationConfig>): void;
+            /**
+             * 查询 用户映射
+             * @param fetcher 查询者
+             */
+            fetchUserMapping(fetcher: ibas.IFetchCaller<bo.IUserMapping>): void;
 
         }
     }

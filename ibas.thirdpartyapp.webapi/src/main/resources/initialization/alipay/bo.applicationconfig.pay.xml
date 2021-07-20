@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <!DOCTYPE ApplicationConfig>
 <ns:ApplicationConfig xmlns:ns="https://colorcoding.org/ibas/thirdpartyapp/bo">
-	<Code>AP-PAY</Code>
+	<Code>AP_PAY</Code>
 	<Name>支付宝支付</Name>
 	<Group>ALIPAY</Group>
 	<ApplicationConfigItems>

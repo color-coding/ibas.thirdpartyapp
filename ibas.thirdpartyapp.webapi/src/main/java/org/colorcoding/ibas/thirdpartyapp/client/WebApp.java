@@ -9,6 +9,7 @@ import java.net.URLConnection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Properties;
 
 import org.colorcoding.ibas.bobas.common.Criteria;
 import org.colorcoding.ibas.bobas.common.ICondition;
@@ -22,7 +23,7 @@ import org.colorcoding.ibas.bobas.organization.OrganizationFactory;
 import org.colorcoding.ibas.initialfantasy.bo.organization.User;
 import org.colorcoding.ibas.initialfantasy.repository.BORepositoryInitialFantasy;
 import org.colorcoding.ibas.thirdpartyapp.MyConfiguration;
-import org.colorcoding.ibas.thirdpartyapp.bo.user.IUser;
+import org.colorcoding.ibas.thirdpartyapp.bo.usermapping.IUserMapping;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -131,10 +132,10 @@ public abstract class WebApp extends ApplicationClient {
 		return node.textValue();
 	}
 
-	public final org.colorcoding.ibas.initialfantasy.bo.shell.User authenticate(Map<String, Object> params)
+	public final org.colorcoding.ibas.initialfantasy.bo.shell.User authenticate(Properties params)
 			throws AuthenticationException {
 		try {
-			IUser user = this.fetchUser(params);
+			IUserMapping user = this.fetchUser(params);
 			if (user == null) {
 				throw new Exception(I18N.prop("msg_tpa_no_matching_user"));
 			}
@@ -163,5 +164,5 @@ public abstract class WebApp extends ApplicationClient {
 		}
 	}
 
-	protected abstract IUser fetchUser(Map<String, Object> params) throws Exception;
+	protected abstract IUserMapping fetchUser(Properties params) throws Exception;
 }

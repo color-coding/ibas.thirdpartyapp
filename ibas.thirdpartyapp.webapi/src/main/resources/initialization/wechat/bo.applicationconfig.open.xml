@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <!DOCTYPE ApplicationConfig>
 <ns:ApplicationConfig xmlns:ns="https://colorcoding.org/ibas/thirdpartyapp/bo">
-	<Code>WC-OPEN</Code>
+	<Code>WC_OPEN</Code>
 	<Name>微信开放平台</Name>
 	<Group>WECHAT</Group>
 	<ApplicationConfigItems>

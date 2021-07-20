@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!DOCTYPE ApplicationConfig>
+<ns:ApplicationConfig xmlns:ns="https://colorcoding.org/ibas/thirdpartyapp/bo">
+	<Code>MDL_2RD_PARTY</Code>
+	<Name>第二方模块</Name>
+	<Group>MODULE</Group>
+	<ApplicationConfigItems>
+		<ApplicationConfigItem>
+			<Name>ViewUrl</Name>
+			<Description>视图地址</Description>
+			<Category>TEXT</Category>
+		</ApplicationConfigItem>
+		<ApplicationConfigItem>
+			<Name>DataUrl</Name>
+			<Description>数据地址</Description>
+			<Category>TEXT</Category>
+		</ApplicationConfigItem>
+		<ApplicationConfigItem>
+			<Name>User</Name>
+			<Description>用户</Description>
+			<Category>TEXT</Category>
+		</ApplicationConfigItem>
+		<ApplicationConfigItem>
+			<Name>Password</Name>
+			<Description>密码</Description>
+			<Category>PASSWORD</Category>
+		</ApplicationConfigItem>
+		<ApplicationConfigItem>
+			<Name>Token</Name>
+			<Description>令牌</Description>
+			<Category>PASSWORD</Category>
+		</ApplicationConfigItem>
+	</ApplicationConfigItems>
+</ns:ApplicationConfig>

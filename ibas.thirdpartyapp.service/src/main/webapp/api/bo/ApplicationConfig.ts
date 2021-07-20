@@ -91,6 +91,8 @@ namespace thirdpartyapp {
             category: emConfigItemCategory;
             /** 值 */
             value: string;
+            /** 用户的 */
+            forUser: ibas.emYesNo;
 
         }
 

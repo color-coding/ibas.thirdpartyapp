@@ -8,7 +8,7 @@
 /// <reference path="../../index.d.ts" />
 /// <reference path="./application/index.ts" />
 /// <reference path="./applicationconfig/index.ts" />
-/// <reference path="./user/index.ts" />
+/// <reference path="./usermapping/index.ts" />
 /// <reference path="./others/index.ts" />
 
 namespace thirdpartyapp {
@@ -31,15 +31,6 @@ namespace thirdpartyapp {
                     case app.ApplicationEditApp.APPLICATION_ID:
                         view = new c.ApplicationEditView();
                         break;
-                    case app.UserListApp.APPLICATION_ID:
-                        view = new c.UserListView();
-                        break;
-                    case app.UserChooseApp.APPLICATION_ID:
-                        view = new c.UserChooseView();
-                        break;
-                    case app.UserEditApp.APPLICATION_ID:
-                        view = new c.UserEditView();
-                        break;
                     case app.ApplicationConfigListApp.APPLICATION_ID:
                         view = new c.ApplicationConfigListView();
                         break;
@@ -51,6 +42,12 @@ namespace thirdpartyapp {
                         break;
                     case app.UserApplicationApp.APPLICATION_ID:
                         view = new c.UserApplicationView();
+                        break;
+                    case app.UserMappingListApp.APPLICATION_ID:
+                        view = new c.UserMappingListView();
+                        break;
+                    case app.ApplicationSettingService.APPLICATION_ID:
+                        view = new c.ApplicationSettingServiceView();
                         break;
                     default:
                         break;

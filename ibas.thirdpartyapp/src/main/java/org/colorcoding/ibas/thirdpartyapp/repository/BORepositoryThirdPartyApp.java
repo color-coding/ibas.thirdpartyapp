@@ -17,8 +17,9 @@ import org.colorcoding.ibas.thirdpartyapp.bo.applicationconfig.IApplicationConfi
 import org.colorcoding.ibas.thirdpartyapp.bo.other.ApplicationSetting;
 import org.colorcoding.ibas.thirdpartyapp.bo.other.ApplicationSettingItem;
 import org.colorcoding.ibas.thirdpartyapp.bo.other.UserApplication;
-import org.colorcoding.ibas.thirdpartyapp.bo.user.IUser;
-import org.colorcoding.ibas.thirdpartyapp.bo.user.User;
+import org.colorcoding.ibas.thirdpartyapp.bo.usermapping.IUserMapping;
+import org.colorcoding.ibas.thirdpartyapp.bo.usermapping.UserMapping;
+import org.colorcoding.ibas.thirdpartyapp.data.DataConvert;
 
 /**
  * ThirdPartyApp仓库
@@ -26,8 +27,16 @@ import org.colorcoding.ibas.thirdpartyapp.bo.user.User;
 public class BORepositoryThirdPartyApp extends BORepositoryServiceApplication
 		implements IBORepositoryThirdPartyAppSvc, IBORepositoryThirdPartyAppApp {
 
-	// --------------------------------------------------------------------------------------------//
-	public ApplicationSetting createApplicationSetting(IApplication application) throws Exception {
+	// --------------------------------------------------------------------------------------------
+	/**
+	 * 创建应用配置
+	 * 
+	 * @param application 应用
+	 * @param noUsers     不包含用户配置
+	 * @return
+	 * @throws Exception
+	 */
+	public ApplicationSetting createApplicationSetting(IApplication application, boolean noUsers) throws Exception {
 		ICriteria criteria = new Criteria();
 		ICondition condition = criteria.getConditions().create();
 		condition.setAlias(ApplicationConfig.PROPERTY_CODE.getName());
@@ -45,13 +54,51 @@ public class BORepositoryThirdPartyApp extends BORepositoryServiceApplication
 				org.colorcoding.ibas.initialfantasy.MyConfiguration.CONFIG_ITEM_USER_TOKEN_KEY,
 				applicationConfig.getCreateActionId()));
 		for (IApplicationConfigItem configItem : applicationConfig.getApplicationConfigItems()) {
+			if (noUsers && configItem.getForUser() == emYesNo.YES) {
+				continue;
+			}
 			ApplicationSettingItem appSettingItem = appSetting.getSettingItems().create();
 			appSettingItem.setName(configItem.getName());
 			appSettingItem.setDescription(configItem.getDescription());
 			appSettingItem.setCategory(configItem.getCategory());
 		}
-		if (application.getSettings() != null && !application.getSettings().isEmpty()) {
+		if (!DataConvert.isNullOrEmpty(application.getSettings())) {
 			appSetting.getSettingItems().decode(application.getSettings());
+		}
+		return appSetting;
+	}
+
+	/**
+	 * 创建应用配置（不含用户的）
+	 * 
+	 * @param application 应用
+	 * @return
+	 * @throws Exception
+	 */
+	public ApplicationSetting createApplicationSetting(IApplication application) throws Exception {
+		return this.createApplicationSetting(application, true);
+	}
+
+	/**
+	 * 创建用户应用配置（全部）
+	 * 
+	 * @param userMapping
+	 * @return
+	 * @throws Exception
+	 */
+	public ApplicationSetting createApplicationSetting(IUserMapping userMapping) throws Exception {
+		ICriteria criteria = new Criteria();
+		ICondition condition = criteria.getConditions().create();
+		condition.setAlias(Application.PROPERTY_CODE.getName());
+		condition.setValue(userMapping.getApplication());
+		IOperationResult<IApplication> opRsltApp = this.fetchApplication(criteria);
+		IApplication application = opRsltApp.getResultObjects().firstOrDefault();
+		if (application == null) {
+			throw new Exception(I18N.prop("msg_tpa_invaild_application", userMapping.getApplication()));
+		}
+		ApplicationSetting appSetting = this.createApplicationSetting(application, false);
+		if (!DataConvert.isNullOrEmpty(userMapping.getSettings())) {
+			appSetting.getSettingItems().decode(userMapping.getSettings());
 		}
 		return appSetting;
 	}
@@ -66,16 +113,13 @@ public class BORepositoryThirdPartyApp extends BORepositoryServiceApplication
 			this.setUserToken(token);
 			ICriteria criteria = new Criteria();
 			ICondition condition = criteria.getConditions().create();
-			condition.setAlias(User.PROPERTY_USER.getName());
+			condition.setAlias(UserMapping.PROPERTY_USER.getName());
 			condition.setValue(user);
-			condition = criteria.getConditions().create();
-			condition.setAlias(User.PROPERTY_ACTIVATED.getName());
-			condition.setValue(emYesNo.YES);
-			IOperationResult<IUser> opRsltUser = this.fetchUser(criteria);
+			IOperationResult<IUserMapping> opRsltUser = this.fetchUserMapping(criteria);
 			if (opRsltUser.getError() != null) {
 				throw opRsltUser.getError();
 			}
-			for (IUser appUser : opRsltUser.getResultObjects()) {
+			for (IUserMapping appUser : opRsltUser.getResultObjects()) {
 				if (opRslt.getResultObjects()
 						.firstOrDefault(c -> c.getCode().equals(appUser.getApplication())) != null) {
 					continue;
@@ -92,7 +136,7 @@ public class BORepositoryThirdPartyApp extends BORepositoryServiceApplication
 				if (application == null) {
 					continue;
 				}
-				ApplicationSetting appSetting = this.createApplicationSetting(application);
+				ApplicationSetting appSetting = this.createApplicationSetting(appUser);
 				if (appSetting == null) {
 					continue;
 				}
@@ -157,49 +201,6 @@ public class BORepositoryThirdPartyApp extends BORepositoryServiceApplication
 
 	// --------------------------------------------------------------------------------------------//
 	/**
-	 * 查询-用户
-	 * 
-	 * @param criteria 查询
-	 * @param token    口令
-	 * @return 操作结果
-	 */
-	public OperationResult<User> fetchUser(ICriteria criteria, String token) {
-		return super.fetch(criteria, token, User.class);
-	}
-
-	/**
-	 * 查询-用户（提前设置用户口令）
-	 * 
-	 * @param criteria 查询
-	 * @return 操作结果
-	 */
-	public IOperationResult<IUser> fetchUser(ICriteria criteria) {
-		return new OperationResult<IUser>(this.fetchUser(criteria, this.getUserToken()));
-	}
-
-	/**
-	 * 保存-用户
-	 * 
-	 * @param bo    对象实例
-	 * @param token 口令
-	 * @return 操作结果
-	 */
-	public OperationResult<User> saveUser(User bo, String token) {
-		return super.save(bo, token);
-	}
-
-	/**
-	 * 保存-用户（提前设置用户口令）
-	 * 
-	 * @param bo 对象实例
-	 * @return 操作结果
-	 */
-	public IOperationResult<IUser> saveUser(IUser bo) {
-		return new OperationResult<IUser>(this.saveUser((User) bo, this.getUserToken()));
-	}
-
-	// --------------------------------------------------------------------------------------------//
-	/**
 	 * 查询-应用配置
 	 * 
 	 * @param criteria 查询
@@ -241,6 +242,50 @@ public class BORepositoryThirdPartyApp extends BORepositoryServiceApplication
 		return new OperationResult<IApplicationConfig>(
 				this.saveApplicationConfig((ApplicationConfig) bo, this.getUserToken()));
 	}
+
+	// --------------------------------------------------------------------------------------------//
+	/**
+	 * 查询-用户映射
+	 * 
+	 * @param criteria 查询
+	 * @param token    口令
+	 * @return 操作结果
+	 */
+	public OperationResult<UserMapping> fetchUserMapping(ICriteria criteria, String token) {
+		return super.fetch(criteria, token, UserMapping.class);
+	}
+
+	/**
+	 * 查询-用户映射（提前设置用户口令）
+	 * 
+	 * @param criteria 查询
+	 * @return 操作结果
+	 */
+	public IOperationResult<IUserMapping> fetchUserMapping(ICriteria criteria) {
+		return new OperationResult<IUserMapping>(this.fetchUserMapping(criteria, this.getUserToken()));
+	}
+
+	/**
+	 * 保存-用户映射
+	 * 
+	 * @param bo    对象实例
+	 * @param token 口令
+	 * @return 操作结果
+	 */
+	public OperationResult<UserMapping> saveUserMapping(UserMapping bo, String token) {
+		return super.save(bo, token);
+	}
+
+	/**
+	 * 保存-用户映射（提前设置用户口令）
+	 * 
+	 * @param bo 对象实例
+	 * @return 操作结果
+	 */
+	public IOperationResult<IUserMapping> saveUserMapping(IUserMapping bo) {
+		return new OperationResult<IUserMapping>(this.saveUserMapping((UserMapping) bo, this.getUserToken()));
+	}
+
 	// --------------------------------------------------------------------------------------------//
 
 }

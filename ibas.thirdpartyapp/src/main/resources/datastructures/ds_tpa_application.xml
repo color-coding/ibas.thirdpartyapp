@@ -7,6 +7,7 @@
     <Property Name="Activated" Description="激活" DataType="Alphanumeric" DataSubType="Default" EditSize="1" DeclaredType="emYesNo" Mapped="Activated"/>
     <Property Name="Category" Description="类别" DataType="Alphanumeric" DataSubType="Default" EditSize="30" Mapped="Category"/>
     <Property Name="Config" Description="配置" DataType="Alphanumeric" DataSubType="Default" EditSize="15" Mapped="Config"/>
+    <Property Name="Picture" Description="图片" DataType="Alphanumeric" DataSubType="Default" EditSize="250" Mapped="Picture"/>
     <Property Name="Settings" Description="设置" DataType="Memo" DataSubType="Default" EditSize="8" Mapped="Settings"/>
     <Property Name="Remarks" Description="备注" DataType="Memo" DataSubType="Default" EditSize="8" Mapped="Remarks"/>
     <Property Name="DocEntry" Description="对象编号" DataType="Numeric" DataSubType="Default" EditSize="8" Mapped="DocEntry" PrimaryKey="Yes"/>

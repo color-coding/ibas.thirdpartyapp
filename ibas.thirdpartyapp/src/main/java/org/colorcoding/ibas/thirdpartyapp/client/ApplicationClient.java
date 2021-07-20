@@ -1,8 +1,8 @@
 package org.colorcoding.ibas.thirdpartyapp.client;
 
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Properties;
 
 import org.colorcoding.ibas.bobas.common.IOperationResult;
 import org.colorcoding.ibas.bobas.data.IKeyText;
@@ -13,6 +13,15 @@ import org.colorcoding.ibas.thirdpartyapp.bo.other.ApplicationSetting;
 import org.colorcoding.ibas.thirdpartyapp.data.DataConvert;
 
 public abstract class ApplicationClient {
+
+	public ApplicationClient() {
+
+	}
+
+	public ApplicationClient(ApplicationSetting setting) {
+		this();
+		this.setSetting(setting);
+	}
 
 	private ApplicationSetting setting;
 
@@ -57,7 +66,7 @@ public abstract class ApplicationClient {
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	protected final <T> T paramValue(String name, T defaultValue, Map<String, Object> params) {
+	protected final <T> T paramValue(String name, T defaultValue, Properties params) {
 		if (params == null || params.isEmpty()) {
 			return defaultValue;
 		}
@@ -82,15 +91,16 @@ public abstract class ApplicationClient {
 	 * @param params   变量，name-value
 	 * @return
 	 */
-	protected final String applyVariables(String template, Map<String, Object> params) {
+	protected final String applyVariables(String template, Properties params) {
 		return MyConfiguration.applyVariables(template, new Iterator<IKeyText>() {
 
-			Iterator<Entry<String, Object>> iterator = params.entrySet().iterator();
+			Iterator<Entry<Object, Object>> iterator = params.entrySet().iterator();
 
 			@Override
 			public IKeyText next() {
-				Entry<String, Object> item = iterator.next();
-				return new KeyText(item.getKey(), item.getValue() == null ? "" : String.valueOf(item.getValue()));
+				Entry<Object, Object> item = iterator.next();
+				return new KeyText(item.getKey() == null ? "" : String.valueOf(item.getKey()),
+						item.getValue() == null ? "" : String.valueOf(item.getValue()));
 			}
 
 			@Override
@@ -112,7 +122,7 @@ public abstract class ApplicationClient {
 	 * @return 识别的用户
 	 * @throws Exception
 	 */
-	public abstract User authenticate(Map<String, Object> params) throws AuthenticationException;
+	public abstract User authenticate(Properties params) throws AuthenticationException;
 
 	/**
 	 * 执行指令
@@ -123,6 +133,5 @@ public abstract class ApplicationClient {
 	 * @throws Exception 未实现
 	 * @return 操作结果
 	 */
-	public abstract <P> IOperationResult<P> execute(String instruct, Map<String, Object> params)
-			throws NotImplementedException;
+	public abstract <P> IOperationResult<P> execute(String instruct, Properties params) throws ApplicationException;
 }

@@ -8,5 +8,5 @@
 /// <reference path="./Data.ts" />
 /// <reference path="./bo/Application.ts" />
 /// <reference path="./bo/ApplicationConfig.ts" />
-/// <reference path="./bo/User.ts" />
+/// <reference path="./bo/UserMapping.ts" />
 /// <reference path="./BORepository.ts" />

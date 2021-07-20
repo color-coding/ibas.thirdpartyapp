@@ -17,6 +17,7 @@ import javax.ws.rs.core.MediaType;
 import org.colorcoding.ibas.bobas.common.Criteria;
 import org.colorcoding.ibas.bobas.common.ICondition;
 import org.colorcoding.ibas.bobas.common.IOperationResult;
+import org.colorcoding.ibas.bobas.common.OperationMessage;
 import org.colorcoding.ibas.bobas.common.OperationResult;
 import org.colorcoding.ibas.bobas.data.FileData;
 import org.colorcoding.ibas.bobas.i18n.I18N;
@@ -27,6 +28,10 @@ import org.colorcoding.ibas.thirdpartyapp.bo.application.Application;
 import org.colorcoding.ibas.thirdpartyapp.bo.application.IApplication;
 import org.colorcoding.ibas.thirdpartyapp.bo.other.ApplicationSetting;
 import org.colorcoding.ibas.thirdpartyapp.bo.other.ApplicationSettingItem;
+import org.colorcoding.ibas.thirdpartyapp.bo.other.ApplicationSettingItems;
+import org.colorcoding.ibas.thirdpartyapp.bo.usermapping.IUserMapping;
+import org.colorcoding.ibas.thirdpartyapp.bo.usermapping.UserMapping;
+import org.colorcoding.ibas.thirdpartyapp.data.DataConvert;
 import org.colorcoding.ibas.thirdpartyapp.data.emConfigItemCategory;
 import org.colorcoding.ibas.thirdpartyapp.repository.BORepositoryThirdPartyApp;
 import org.glassfish.jersey.media.multipart.FormDataBodyPart;
@@ -117,15 +122,62 @@ public class FileService extends FileRepositoryService {
 	}
 
 	@POST
+	@Produces(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Path("fetchApplicationSetting")
+	public OperationResult<ApplicationSetting> fetchApplicationSetting(@QueryParam("application") String appCode,
+			@QueryParam("user") String user, @QueryParam("token") String token) {
+		try {
+			BORepositoryThirdPartyApp boRepository = new BORepositoryThirdPartyApp();
+			boRepository.setUserToken(token);
+			OperationResult<ApplicationSetting> operationResult = new OperationResult<>();
+			if (DataConvert.isNullOrEmpty(user)) {
+				Criteria criteria = new Criteria();
+				ICondition condition = criteria.getConditions().create();
+				condition.setAlias(Application.PROPERTY_CODE.getName());
+				condition.setValue(appCode);
+				IOperationResult<IApplication> opRslt = boRepository.fetchApplication(criteria);
+				if (opRslt.getError() != null) {
+					throw opRslt.getError();
+				}
+				IApplication application = opRslt.getResultObjects().firstOrDefault();
+				if (application == null) {
+					throw new Exception(I18N.prop("msg_tpa_invaild_application", appCode));
+				}
+				operationResult.addResultObjects(boRepository.createApplicationSetting(application));
+			} else {
+				Criteria criteria = new Criteria();
+				ICondition condition = criteria.getConditions().create();
+				condition.setAlias(UserMapping.PROPERTY_APPLICATION.getName());
+				condition.setValue(appCode);
+				condition = criteria.getConditions().create();
+				condition.setAlias(UserMapping.PROPERTY_USER.getName());
+				condition.setValue(user);
+				IOperationResult<IUserMapping> opRslt = boRepository.fetchUserMapping(criteria);
+				if (opRslt.getError() != null) {
+					throw opRslt.getError();
+				}
+				IUserMapping userMapping = opRslt.getResultObjects().firstOrDefault();
+				if (userMapping == null) {
+					throw new Exception(I18N.prop("msg_tpa_invaild_application_user_mapping", appCode, user));
+				}
+				operationResult.addResultObjects(boRepository.createApplicationSetting(userMapping));
+			}
+			return operationResult;
+		} catch (Exception e) {
+			return new OperationResult<>(e);
+		}
+	}
+
+	@POST
 	@Path("saveApplicationSetting")
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	@Produces(MediaType.APPLICATION_JSON)
-	public OperationResult<Application> saveApplicationSetting(FormDataMultiPart formData,
-			@QueryParam("application") String appCode, @QueryParam("token") String token) {
+	public OperationResult<ApplicationSetting> saveApplicationSetting(FormDataMultiPart formData,
+			@QueryParam("application") String appCode, @QueryParam("user") String user,
+			@QueryParam("token") String token) {
 		try {
-			OperationResult<Application> operationResult = new OperationResult<>();
 			Criteria criteria = new Criteria();
-			criteria.setResultCount(1);
 			ICondition condition = criteria.getConditions().create();
 			condition.setAlias(Application.PROPERTY_CODE.getName());
 			condition.setValue(appCode);
@@ -139,17 +191,17 @@ public class FileService extends FileRepositoryService {
 			if (application == null) {
 				throw new Exception(I18N.prop("msg_tpa_invaild_application", appCode));
 			}
-			OperationResult<FileData> opRsltFile;
-			ApplicationSetting appSetting = boRepository.createApplicationSetting(application);
+			ApplicationSettingItems savingItems = new ApplicationSettingItems();
+			ApplicationSetting appSetting = boRepository.createApplicationSetting(application, false);
 			for (ApplicationSettingItem settingItem : appSetting.getSettingItems()) {
-				if (settingItem.getName() == null || settingItem.getName().isEmpty()) {
+				if (DataConvert.isNullOrEmpty(settingItem.getName())) {
 					continue;
 				}
 				FormDataBodyPart bodyPart = formData.getField(settingItem.getName());
 				if (bodyPart != null) {
 					if (settingItem.getCategory() == emConfigItemCategory.FILE
 							&& bodyPart.getMediaType() != MediaType.TEXT_PLAIN_TYPE) {
-						opRsltFile = super.save(bodyPart, token);
+						OperationResult<FileData> opRsltFile = super.save(bodyPart, token);
 						if (opRsltFile.getError() != null) {
 							throw opRsltFile.getError();
 						}
@@ -162,17 +214,74 @@ public class FileService extends FileRepositoryService {
 					} else {
 						settingItem.setValue(bodyPart.getValue());
 					}
+					savingItems.add(settingItem);
 				}
 			}
-			application.setSettings(appSetting.getSettingItems().encode());
-			opRsltApp = boRepository.saveApplication(application);
-			if (opRsltApp.getError() != null) {
-				throw opRsltApp.getError();
+			if (DataConvert.isNullOrEmpty(user)) {
+				application.setSettings(savingItems.encode());
+				opRsltApp = boRepository.saveApplication(application);
+				if (opRsltApp.getError() != null) {
+					throw opRsltApp.getError();
+				}
+			} else {
+				criteria = new Criteria();
+				condition = criteria.getConditions().create();
+				condition.setAlias(UserMapping.PROPERTY_APPLICATION.getName());
+				condition.setValue(appCode);
+				condition = criteria.getConditions().create();
+				condition.setAlias(UserMapping.PROPERTY_USER.getName());
+				condition.setValue(user);
+				boRepository = new BORepositoryThirdPartyApp();
+				boRepository.setUserToken(token);
+				IOperationResult<IUserMapping> opRsltMapping = boRepository.fetchUserMapping(criteria);
+				if (opRsltMapping.getError() != null) {
+					throw opRsltMapping.getError();
+				}
+				IUserMapping userMapping = opRsltMapping.getResultObjects().firstOrDefault();
+				if (userMapping == null) {
+					userMapping = new UserMapping();
+					userMapping.setApplication(appCode);
+					userMapping.setUser(user);
+				}
+				userMapping.setSettings(savingItems.encode());
+				opRsltMapping = boRepository.saveUserMapping(userMapping);
+				if (opRsltMapping.getError() != null) {
+					throw opRsltMapping.getError();
+				}
 			}
-			operationResult.addResultObjects(opRsltApp.getResultObjects().firstOrDefault());
-			return operationResult;
+			return this.fetchApplicationSetting(application.getCode(), user, token);
 		} catch (Exception e) {
 			return new OperationResult<>(e);
+		}
+	}
+
+	@POST
+	@Path("removeApplicationSetting")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public OperationMessage removeApplicationSetting(@QueryParam("application") String appCode,
+			@QueryParam("user") String user, @QueryParam("token") String token) {
+		try {
+			Criteria criteria = new Criteria();
+			ICondition condition = criteria.getConditions().create();
+			condition.setAlias(UserMapping.PROPERTY_APPLICATION.getName());
+			condition.setValue(appCode);
+			condition = criteria.getConditions().create();
+			condition.setAlias(UserMapping.PROPERTY_USER.getName());
+			condition.setValue(user);
+			BORepositoryThirdPartyApp boRepository = new BORepositoryThirdPartyApp();
+			boRepository.setUserToken(token);
+			IOperationResult<IUserMapping> opRsltMapping = boRepository.fetchUserMapping(criteria);
+			if (opRsltMapping.getError() != null) {
+				throw opRsltMapping.getError();
+			}
+			for (IUserMapping item : opRsltMapping.getResultObjects()) {
+				item.delete();
+				boRepository.saveUserMapping(item);
+			}
+			return new OperationMessage();
+		} catch (Exception e) {
+			return new OperationMessage(e);
 		}
 	}
 }
