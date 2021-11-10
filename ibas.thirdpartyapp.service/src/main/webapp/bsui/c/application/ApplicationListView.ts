@@ -37,6 +37,7 @@ namespace thirdpartyapp {
                                     path: "code",
                                     type: new sap.extension.data.Alphanumeric(),
                                 }),
+                                width: "14rem",
                             }),
                             new sap.extension.table.DataColumn("", {
                                 label: ibas.i18n.prop("bo_application_name"),
@@ -45,6 +46,7 @@ namespace thirdpartyapp {
                                     path: "name",
                                     type: new sap.extension.data.Alphanumeric(),
                                 }),
+                                width: "18rem",
                             }),
                             new sap.extension.table.DataColumn("", {
                                 label: ibas.i18n.prop("bo_application_activated"),
