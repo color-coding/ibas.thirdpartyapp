@@ -118,7 +118,7 @@ namespace thirdpartyapp {
                         if (action !== ibas.emMessageAction.YES) {
                             return;
                         }
-                        let boRepository: bo.BORepositoryThirdPartyApp = new bo.BORepositoryThirdPartyApp;
+                        let boRepository: bo.BORepositoryThirdPartyApp = new bo.BORepositoryThirdPartyApp();
                         ibas.queues.execute(beDeleteds, (data, next) => {
                             // 处理数据
                             boRepository.saveApplicationConfig({

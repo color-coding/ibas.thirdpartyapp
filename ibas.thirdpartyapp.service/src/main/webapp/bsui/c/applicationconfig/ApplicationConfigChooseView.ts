@@ -30,6 +30,7 @@ namespace thirdpartyapp {
                                     path: "code",
                                     type: new sap.extension.data.Alphanumeric(),
                                 }),
+                                width: "12rem",
                             }),
                             new sap.extension.table.DataColumn("", {
                                 label: ibas.i18n.prop("bo_applicationconfig_name"),
@@ -38,6 +39,7 @@ namespace thirdpartyapp {
                                     path: "name",
                                     type: new sap.extension.data.Alphanumeric(),
                                 }),
+                                width: "16rem",
                             }),
                             new sap.extension.table.DataColumn("", {
                                 label: ibas.i18n.prop("bo_applicationconfig_group"),
@@ -72,6 +74,9 @@ namespace thirdpartyapp {
                             }
                             ibas.logger.log(ibas.emMessageLevel.DEBUG, "result: {0}", criteria.toString());
                             that.fireViewEvents(that.fetchDataEvent, criteria);
+                        },
+                        rowDoubleClick(event: sap.ui.base.Event): void {
+                            that.fireViewEvents(that.chooseDataEvent, event.getParameter("row")?.getBindingContext()?.getObject());
                         }
                     });
                     return new sap.m.Dialog("", {

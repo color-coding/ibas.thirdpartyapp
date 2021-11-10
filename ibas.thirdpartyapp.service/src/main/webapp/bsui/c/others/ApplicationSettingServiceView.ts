@@ -43,6 +43,7 @@ namespace thirdpartyapp {
                                                     }),
                                                     new sap.m.Label("", { text: ibas.i18n.prop("bo_applicationsettingitem_value") }),
                                                     new sap.extension.m.Input("", {
+                                                        autocomplete: false,
                                                         valueHelpRequest(oEvent: sap.ui.base.Event): void {
                                                             let source: any = oEvent.getSource();
                                                             if (source instanceof sap.ui.core.Element) {

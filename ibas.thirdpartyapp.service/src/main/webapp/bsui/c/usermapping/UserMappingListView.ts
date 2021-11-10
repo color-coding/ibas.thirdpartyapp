@@ -39,9 +39,9 @@ namespace thirdpartyapp {
                                 },
                                 firstStatus: new sap.extension.m.ObjectYesNoStatus("", {
                                     negative: false,
-                                }).bindProperty("text", {
+                                }).bindProperty("enumValue", {
                                     path: "activated",
-                                    type: new sap.extension.data.YesNo(true),
+                                    type: new sap.extension.data.YesNo(),
                                 }),
                                 attributes: [
                                     new sap.extension.m.ObjectAttribute("", {

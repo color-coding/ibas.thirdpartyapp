@@ -67,6 +67,10 @@ declare namespace initialfantasy {
         const BO_CODE_APPLICATIONCONFIGIDENTITY: string;
         /** 业务对象编码-业务对象属性值 */
         const BO_CODE_BOPROPERTY_VALUE: string;
+        /** 业务对象编码-业务对象关系 */
+        const BO_CODE_BORELATIONSHIP: string;
+        /** 业务对象编码-重组功能 */
+        const BO_CODE_REFUNCTION: string;
         /**
          * 分配类型
          */
@@ -74,7 +78,9 @@ declare namespace initialfantasy {
             /** 用户 */
             USER = 0,
             /** 角色 */
-            ROLE = 1
+            ROLE = 1,
+            /** 全部 */
+            ALL = 2
         }
         /**
          * 筛选类型
@@ -178,17 +184,20 @@ declare namespace initialfantasy {
             /** 没有 */
             NONE = 3
         }
-        /**
-         * 配置种类
-         *
-         * @author Niuren.Zhu
-         *
-         */
+        /** 配置种类 */
         enum emConfigCategory {
             /** 服务端 */
             SERVER = 0,
             /** 客户端 */
             CLIENT = 1
+        }
+        enum emRequiredValue {
+            /** 默认值 */
+            DEFAULT = 0,
+            /** 否 */
+            NO = 1,
+            /** 是 */
+            YES = 2
         }
     }
     namespace app {
@@ -501,6 +510,8 @@ declare namespace initialfantasy {
             updateActionId: string;
             /** 数据所属组织 */
             organization: string;
+            /** 备注 */
+            remarks: string;
         }
     }
 }
@@ -557,6 +568,8 @@ declare namespace initialfantasy {
             dataOwner: number;
             /** 数据所属组织 */
             organization: string;
+            /** 备注 */
+            remarks: string;
             /** 业务对象筛选-条件集合 */
             boFilteringConditions: IBOFilteringConditions;
         }
@@ -568,6 +581,8 @@ declare namespace initialfantasy {
             objectCode: string;
             /** 行号 */
             lineId: number;
+            /** 显示顺序 */
+            visOrder: number;
             /** 实例号（版本） */
             logInst: number;
             /** 数据源 */
@@ -600,6 +615,8 @@ declare namespace initialfantasy {
             bracketOpen: number;
             /** 闭括号数 */
             bracketClose: number;
+            /** 备注 */
+            remarks: string;
         }
         /** 业务对象筛选-条件 集合 */
         interface IBOFilteringConditions extends ibas.IBusinessObjects<IBOFilteringCondition> {
@@ -629,6 +646,8 @@ declare namespace initialfantasy {
             mapped: string;
             /** 对象类型 */
             objectType: string;
+            /** 开启修改日志 */
+            modified: ibas.emYesNo;
             /** 业务对象属性信息集合 */
             boPropertyInformations: IBOPropertyInformations;
         }
@@ -654,6 +673,8 @@ declare namespace initialfantasy {
             systemed: ibas.emYesNo;
             /** 链接的对象 */
             linkedObject: string;
+            /** 值选择方式 */
+            valueChooseType: string;
             /** 业务对象属性值集合 */
             boPropertyValues: IBOPropertyValues;
         }
@@ -680,6 +701,19 @@ declare namespace initialfantasy {
             /** 创建并添加子项 */
             create(): IBOPropertyValue;
         }
+        /** 业务对象关系 */
+        interface IBORelationship extends ibas.IBusinessObject {
+            /** 编码 */
+            code: string;
+            /** 目标对象 */
+            target: string;
+            /** 关系 */
+            relation: string;
+            /** 关联的属性 */
+            associatedProperty: string;
+            /** 描述 */
+            description: string;
+        }
     }
 }
 /**
@@ -699,6 +733,16 @@ declare namespace initialfantasy {
             name: string;
             /** 激活 */
             activated: ibas.emYesNo;
+            /** 类别 */
+            category: string;
+            /** 组 */
+            grouped: ibas.emYesNo;
+            /** 父项 */
+            parent: string;
+            /** 生效日期 */
+            validDate: Date;
+            /** 失效日期 */
+            invalidDate: Date;
             /** 对象编号 */
             docEntry: number;
             /** 对象类型 */
@@ -727,6 +771,8 @@ declare namespace initialfantasy {
             updateActionId: string;
             /** 数据所有者 */
             dataOwner: number;
+            /** 备注 */
+            remarks: string;
         }
     }
 }
@@ -809,6 +855,12 @@ declare namespace initialfantasy {
             mail: string;
             /** 电话号码 */
             phone: string;
+            /** 类别 */
+            category: string;
+            /** 生效日期 */
+            validDate: Date;
+            /** 失效日期 */
+            invalidDate: Date;
             /** 对象编号 */
             docEntry: number;
             /** 对象类型 */
@@ -841,6 +893,8 @@ declare namespace initialfantasy {
             dataOwner: number;
             /** 数据所属组织 */
             organization: string;
+            /** 备注 */
+            remarks: string;
         }
     }
 }
@@ -905,6 +959,8 @@ declare namespace initialfantasy {
         interface IUserIdentity extends ibas.IBOSimple {
             /** 用户 */
             user: string;
+            /** 位置 */
+            position: number;
             /** 身份 */
             identity: string;
             /** 生效日期 */
@@ -1021,6 +1077,8 @@ declare namespace initialfantasy {
             searched: emSearchedValue;
             /** 权限 */
             authorised: emAuthorisedValue;
+            /** 必填的 */
+            required: emRequiredValue;
             /** 对象编号 */
             objectKey: number;
             /** 对象类型 */
@@ -1047,6 +1105,142 @@ declare namespace initialfantasy {
             createActionId: string;
             /** 更新动作标识 */
             updateActionId: string;
+        }
+    }
+}
+/**
+ * @license
+ * Copyright Color-Coding Studio. All Rights Reserved.
+ *
+ * Use of this source code is governed by an Apache License, Version 2.0
+ * that can be found in the LICENSE file at http://www.apache.org/licenses/LICENSE-2.0
+ */
+declare namespace initialfantasy {
+    namespace bo {
+        /** 业务对象日志 */
+        interface IBOLogst extends ibas.IBusinessObject {
+            /** 类型 */
+            boCode: string;
+            /** 主键值 */
+            boKeys: string;
+            /** 实例号 */
+            logInst: number;
+            /** 修改用户 */
+            modifyUser: number;
+            /** 修改日期 */
+            modifyDate: Date;
+            /** 修改时间 */
+            modifyTime: number;
+            /** 事务标识 */
+            transationId: string;
+            /** 动机 */
+            cause: string;
+            /** 内容 */
+            content: string | object;
+        }
+    }
+}
+/**
+ * @license
+ * Copyright Color-Coding Studio. All Rights Reserved.
+ *
+ * Use of this source code is governed by an Apache License, Version 2.0
+ * that can be found in the LICENSE file at http://www.apache.org/licenses/LICENSE-2.0
+ */
+declare namespace initialfantasy {
+    namespace bo {
+        /** 重组功能 */
+        interface IRefunction extends ibas.IBOSimple {
+            /** 名称 */
+            name: string;
+            /** 指派类型 */
+            assignedType: emAssignedType;
+            /** 指派目标 */
+            assigned: string;
+            /** 激活的 */
+            activated: ibas.emYesNo;
+            /** 生效日期 */
+            validDate: Date;
+            /** 失效日期 */
+            invalidDate: Date;
+            /** 对象编号 */
+            objectKey: number;
+            /** 对象类型 */
+            objectCode: string;
+            /** 创建日期 */
+            createDate: Date;
+            /** 创建时间 */
+            createTime: number;
+            /** 修改日期 */
+            updateDate: Date;
+            /** 修改时间 */
+            updateTime: number;
+            /** 实例号（版本） */
+            logInst: number;
+            /** 服务系列 */
+            series: number;
+            /** 数据源 */
+            dataSource: string;
+            /** 创建用户 */
+            createUserSign: number;
+            /** 修改用户 */
+            updateUserSign: number;
+            /** 创建动作标识 */
+            createActionId: string;
+            /** 更新动作标识 */
+            updateActionId: string;
+            /** 备注 */
+            remarks: string;
+            /** 重组功能-项目集合 */
+            refunctionItems: IRefunctionItems;
+        }
+        /** 重组功能-项目 集合 */
+        interface IRefunctionItems extends ibas.IBusinessObjects<IRefunctionItem> {
+            /** 创建并添加子项 */
+            create(): IRefunctionItem;
+        }
+        /** 重组功能-项目 */
+        interface IRefunctionItem extends ibas.IBOSimpleLine {
+            /** 编号 */
+            objectKey: number;
+            /** 类型 */
+            objectCode: string;
+            /** 行号 */
+            lineId: number;
+            /** 显示顺序 */
+            visOrder: number;
+            /** 实例号（版本） */
+            logInst: number;
+            /** 数据源 */
+            dataSource: string;
+            /** 创建日期 */
+            createDate: Date;
+            /** 创建时间 */
+            createTime: number;
+            /** 修改日期 */
+            updateDate: Date;
+            /** 修改时间 */
+            updateTime: number;
+            /** 创建用户 */
+            createUserSign: number;
+            /** 修改用户 */
+            updateUserSign: number;
+            /** 创建动作标识 */
+            createActionId: string;
+            /** 更新动作标识 */
+            updateActionId: string;
+            /** 父项 */
+            parent: number;
+            /** 功能 */
+            function: string;
+            /** 描述 */
+            description: string;
+            /** 图片 */
+            image: string;
+            /** 备注 */
+            remarks: string;
+            /** 重组功能-项目集合 */
+            refunctionItems: IRefunctionItems;
         }
     }
 }
@@ -1226,6 +1420,16 @@ declare namespace initialfantasy {
              * @param saver 保存者
              */
             saveApplicationConfigIdentity(saver: ibas.ISaveCaller<bo.IApplicationConfigIdentity>): void;
+            /**
+             * 查询 重组功能
+             * @param fetcher 查询者
+             */
+            fetchRefunction(fetcher: ibas.IFetchCaller<bo.IRefunction>): void;
+            /**
+             * 保存 重组功能
+             * @param saver 保存者
+             */
+            saveRefunction(saver: ibas.ISaveCaller<bo.IRefunction>): void;
         }
     }
 }
@@ -1993,6 +2197,13 @@ declare namespace initialfantasy {
             get organization(): string;
             /** 设置-数据所属组织 */
             set organization(value: string);
+            /** 映射的属性名称-备注 */
+            static PROPERTY_REMARKS_NAME: string;
+            /** 获取-备注 */
+            get remarks(): string;
+            /** 设置-备注 */
+            set remarks(value: string);
+            protected onPropertyChanged(name: string): void;
             /** 初始化数据 */
             protected init(): void;
         }
@@ -2139,6 +2350,12 @@ declare namespace initialfantasy {
             get organization(): string;
             /** 设置-数据所属组织 */
             set organization(value: string);
+            /** 映射的属性名称-备注 */
+            static PROPERTY_REMARKS_NAME: string;
+            /** 获取-备注 */
+            get remarks(): string;
+            /** 设置-备注 */
+            set remarks(value: string);
             /** 映射的属性名称-业务对象筛选-条件集合 */
             static PROPERTY_BOFILTERINGCONDITIONS_NAME: string;
             /** 获取-业务对象筛选-条件集合 */
@@ -2170,6 +2387,12 @@ declare namespace initialfantasy {
             get lineId(): number;
             /** 设置-行号 */
             set lineId(value: number);
+            /** 映射的属性名称-显示顺序 */
+            static PROPERTY_VISORDER_NAME: string;
+            /** 获取-显示顺序 */
+            get visOrder(): number;
+            /** 设置-显示顺序 */
+            set visOrder(value: number);
             /** 映射的属性名称-实例号（版本） */
             static PROPERTY_LOGINST_NAME: string;
             /** 获取-实例号（版本） */
@@ -2266,6 +2489,12 @@ declare namespace initialfantasy {
             get bracketClose(): number;
             /** 设置-闭括号数 */
             set bracketClose(value: number);
+            /** 映射的属性名称-备注 */
+            static PROPERTY_REMARKS_NAME: string;
+            /** 获取-备注 */
+            get remarks(): string;
+            /** 设置-备注 */
+            set remarks(value: string);
             /** 初始化数据 */
             protected init(): void;
         }
@@ -2321,6 +2550,12 @@ declare namespace initialfantasy {
             get objectType(): string;
             /** 设置-对象类型 */
             set objectType(value: string);
+            /** 映射的属性名称-开启修改日志 */
+            static PROPERTY_MODIFIED_NAME: string;
+            /** 获取-开启修改日志 */
+            get modified(): ibas.emYesNo;
+            /** 设置-开启修改日志 */
+            set modified(value: ibas.emYesNo);
             /** 映射的属性名称-业务对象属性信息集合 */
             static PROPERTY_BOPROPERTYINFORMATIONS_NAME: string;
             /** 获取-业务对象属性信息集合 */
@@ -2398,6 +2633,12 @@ declare namespace initialfantasy {
             get linkedObject(): string;
             /** 设置-链接的对象 */
             set linkedObject(value: string);
+            /** 映射的属性名称-值选择方式 */
+            static PROPERTY_VALUECHOOSETYPE_NAME: string;
+            /** 获取-值选择方式 */
+            get valueChooseType(): string;
+            /** 设置-值选择方式 */
+            set valueChooseType(value: string);
             /** 映射的属性名称-业务对象属性值集合 */
             static PROPERTY_BOPROPERTYVALUES_NAME: string;
             /** 获取-业务对象属性信息集合 */
@@ -2463,6 +2704,49 @@ declare namespace initialfantasy {
             create(): BOPropertyValue;
             /** 子项属性改变时 */
             protected onItemPropertyChanged(item: BOPropertyValue, name: string): void;
+        }
+        /** 业务对象关系 */
+        class BORelationship extends ibas.BusinessObject<BORelationship> implements IBORelationship {
+            /** 业务对象编码 */
+            static BUSINESS_OBJECT_CODE: string;
+            /** 构造函数 */
+            constructor();
+            /** 映射的属性名称-编码 */
+            static PROPERTY_CODE_NAME: string;
+            /** 获取-编码 */
+            get code(): string;
+            /** 设置-编码 */
+            set code(value: string);
+            /** 映射的属性名称-目标对象 */
+            static PROPERTY_TARGET_NAME: string;
+            /** 获取-目标对象 */
+            get target(): string;
+            /** 设置-目标对象 */
+            set target(value: string);
+            /** 映射的属性名称-关系 */
+            static PROPERTY_RELATION_NAME: string;
+            /** 获取-关系 */
+            get relation(): string;
+            /** 设置-关系 */
+            set relation(value: string);
+            /** 映射的属性名称-关联的属性 */
+            static PROPERTY_ASSOCIATEDPROPERTY_NAME: string;
+            /** 获取-关联的属性 */
+            get associatedProperty(): string;
+            /** 设置-关联的属性 */
+            set associatedProperty(value: string);
+            /** 映射的属性名称-描述 */
+            static PROPERTY_DESCRIPTION_NAME: string;
+            /** 获取-描述 */
+            get description(): string;
+            /** 设置-描述 */
+            set description(value: string);
+            /** 初始化数据 */
+            protected init(): void;
+            /** 字符串 */
+            toString(): string;
+            /** 获取查询 */
+            criteria(): ibas.ICriteria;
         }
     }
 }
@@ -2580,6 +2864,36 @@ declare namespace initialfantasy {
             get activated(): ibas.emYesNo;
             /** 设置-激活 */
             set activated(value: ibas.emYesNo);
+            /** 映射的属性名称-类别 */
+            static PROPERTY_CATEGORY_NAME: string;
+            /** 获取-类别 */
+            get category(): string;
+            /** 设置-类别 */
+            set category(value: string);
+            /** 映射的属性名称-组 */
+            static PROPERTY_GROUPED_NAME: string;
+            /** 获取-组 */
+            get grouped(): ibas.emYesNo;
+            /** 设置-组 */
+            set grouped(value: ibas.emYesNo);
+            /** 映射的属性名称-父项 */
+            static PROPERTY_PARENT_NAME: string;
+            /** 获取-父项 */
+            get parent(): string;
+            /** 设置-父项 */
+            set parent(value: string);
+            /** 映射的属性名称-生效日期 */
+            static PROPERTY_VALIDDATE_NAME: string;
+            /** 获取-生效日期 */
+            get validDate(): Date;
+            /** 设置-生效日期 */
+            set validDate(value: Date);
+            /** 映射的属性名称-失效日期 */
+            static PROPERTY_INVALIDDATE_NAME: string;
+            /** 获取-失效日期 */
+            get invalidDate(): Date;
+            /** 设置-失效日期 */
+            set invalidDate(value: Date);
             /** 映射的属性名称-对象编号 */
             static PROPERTY_DOCENTRY_NAME: string;
             /** 获取-对象编号 */
@@ -2664,6 +2978,12 @@ declare namespace initialfantasy {
             get dataOwner(): number;
             /** 设置-数据所有者 */
             set dataOwner(value: number);
+            /** 映射的属性名称-备注 */
+            static PROPERTY_REMARKS_NAME: string;
+            /** 获取-备注 */
+            get remarks(): string;
+            /** 设置-备注 */
+            set remarks(value: string);
             /** 初始化数据 */
             protected init(): void;
         }
@@ -2866,6 +3186,24 @@ declare namespace initialfantasy {
             get phone(): string;
             /** 设置-电话号码 */
             set phone(value: string);
+            /** 映射的属性名称-类别 */
+            static PROPERTY_CATEGORY_NAME: string;
+            /** 获取-类别 */
+            get category(): string;
+            /** 设置-类别 */
+            set category(value: string);
+            /** 映射的属性名称-生效日期 */
+            static PROPERTY_VALIDDATE_NAME: string;
+            /** 获取-生效日期 */
+            get validDate(): Date;
+            /** 设置-生效日期 */
+            set validDate(value: Date);
+            /** 映射的属性名称-失效日期 */
+            static PROPERTY_INVALIDDATE_NAME: string;
+            /** 获取-失效日期 */
+            get invalidDate(): Date;
+            /** 设置-失效日期 */
+            set invalidDate(value: Date);
             /** 映射的属性名称-对象编号 */
             static PROPERTY_DOCENTRY_NAME: string;
             /** 获取-对象编号 */
@@ -2962,6 +3300,12 @@ declare namespace initialfantasy {
             get organization(): string;
             /** 设置-数据所属组织 */
             set organization(value: string);
+            /** 映射的属性名称-备注 */
+            static PROPERTY_REMARKS_NAME: string;
+            /** 获取-备注 */
+            get remarks(): string;
+            /** 设置-备注 */
+            set remarks(value: string);
             /** 初始化数据 */
             protected init(): void;
         }
@@ -3110,6 +3454,12 @@ declare namespace initialfantasy {
             get user(): string;
             /** 设置-用户 */
             set user(value: string);
+            /** 映射的属性名称-位置 */
+            static PROPERTY_POSITION_NAME: string;
+            /** 获取-位置 */
+            get position(): number;
+            /** 设置-位置 */
+            set position(value: number);
             /** 映射的属性名称-身份 */
             static PROPERTY_IDENTITY_NAME: string;
             /** 获取-身份 */
@@ -3214,6 +3564,16 @@ declare namespace initialfantasy {
             set updateActionId(value: string);
             /** 初始化数据 */
             protected init(): void;
+        }
+        /** 用户身份 集合 */
+        class UserIdentities extends ibas.BusinessObjectsBase<UserIdentity> {
+            /** 创建并添加子项 */
+            create(): UserIdentity;
+            /**
+             * 添加项目后
+             * @param item 项目
+             */
+            protected afterAdd(item: UserIdentity): void;
         }
     }
 }
@@ -3414,6 +3774,12 @@ declare namespace initialfantasy {
             get authorised(): emAuthorisedValue;
             /** 设置-权限 */
             set authorised(value: emAuthorisedValue);
+            /** 映射的属性名称-必填 */
+            static PROPERTY_REQUIRED_NAME: string;
+            /** 获取-必填 */
+            get required(): emRequiredValue;
+            /** 设置-必填 */
+            set required(value: emRequiredValue);
             /** 映射的属性名称-对象编号 */
             static PROPERTY_OBJECTKEY_NAME: string;
             /** 获取-对象编号 */
@@ -3492,6 +3858,359 @@ declare namespace initialfantasy {
             get updateActionId(): string;
             /** 设置-更新动作标识 */
             set updateActionId(value: string);
+            /** 初始化数据 */
+            protected init(): void;
+        }
+    }
+}
+/**
+ * @license
+ * Copyright Color-Coding Studio. All Rights Reserved.
+ *
+ * Use of this source code is governed by an Apache License, Version 2.0
+ * that can be found in the LICENSE file at http://www.apache.org/licenses/LICENSE-2.0
+ */
+declare namespace initialfantasy {
+    namespace bo {
+        /** 业务对象日志 */
+        class BOLogst extends ibas.BusinessObject<BOLogst> implements IBOLogst {
+            /** 构造函数 */
+            constructor();
+            /** 映射的属性名称-类型 */
+            static PROPERTY_BOCODE_NAME: string;
+            /** 获取-类型 */
+            get boCode(): string;
+            /** 设置-类型 */
+            set boCode(value: string);
+            /** 映射的属性名称-主键值 */
+            static PROPERTY_BOKEYS_NAME: string;
+            /** 获取-主键值 */
+            get boKeys(): string;
+            /** 设置-主键值 */
+            set boKeys(value: string);
+            /** 映射的属性名称-实例号 */
+            static PROPERTY_LOGINST_NAME: string;
+            /** 获取-实例号 */
+            get logInst(): number;
+            /** 设置-实例号 */
+            set logInst(value: number);
+            /** 映射的属性名称-修改用户 */
+            static PROPERTY_MODIFYUSER_NAME: string;
+            /** 获取-修改用户 */
+            get modifyUser(): number;
+            /** 设置-修改用户 */
+            set modifyUser(value: number);
+            /** 映射的属性名称-修改日期 */
+            static PROPERTY_MODIFYDATE_NAME: string;
+            /** 获取-修改日期 */
+            get modifyDate(): Date;
+            /** 设置-修改日期 */
+            set modifyDate(value: Date);
+            /** 映射的属性名称-修改时间 */
+            static PROPERTY_MODIFYTIME_NAME: string;
+            /** 获取-修改时间 */
+            get modifyTime(): number;
+            /** 设置-修改时间 */
+            set modifyTime(value: number);
+            /** 映射的属性名称-事务标识 */
+            static PROPERTY_TRANSATIONID_NAME: string;
+            /** 获取-事务标识 */
+            get transationId(): string;
+            /** 设置-事务标识 */
+            set transationId(value: string);
+            /** 映射的属性名称-动机 */
+            static PROPERTY_CAUSE_NAME: string;
+            /** 获取-动机 */
+            get cause(): string;
+            /** 设置-动机 */
+            set cause(value: string);
+            /** 映射的属性名称-内容 */
+            static PROPERTY_CONTENT_NAME: string;
+            /** 获取-内容 */
+            get content(): string | object;
+            /** 设置-内容 */
+            set content(value: string | object);
+            /** 初始化数据 */
+            protected init(): void;
+            criteria(): ibas.ICriteria;
+            toString(): string;
+        }
+    }
+}
+/**
+ * @license
+ * Copyright Color-Coding Studio. All Rights Reserved.
+ *
+ * Use of this source code is governed by an Apache License, Version 2.0
+ * that can be found in the LICENSE file at http://www.apache.org/licenses/LICENSE-2.0
+ */
+declare namespace initialfantasy {
+    namespace bo {
+        /** 重组功能 */
+        class Refunction extends ibas.BOSimple<Refunction> implements IRefunction {
+            /** 业务对象编码 */
+            static BUSINESS_OBJECT_CODE: string;
+            /** 构造函数 */
+            constructor();
+            /** 映射的属性名称-名称 */
+            static PROPERTY_NAME_NAME: string;
+            /** 获取-名称 */
+            get name(): string;
+            /** 设置-名称 */
+            set name(value: string);
+            /** 映射的属性名称-指派类型 */
+            static PROPERTY_ASSIGNEDTYPE_NAME: string;
+            /** 获取-指派类型 */
+            get assignedType(): emAssignedType;
+            /** 设置-指派类型 */
+            set assignedType(value: emAssignedType);
+            /** 映射的属性名称-指派目标 */
+            static PROPERTY_ASSIGNED_NAME: string;
+            /** 获取-指派目标 */
+            get assigned(): string;
+            /** 设置-指派目标 */
+            set assigned(value: string);
+            /** 映射的属性名称-激活的 */
+            static PROPERTY_ACTIVATED_NAME: string;
+            /** 获取-激活的 */
+            get activated(): ibas.emYesNo;
+            /** 设置-激活的 */
+            set activated(value: ibas.emYesNo);
+            /** 映射的属性名称-生效日期 */
+            static PROPERTY_VALIDDATE_NAME: string;
+            /** 获取-生效日期 */
+            get validDate(): Date;
+            /** 设置-生效日期 */
+            set validDate(value: Date);
+            /** 映射的属性名称-失效日期 */
+            static PROPERTY_INVALIDDATE_NAME: string;
+            /** 获取-失效日期 */
+            get invalidDate(): Date;
+            /** 设置-失效日期 */
+            set invalidDate(value: Date);
+            /** 映射的属性名称-对象编号 */
+            static PROPERTY_OBJECTKEY_NAME: string;
+            /** 获取-对象编号 */
+            get objectKey(): number;
+            /** 设置-对象编号 */
+            set objectKey(value: number);
+            /** 映射的属性名称-对象类型 */
+            static PROPERTY_OBJECTCODE_NAME: string;
+            /** 获取-对象类型 */
+            get objectCode(): string;
+            /** 设置-对象类型 */
+            set objectCode(value: string);
+            /** 映射的属性名称-创建日期 */
+            static PROPERTY_CREATEDATE_NAME: string;
+            /** 获取-创建日期 */
+            get createDate(): Date;
+            /** 设置-创建日期 */
+            set createDate(value: Date);
+            /** 映射的属性名称-创建时间 */
+            static PROPERTY_CREATETIME_NAME: string;
+            /** 获取-创建时间 */
+            get createTime(): number;
+            /** 设置-创建时间 */
+            set createTime(value: number);
+            /** 映射的属性名称-修改日期 */
+            static PROPERTY_UPDATEDATE_NAME: string;
+            /** 获取-修改日期 */
+            get updateDate(): Date;
+            /** 设置-修改日期 */
+            set updateDate(value: Date);
+            /** 映射的属性名称-修改时间 */
+            static PROPERTY_UPDATETIME_NAME: string;
+            /** 获取-修改时间 */
+            get updateTime(): number;
+            /** 设置-修改时间 */
+            set updateTime(value: number);
+            /** 映射的属性名称-实例号（版本） */
+            static PROPERTY_LOGINST_NAME: string;
+            /** 获取-实例号（版本） */
+            get logInst(): number;
+            /** 设置-实例号（版本） */
+            set logInst(value: number);
+            /** 映射的属性名称-服务系列 */
+            static PROPERTY_SERIES_NAME: string;
+            /** 获取-服务系列 */
+            get series(): number;
+            /** 设置-服务系列 */
+            set series(value: number);
+            /** 映射的属性名称-数据源 */
+            static PROPERTY_DATASOURCE_NAME: string;
+            /** 获取-数据源 */
+            get dataSource(): string;
+            /** 设置-数据源 */
+            set dataSource(value: string);
+            /** 映射的属性名称-创建用户 */
+            static PROPERTY_CREATEUSERSIGN_NAME: string;
+            /** 获取-创建用户 */
+            get createUserSign(): number;
+            /** 设置-创建用户 */
+            set createUserSign(value: number);
+            /** 映射的属性名称-修改用户 */
+            static PROPERTY_UPDATEUSERSIGN_NAME: string;
+            /** 获取-修改用户 */
+            get updateUserSign(): number;
+            /** 设置-修改用户 */
+            set updateUserSign(value: number);
+            /** 映射的属性名称-创建动作标识 */
+            static PROPERTY_CREATEACTIONID_NAME: string;
+            /** 获取-创建动作标识 */
+            get createActionId(): string;
+            /** 设置-创建动作标识 */
+            set createActionId(value: string);
+            /** 映射的属性名称-更新动作标识 */
+            static PROPERTY_UPDATEACTIONID_NAME: string;
+            /** 获取-更新动作标识 */
+            get updateActionId(): string;
+            /** 设置-更新动作标识 */
+            set updateActionId(value: string);
+            /** 映射的属性名称-备注 */
+            static PROPERTY_REMARKS_NAME: string;
+            /** 获取-备注 */
+            get remarks(): string;
+            /** 设置-备注 */
+            set remarks(value: string);
+            /** 映射的属性名称-重组功能-项目集合 */
+            static PROPERTY_REFUNCTIONITEMS_NAME: string;
+            /** 获取-重组功能-项目集合 */
+            get refunctionItems(): RefunctionItems;
+            /** 设置-重组功能-项目集合 */
+            set refunctionItems(value: RefunctionItems);
+            /** 初始化数据 */
+            protected init(): void;
+        }
+        /** 重组功能-项目 集合 */
+        class RefunctionItems extends ibas.BusinessObjects<RefunctionItem, Refunction | RefunctionItem> implements IRefunctionItems {
+            /** 创建并添加子项 */
+            create(): RefunctionItem;
+            protected afterAdd(item: RefunctionItem): void;
+        }
+        /** 重组功能-项目 */
+        class RefunctionItem extends ibas.BOSimpleLine<RefunctionItem> implements IRefunctionItem {
+            /** 构造函数 */
+            constructor();
+            /** 映射的属性名称-编号 */
+            static PROPERTY_OBJECTKEY_NAME: string;
+            /** 获取-编号 */
+            get objectKey(): number;
+            /** 设置-编号 */
+            set objectKey(value: number);
+            /** 映射的属性名称-类型 */
+            static PROPERTY_OBJECTCODE_NAME: string;
+            /** 获取-类型 */
+            get objectCode(): string;
+            /** 设置-类型 */
+            set objectCode(value: string);
+            /** 映射的属性名称-行号 */
+            static PROPERTY_LINEID_NAME: string;
+            /** 获取-行号 */
+            get lineId(): number;
+            /** 设置-行号 */
+            set lineId(value: number);
+            /** 映射的属性名称-显示顺序 */
+            static PROPERTY_VISORDER_NAME: string;
+            /** 获取-显示顺序 */
+            get visOrder(): number;
+            /** 设置-显示顺序 */
+            set visOrder(value: number);
+            /** 映射的属性名称-实例号（版本） */
+            static PROPERTY_LOGINST_NAME: string;
+            /** 获取-实例号（版本） */
+            get logInst(): number;
+            /** 设置-实例号（版本） */
+            set logInst(value: number);
+            /** 映射的属性名称-数据源 */
+            static PROPERTY_DATASOURCE_NAME: string;
+            /** 获取-数据源 */
+            get dataSource(): string;
+            /** 设置-数据源 */
+            set dataSource(value: string);
+            /** 映射的属性名称-创建日期 */
+            static PROPERTY_CREATEDATE_NAME: string;
+            /** 获取-创建日期 */
+            get createDate(): Date;
+            /** 设置-创建日期 */
+            set createDate(value: Date);
+            /** 映射的属性名称-创建时间 */
+            static PROPERTY_CREATETIME_NAME: string;
+            /** 获取-创建时间 */
+            get createTime(): number;
+            /** 设置-创建时间 */
+            set createTime(value: number);
+            /** 映射的属性名称-修改日期 */
+            static PROPERTY_UPDATEDATE_NAME: string;
+            /** 获取-修改日期 */
+            get updateDate(): Date;
+            /** 设置-修改日期 */
+            set updateDate(value: Date);
+            /** 映射的属性名称-修改时间 */
+            static PROPERTY_UPDATETIME_NAME: string;
+            /** 获取-修改时间 */
+            get updateTime(): number;
+            /** 设置-修改时间 */
+            set updateTime(value: number);
+            /** 映射的属性名称-创建用户 */
+            static PROPERTY_CREATEUSERSIGN_NAME: string;
+            /** 获取-创建用户 */
+            get createUserSign(): number;
+            /** 设置-创建用户 */
+            set createUserSign(value: number);
+            /** 映射的属性名称-修改用户 */
+            static PROPERTY_UPDATEUSERSIGN_NAME: string;
+            /** 获取-修改用户 */
+            get updateUserSign(): number;
+            /** 设置-修改用户 */
+            set updateUserSign(value: number);
+            /** 映射的属性名称-创建动作标识 */
+            static PROPERTY_CREATEACTIONID_NAME: string;
+            /** 获取-创建动作标识 */
+            get createActionId(): string;
+            /** 设置-创建动作标识 */
+            set createActionId(value: string);
+            /** 映射的属性名称-更新动作标识 */
+            static PROPERTY_UPDATEACTIONID_NAME: string;
+            /** 获取-更新动作标识 */
+            get updateActionId(): string;
+            /** 设置-更新动作标识 */
+            set updateActionId(value: string);
+            /** 映射的属性名称-父项 */
+            static PROPERTY_PARENT_NAME: string;
+            /** 获取-父项 */
+            get parent(): number;
+            /** 设置-父项 */
+            set parent(value: number);
+            /** 映射的属性名称-功能 */
+            static PROPERTY_FUNCTION_NAME: string;
+            /** 获取-功能 */
+            get function(): string;
+            /** 设置-功能 */
+            set function(value: string);
+            /** 映射的属性名称-描述 */
+            static PROPERTY_DESCRIPTION_NAME: string;
+            /** 获取-描述 */
+            get description(): string;
+            /** 设置-描述 */
+            set description(value: string);
+            /** 映射的属性名称-图片 */
+            static PROPERTY_IMAGE_NAME: string;
+            /** 获取-图片 */
+            get image(): string;
+            /** 设置-图片 */
+            set image(value: string);
+            /** 映射的属性名称-备注 */
+            static PROPERTY_REMARKS_NAME: string;
+            /** 获取-备注 */
+            get remarks(): string;
+            /** 设置-备注 */
+            set remarks(value: string);
+            /** 映射的属性名称-重组功能-项目集合 */
+            static PROPERTY_REFUNCTIONITEMS_NAME: string;
+            /** 获取-重组功能-项目集合 */
+            get refunctionItems(): RefunctionItems;
+            /** 设置-重组功能-项目集合 */
+            set refunctionItems(value: RefunctionItems);
             /** 初始化数据 */
             protected init(): void;
         }
@@ -3708,6 +4427,26 @@ declare namespace initialfantasy {
              * @param saver 保存者
              */
             saveApplicationConfigIdentity(saver: ibas.ISaveCaller<bo.ApplicationConfigIdentity>): void;
+            /**
+             * 查询 业务对象日志
+             * @param fetcher 查询者
+             */
+            fetchBOLogst(fetcher: ibas.IFetchCaller<bo.BOLogst>): void;
+            /**
+             * 查询 业务对象关系
+             * @param fetcher 查询者
+             */
+            fetchBORelationship(fetcher: ibas.IFetchCaller<bo.BORelationship>): void;
+            /**
+             * 查询 重组功能
+             * @param fetcher 查询者
+             */
+            fetchRefunction(fetcher: ibas.IFetchCaller<bo.Refunction>): void;
+            /**
+             * 保存 重组功能
+             * @param saver 保存者
+             */
+            saveRefunction(saver: ibas.ISaveCaller<bo.Refunction>): void;
         }
     }
 }
@@ -4445,8 +5184,6 @@ declare namespace initialfantasy {
             protected deleteData(): void;
             /** 新建数据，参数1：是否克隆 */
             protected createData(clone: boolean): void;
-            /** 选择应用 */
-            private chooseApplication;
             /** 选择业务对象编码 */
             private chooseBusinessObject;
             /** 选择用户或角色 */
@@ -4462,8 +5199,6 @@ declare namespace initialfantasy {
             deleteDataEvent: Function;
             /** 新建数据事件，参数1：是否克隆 */
             createDataEvent: Function;
-            /** 选择应用 */
-            chooseApplicationEvent: Function;
             /** 选择查询目标 */
             chooseBusinessObjectEvent: Function;
             /** 选择用户或角色 */
@@ -4793,6 +5528,7 @@ declare namespace initialfantasy {
             /** 运行,覆盖原方法 */
             run(): void;
             run(data: bo.BOInformation): void;
+            run(data: ibas.ICriteria): void;
             /** 保存数据 */
             protected saveData(): void;
             /** 删除数据 */
@@ -4812,6 +5548,8 @@ declare namespace initialfantasy {
             removeBOPropertyValue(items: bo.BOPropertyValue[]): void;
             private boNumbering;
             private chooseLinkedObject;
+            private showBORelationship;
+            protected editBOInformation(data: bo.BOPropertyInformation): void;
         }
         /** 视图-业务对象信息 */
         interface IBOInformationEditView extends ibas.IBOEditView {
@@ -4839,6 +5577,12 @@ declare namespace initialfantasy {
             boNumberingEvent: Function;
             /** 选择链接的对象事件 */
             chooseLinkedObjectEvent: Function;
+            /** 显示对象关系事件 */
+            showBORelationshipEvent: Function;
+            /** 显示对象关系 */
+            showBORelationships(datas: bo.BORelationship[]): void;
+            /** 编辑业务对象信息 */
+            editBOInformationEvent: Function;
         }
     }
 }
@@ -5182,6 +5926,7 @@ declare namespace initialfantasy {
             protected deleteData(): void;
             /** 新建数据，参数1：是否克隆 */
             protected createData(clone: boolean): void;
+            private chooseParent;
         }
         /** 视图-组织 */
         interface IOrganizationEditView extends ibas.IBOEditView {
@@ -5191,6 +5936,8 @@ declare namespace initialfantasy {
             deleteDataEvent: Function;
             /** 新建数据事件，参数1：是否克隆 */
             createDataEvent: Function;
+            /** 选择父项资源事件 */
+            chooseParentEvent: Function;
         }
     }
 }
@@ -5257,6 +6004,52 @@ declare namespace initialfantasy {
             deleteDataEvent: Function;
             /** 显示数据 */
             showData(datas: bo.Organization[]): void;
+        }
+    }
+}
+/**
+ * @license
+ * Copyright Color-Coding Studio. All Rights Reserved.
+ *
+ * Use of this source code is governed by an Apache License, Version 2.0
+ * that can be found in the LICENSE file at http://www.apache.org/licenses/LICENSE-2.0
+ */
+declare namespace initialfantasy {
+    namespace app {
+        /** 查看应用-组织 */
+        class OrganizationViewApp extends ibas.BOViewService<IOrganizationViewView, bo.Organization> {
+            /** 应用标识 */
+            static APPLICATION_ID: string;
+            /** 应用名称 */
+            static APPLICATION_NAME: string;
+            /** 业务对象编码 */
+            static BUSINESS_OBJECT_CODE: string;
+            /** 构造函数 */
+            constructor();
+            /** 注册视图 */
+            protected registerView(): void;
+            /** 视图显示后 */
+            protected viewShowed(): void;
+            /** 编辑数据，参数：目标数据 */
+            protected editData(): void;
+            run(): void;
+            run(data: bo.Organization): void;
+            /** 查询数据 */
+            protected fetchData(criteria: ibas.ICriteria | string): void;
+        }
+        /** 视图-组织 */
+        interface IOrganizationViewView extends ibas.IBOViewView {
+            /** 显示数据 */
+            showOrganization(data: bo.Organization): void;
+            /** 显示数据子项 */
+            showChildOrganizations(datas: bo.Organization[]): void;
+        }
+        /** 组织连接服务映射 */
+        class OrganizationLinkServiceMapping extends ibas.BOLinkServiceMapping {
+            /** 构造函数 */
+            constructor();
+            /** 创建服务实例 */
+            create(): ibas.IBOLinkService;
         }
     }
 }
@@ -5469,6 +6262,7 @@ declare namespace initialfantasy {
             private deletePrivileges;
             /** 编辑身份权限 */
             private editIdentityPrivileges;
+            private editRefunctions;
         }
         /** 视图-系统权限 */
         interface IPrivilegeConfigView extends ibas.IView {
@@ -5490,6 +6284,8 @@ declare namespace initialfantasy {
             showPlatforms(datas: bo.ApplicationPlatform[]): void;
             /** 编辑身份权限  */
             editIdentityPrivilegesEvent: Function;
+            /** 编辑重组功能 */
+            editRefunctionsEvent: Function;
         }
         /** 系统权限 */
         class Privilege extends ibas.Bindable {
@@ -5612,6 +6408,73 @@ declare namespace initialfantasy {
             constructor();
             /** 创建服务实例 */
             create(): ibas.IService<ibas.IServiceContract>;
+        }
+    }
+}
+/**
+ * @license
+ * Copyright Color-Coding Studio. All Rights Reserved.
+ *
+ * Use of this source code is governed by an Apache License, Version 2.0
+ * that can be found in the LICENSE file at http://www.apache.org/licenses/LICENSE-2.0
+ */
+declare namespace initialfantasy {
+    namespace app {
+        class ModuleProxy extends ibas.Element {
+            constructor();
+            version: string;
+            copyright: string;
+            icon: string;
+            elements: FunctionProxy[];
+        }
+        class FunctionProxy extends ibas.Element implements ibas.IFunction {
+            constructor();
+            assigned: boolean;
+        }
+        /** 编辑应用-重组功能 */
+        class RefunctionEditApp extends ibas.Application<IRefunctionEditView> {
+            /** 应用标识 */
+            static APPLICATION_ID: string;
+            /** 应用名称 */
+            static APPLICATION_NAME: string;
+            /** 构造函数 */
+            constructor();
+            /** 注册视图 */
+            protected registerView(): void;
+            /** 视图显示后 */
+            protected viewShowed(): void;
+            run(data?: bo.Refunction, modules?: app.ModuleProxy[]): void;
+            protected editData: bo.Refunction;
+            protected modules: ibas.ArrayList<app.ModuleProxy>;
+            /** 保存数据 */
+            protected saveData(): void;
+            /** 删除数据 */
+            protected deleteData(): void;
+            /** 新建数据，参数1：是否克隆 */
+            protected createData(clone: boolean): void;
+            /** 添加重组功能-项目事件 */
+            protected addRefunctionItem(target?: ModuleProxy | FunctionProxy, parent?: bo.RefunctionItem): void;
+            /** 删除重组功能-项目事件 */
+            protected removeRefunctionItem(item: bo.RefunctionItem, parent?: bo.RefunctionItems): void;
+            /** 关闭视图 */
+            close(): void;
+        }
+        /** 视图-重组功能 */
+        interface IRefunctionEditView extends ibas.IBOEditView {
+            /** 显示数据 */
+            showRefunction(data: bo.Refunction): void;
+            /** 删除数据事件 */
+            deleteDataEvent: Function;
+            /** 新建数据事件，参数1：是否克隆 */
+            createDataEvent: Function;
+            /** 添加重组功能-项目事件 */
+            addRefunctionItemEvent: Function;
+            /** 删除重组功能-项目事件 */
+            removeRefunctionItemEvent: Function;
+            /** 显示数据-重组功能-项目 */
+            showRefunctionItems(datas: bo.RefunctionItem[]): void;
+            /** 显示数据-模块功能 */
+            showFunctions(datas: app.ModuleProxy[]): void;
         }
     }
 }
@@ -5795,6 +6658,71 @@ declare namespace initialfantasy {
  * Use of this source code is governed by an Apache License, Version 2.0
  * that can be found in the LICENSE file at http://www.apache.org/licenses/LICENSE-2.0
  */
+declare namespace initialfantasy {
+    namespace app {
+        /** 单据流程服务 */
+        export class DocumentProcessService extends ibas.ServiceApplication<IDocumentProcessServiceView, ibas.IBOServiceContract> {
+            /** 应用标识 */
+            static APPLICATION_ID: string;
+            /** 应用名称 */
+            static APPLICATION_NAME: string;
+            /** 构造函数 */
+            constructor();
+            /** 注册视图 */
+            protected registerView(): void;
+            /** 视图显示后 */
+            protected viewShowed(): void;
+            protected runService(contract: ibas.IBOServiceContract): void;
+            protected documentRepository: DocumentRepository;
+            protected originData: DocumentChain;
+            protected chainData(origin: DocumentChain, onCompleted: () => void): void;
+        }
+        interface IFetchCallerEx extends ibas.IFetchCaller<ibas.IBODocument> {
+            type: any;
+        }
+        interface IFetchSourceCaller extends ibas.IMethodCaller<ibas.IBODocument> {
+            origin: ibas.IBODocument;
+        }
+        interface IFetchTargetCaller extends ibas.IMethodCaller<ibas.IBODocument> {
+            origin: ibas.IBODocument;
+        }
+        class DocumentRepository {
+            constructor();
+            init(onCompleted: (error?: Error) => void): void;
+            protected getRepository(boType: any): any;
+            fetch(fetcher: IFetchCallerEx): void;
+            protected boShipMap: ibas.IList<bo.IBORelationship>;
+            fetchSources(fetcher: IFetchSourceCaller): void;
+            fetchTargets(fetcher: IFetchTargetCaller): void;
+            protected fetchDatas(criterias: ibas.ICriteria[], onCompleted: (opRslt: ibas.IOperationResult<ibas.IBODocument>) => void): void;
+        }
+        export class DocumentChain {
+            constructor(data?: ibas.IBODocument);
+            data: ibas.IBODocument;
+            sources: ibas.IList<DocumentChain>;
+            targets: ibas.IList<DocumentChain>;
+        }
+        /** 视图-单据流程 */
+        export interface IDocumentProcessServiceView extends ibas.IView {
+            /** 显示数据 */
+            showDocumentChain(data: DocumentChain): void;
+        }
+        /** 单据流程服务映射 */
+        export class DocumentProcessServiceMapping extends ibas.ServiceMapping {
+            constructor();
+            /** 创建服务实例 */
+            create(): ibas.IService<ibas.IServiceContract>;
+        }
+        export {};
+    }
+}
+/**
+ * @license
+ * Copyright Color-Coding Studio. All Rights Reserved.
+ *
+ * Use of this source code is governed by an Apache License, Version 2.0
+ * that can be found in the LICENSE file at http://www.apache.org/licenses/LICENSE-2.0
+ */
 /**
  * @license
  * Copyright Color-Coding Studio. All Rights Reserved.
@@ -5816,12 +6744,7 @@ declare namespace initialfantasy {
             /** 视图显示后 */
             protected viewShowed(): void;
             /** 运行 */
-            run(): void;
-            /**
-             * 运行
-             * @param caller 服务调用者
-             */
-            run(caller: ibas.IServiceCaller<ibas.IServiceContract>): void;
+            run(user?: bo.User | string | number | ibas.IServiceCaller<ibas.IServiceContract>): void;
             private user;
             private fetchUser;
             private saveUser;
@@ -5918,6 +6841,7 @@ declare namespace initialfantasy {
             protected createData(clone: boolean): void;
             /** 选择组织标识 */
             private chooseOrganization;
+            protected editUserIdentity(): void;
         }
         /** 视图-用户 */
         interface IUserEditView extends ibas.IBOEditView {
@@ -5929,6 +6853,8 @@ declare namespace initialfantasy {
             createDataEvent: Function;
             /** 选择组织 */
             chooseOrganizationEvent: Function;
+            /** 编辑用户身份 */
+            editUserIdentityEvent: Function;
         }
     }
 }
@@ -6023,16 +6949,107 @@ declare namespace initialfantasy {
             protected viewShowed(): void;
             private user;
             private fetchUser;
+            private editUser;
         }
         /** 视图-用户配置 */
         interface IUserProfileView extends ibas.IResidentView {
             /** 显示用户信息 */
             showUser(user: bo.User): void;
+            /** 编辑用户 */
+            editUserEvent: Function;
         }
         class UserProfileApplicationMapping extends ibas.ResidentApplicationMapping {
             /** 构造函数 */
             constructor();
             create(): ibas.ResidentApplication<ibas.IResidentView>;
+        }
+    }
+}
+/**
+ * @license
+ * Copyright Color-Coding Studio. All Rights Reserved.
+ *
+ * Use of this source code is governed by an Apache License, Version 2.0
+ * that can be found in the LICENSE file at http://www.apache.org/licenses/LICENSE-2.0
+ */
+declare namespace initialfantasy {
+    namespace app {
+        /** 查看应用-用户 */
+        class UserViewApp extends ibas.BOViewService<IUserViewView, bo.User> {
+            /** 应用标识 */
+            static APPLICATION_ID: string;
+            /** 应用名称 */
+            static APPLICATION_NAME: string;
+            /** 业务对象编码 */
+            static BUSINESS_OBJECT_CODE: string;
+            /** 构造函数 */
+            constructor();
+            /** 注册视图 */
+            protected registerView(): void;
+            /** 视图显示后 */
+            protected viewShowed(): void;
+            /** 编辑数据，参数：目标数据 */
+            protected editData(): void;
+            run(): void;
+            run(data: bo.User): void;
+            /** 查询数据 */
+            protected fetchData(criteria: ibas.ICriteria | string): void;
+        }
+        /** 视图-用户 */
+        interface IUserViewView extends ibas.IBOViewView {
+            /** 显示数据 */
+            showUser(data: bo.User): void;
+        }
+        /** 用户连接服务映射 */
+        class UserLinkServiceMapping extends ibas.BOLinkServiceMapping {
+            /** 构造函数 */
+            constructor();
+            /** 创建服务实例 */
+            create(): ibas.IBOLinkService;
+        }
+    }
+}
+/**
+ * @license
+ * Copyright Color-Coding Studio. All Rights Reserved.
+ *
+ * Use of this source code is governed by an Apache License, Version 2.0
+ * that can be found in the LICENSE file at http://www.apache.org/licenses/LICENSE-2.0
+ */
+declare namespace initialfantasy {
+    namespace app {
+        /** 应用-用户身份 */
+        class UserIdentityApp extends ibas.Application<IUserIdentityView> {
+            /** 应用标识 */
+            static APPLICATION_ID: string;
+            /** 应用名称 */
+            static APPLICATION_NAME: string;
+            constructor();
+            /** 注册视图 */
+            protected registerView(): void;
+            /** 视图显示后 */
+            protected viewShowed(): void;
+            run(user?: bo.User): void;
+            private user;
+            private identities;
+            protected removeUserIdentity(data: bo.UserIdentity | bo.UserIdentity[]): void;
+            protected addUserIdentity(caller?: bo.UserIdentity): void;
+            protected saveUserIdentity(beSaveds: bo.UserIdentity[]): void;
+            /** 关闭视图 */
+            close(): void;
+        }
+        /** 视图-物料替代 */
+        interface IUserIdentityView extends ibas.IView {
+            /** 保存数据事件 */
+            saveIdentityEvent: Function;
+            /** 添加数据事件 */
+            addIdentityEvent: Function;
+            /** 移除数据事件 */
+            removeIdentityEvent: Function;
+            /** 显示数据 */
+            showIdentities(datas: bo.UserIdentity[]): void;
+            /** 显示数据 */
+            showUsers(data: bo.User): void;
         }
     }
 }
@@ -6377,6 +7394,165 @@ declare namespace initialfantasy {
  */
 declare namespace initialfantasy {
     namespace app {
+        /** 列表应用-业务对象日志 */
+        class BOLogstListApp extends ibas.BOListApplication<IBOLogstListView, bo.BOLogst> {
+            /** 应用标识 */
+            static APPLICATION_ID: string;
+            /** 应用名称 */
+            static APPLICATION_NAME: string;
+            /** 构造函数 */
+            constructor();
+            /** 注册视图 */
+            protected registerView(): void;
+            /** 视图显示后 */
+            protected viewShowed(): void;
+            /** 查询数据 */
+            protected fetchData(criteria: ibas.ICriteria): void;
+            /** 新建数据 */
+            protected newData(): void;
+            /** 查看数据，参数：目标数据 */
+            protected viewData(data: bo.BOLogst): void;
+        }
+        /** 视图-业务对象日志 */
+        interface IBOLogstListView extends ibas.IBOListView {
+            /** 删除数据 */
+            deleteDataEvent: Function;
+            /** 显示数据 */
+            showData(datas: bo.BOLogst[]): void;
+            /** 查看数据 */
+            viewDataEvent: Function;
+        }
+    }
+}
+/**
+ * @license
+ * Copyright Color-Coding Studio. All Rights Reserved.
+ *
+ * Use of this source code is governed by an Apache License, Version 2.0
+ * that can be found in the LICENSE file at http://www.apache.org/licenses/LICENSE-2.0
+ */
+declare namespace initialfantasy {
+    namespace app {
+        /** 查看应用-业务对象日志 */
+        class BOLogstViewApp extends ibas.Application<IBOLogstViewView> {
+            /** 应用标识 */
+            static APPLICATION_ID: string;
+            /** 应用名称 */
+            static APPLICATION_NAME: string;
+            /** 构造函数 */
+            constructor();
+            /** 注册视图 */
+            protected registerView(): void;
+            /** 视图显示后 */
+            protected viewShowed(): void;
+            private datas;
+            run(data?: bo.BOLogst | bo.BOLogst[]): void;
+            onViewShowed: () => void;
+            private template;
+        }
+        /** 视图-业务对象日志 */
+        interface IBOLogstViewView extends ibas.IBOViewView {
+            /** 绘制窗体 */
+            drawView(template: outs.BOType): void;
+            /** 显示数据 */
+            showData(datas: object[]): void;
+        }
+        namespace outs {
+            function template(datas: object[], boInfos: ibas.IList<bo.BOInformation>): BOType;
+            class BOType {
+                code: string;
+                name: string;
+                description: string;
+                properties: ibas.IList<BOTypeProperty>;
+            }
+            abstract class BOTypeProperty {
+                name: string;
+                description: string;
+                type: any;
+            }
+            class BOTypePropertyString extends BOTypeProperty {
+                get type(): any;
+            }
+            class BOTypePropertyDecimal extends BOTypeProperty {
+                get type(): any;
+            }
+            class BOTypePropertyNumeric extends BOTypeProperty {
+                get type(): any;
+            }
+            class BOTypePropertyDate extends BOTypeProperty {
+                get type(): any;
+            }
+            class BOTypePropertyTime extends BOTypeProperty {
+                get type(): any;
+            }
+            class BOTypePropertyObject extends BOTypeProperty {
+                type: BOType;
+            }
+            class BOTypePropertyArray extends BOTypeProperty {
+                type: BOType;
+            }
+        }
+    }
+}
+/**
+ * @license
+ * Copyright Color-Coding Studio. All Rights Reserved.
+ *
+ * Use of this source code is governed by an Apache License, Version 2.0
+ * that can be found in the LICENSE file at http://www.apache.org/licenses/LICENSE-2.0
+ */
+declare namespace initialfantasy {
+    namespace app {
+        /** 业务对象日志服务 */
+        class BOLogstService extends ibas.ServiceApplication<IBOLogstServiceView, ibas.IBOServiceContract> {
+            /** 应用标识 */
+            static APPLICATION_ID: string;
+            /** 应用名称 */
+            static APPLICATION_NAME: string;
+            constructor();
+            /** 注册视图 */
+            protected registerView(): void;
+            /** 视图显示后 */
+            protected viewShowed(): void;
+            /** 运行服务 */
+            runService(contract: ibas.IBOServiceContract): void;
+            /** 关联的数据 */
+            private bo;
+            private viewData;
+        }
+        /** 业务对象日志服务-视图 */
+        interface IBOLogstServiceView extends ibas.IView {
+            /** 显示关联对象 */
+            showBusinessObject(bo: ibas.IBusinessObject): void;
+            /** 显示已存在日志 */
+            showLogsts(datas: bo.BOLogst[]): void;
+            /** 查看数据 */
+            viewDataEvent: Function;
+        }
+        /** 业务对象日志服务映射 */
+        class BOLogstServiceMapping extends ibas.ServiceMapping {
+            constructor();
+            /** 创建服务实例 */
+            create(): ibas.IService<ibas.IServiceContract>;
+        }
+    }
+}
+/**
+ * @license
+ * Copyright Color-Coding Studio. All Rights Reserved.
+ *
+ * Use of this source code is governed by an Apache License, Version 2.0
+ * that can be found in the LICENSE file at http://www.apache.org/licenses/LICENSE-2.0
+ */
+/**
+ * @license
+ * Copyright Color-Coding Studio. All Rights Reserved.
+ *
+ * Use of this source code is governed by an Apache License, Version 2.0
+ * that can be found in the LICENSE file at http://www.apache.org/licenses/LICENSE-2.0
+ */
+declare namespace initialfantasy {
+    namespace app {
         class BOPropertySettingFunc extends ibas.ModuleFunction {
             /** 功能标识 */
             static FUNCTION_ID: string;
@@ -6457,6 +7633,8 @@ declare namespace initialfantasy {
             set authorised(value: bo.emAuthorisedValue);
             get position(): number;
             set position(value: number);
+            get required(): bo.emRequiredValue;
+            set required(value: bo.emRequiredValue);
             protected firePropertyChanged(property: string): void;
             delete(): void;
             reset(setting?: bo.BOPropertySetting): void;

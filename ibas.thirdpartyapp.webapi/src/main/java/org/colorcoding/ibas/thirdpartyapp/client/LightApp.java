@@ -9,7 +9,6 @@ public class LightApp extends WebApp {
 
 	@Override
 	protected IUserMapping fetchUser(Properties params) throws Exception {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
