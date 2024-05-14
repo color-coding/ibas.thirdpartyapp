@@ -1,6 +1,7 @@
 package org.colorcoding.ibas.thirdpartyapp.service.rest;
 
 import javax.ws.rs.Consumes;
+import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -9,6 +10,7 @@ import javax.ws.rs.core.MediaType;
 
 import org.colorcoding.ibas.bobas.common.Criteria;
 import org.colorcoding.ibas.bobas.common.OperationResult;
+import org.colorcoding.ibas.thirdpartyapp.MyConfiguration;
 import org.colorcoding.ibas.thirdpartyapp.bo.application.Application;
 import org.colorcoding.ibas.thirdpartyapp.bo.applicationconfig.ApplicationConfig;
 import org.colorcoding.ibas.thirdpartyapp.bo.other.UserApplication;
@@ -33,8 +35,8 @@ public class DataService extends BORepositoryThirdPartyApp {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Path("fetchUserApplications")
 	public OperationResult<UserApplication> fetchUserApplications(@QueryParam("user") String user,
-			@QueryParam("token") String token) {
-		return super.fetchUserApplications(user, token);
+			@HeaderParam("authorization") String authorization, @QueryParam("token") String token) {
+		return super.fetchUserApplications(user, MyConfiguration.optToken(authorization, token));
 	}
 
 	// --------------------------------------------------------------------------------------------//
@@ -49,8 +51,9 @@ public class DataService extends BORepositoryThirdPartyApp {
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Path("fetchApplication")
-	public OperationResult<Application> fetchApplication(Criteria criteria, @QueryParam("token") String token) {
-		return super.fetchApplication(criteria, token);
+	public OperationResult<Application> fetchApplication(Criteria criteria,
+			@HeaderParam("authorization") String authorization, @QueryParam("token") String token) {
+		return super.fetchApplication(criteria, MyConfiguration.optToken(authorization, token));
 	}
 
 	/**
@@ -64,8 +67,9 @@ public class DataService extends BORepositoryThirdPartyApp {
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Path("saveApplication")
-	public OperationResult<Application> saveApplication(Application bo, @QueryParam("token") String token) {
-		return super.saveApplication(bo, token);
+	public OperationResult<Application> saveApplication(Application bo,
+			@HeaderParam("authorization") String authorization, @QueryParam("token") String token) {
+		return super.saveApplication(bo, MyConfiguration.optToken(authorization, token));
 	}
 
 	// --------------------------------------------------------------------------------------------//
@@ -81,8 +85,8 @@ public class DataService extends BORepositoryThirdPartyApp {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Path("fetchApplicationConfig")
 	public OperationResult<ApplicationConfig> fetchApplicationConfig(Criteria criteria,
-			@QueryParam("token") String token) {
-		return super.fetchApplicationConfig(criteria, token);
+			@HeaderParam("authorization") String authorization, @QueryParam("token") String token) {
+		return super.fetchApplicationConfig(criteria, MyConfiguration.optToken(authorization, token));
 	}
 
 	/**
@@ -97,8 +101,8 @@ public class DataService extends BORepositoryThirdPartyApp {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Path("saveApplicationConfig")
 	public OperationResult<ApplicationConfig> saveApplicationConfig(ApplicationConfig bo,
-			@QueryParam("token") String token) {
-		return super.saveApplicationConfig(bo, token);
+			@HeaderParam("authorization") String authorization, @QueryParam("token") String token) {
+		return super.saveApplicationConfig(bo, MyConfiguration.optToken(authorization, token));
 	}
 
 	// --------------------------------------------------------------------------------------------//
@@ -113,8 +117,9 @@ public class DataService extends BORepositoryThirdPartyApp {
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Path("fetchUserMapping")
-	public OperationResult<UserMapping> fetchUserMapping(Criteria criteria, @QueryParam("token") String token) {
-		return super.fetchUserMapping(criteria, token);
+	public OperationResult<UserMapping> fetchUserMapping(Criteria criteria,
+			@HeaderParam("authorization") String authorization, @QueryParam("token") String token) {
+		return super.fetchUserMapping(criteria, MyConfiguration.optToken(authorization, token));
 	}
 
 	// --------------------------------------------------------------------------------------------//

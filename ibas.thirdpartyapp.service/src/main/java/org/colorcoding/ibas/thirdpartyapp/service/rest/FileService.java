@@ -5,6 +5,7 @@ import java.io.OutputStream;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -51,18 +52,21 @@ public class FileService extends FileRepositoryService {
 	@Path("upload")
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	@Produces(MediaType.APPLICATION_JSON)
-	public OperationResult<FileData> upload(FormDataMultiPart formData, @QueryParam("token") String token) {
-		return super.save(formData.getField("file"), token);
+	public OperationResult<FileData> upload(FormDataMultiPart formData,
+			@HeaderParam("authorization") String authorization, @QueryParam("token") String token) {
+		return super.save(formData.getField("file"), MyConfiguration.optToken(authorization, token));
 	}
 
 	@POST
 	@Path("download")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_OCTET_STREAM)
-	public void download(Criteria criteria, @QueryParam("token") String token, @Context HttpServletResponse response) {
+	public void download(Criteria criteria, @HeaderParam("authorization") String authorization,
+			@QueryParam("token") String token, @Context HttpServletResponse response) {
 		try {
 			// 获取文件
-			IOperationResult<FileData> operationResult = this.fetch(criteria, token);
+			IOperationResult<FileData> operationResult = this.fetch(criteria,
+					MyConfiguration.optToken(authorization, token));
 			if (operationResult.getError() != null) {
 				throw operationResult.getError();
 			}
@@ -126,8 +130,10 @@ public class FileService extends FileRepositoryService {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Path("fetchApplicationSetting")
 	public OperationResult<ApplicationSetting> fetchApplicationSetting(@QueryParam("application") String appCode,
-			@QueryParam("user") String user, @QueryParam("token") String token) {
+			@QueryParam("user") String user, @HeaderParam("authorization") String authorization,
+			@QueryParam("token") String token) {
 		try {
+			token = MyConfiguration.optToken(authorization, token);
 			BORepositoryThirdPartyApp boRepository = new BORepositoryThirdPartyApp();
 			boRepository.setUserToken(token);
 			OperationResult<ApplicationSetting> operationResult = new OperationResult<>();
@@ -175,8 +181,9 @@ public class FileService extends FileRepositoryService {
 	@Produces(MediaType.APPLICATION_JSON)
 	public OperationResult<ApplicationSetting> saveApplicationSetting(FormDataMultiPart formData,
 			@QueryParam("application") String appCode, @QueryParam("user") String user,
-			@QueryParam("token") String token) {
+			@HeaderParam("authorization") String authorization, @QueryParam("token") String token) {
 		try {
+			token = MyConfiguration.optToken(authorization, token);
 			Criteria criteria = new Criteria();
 			ICondition condition = criteria.getConditions().create();
 			condition.setAlias(Application.PROPERTY_CODE.getName());
@@ -249,7 +256,7 @@ public class FileService extends FileRepositoryService {
 					throw opRsltMapping.getError();
 				}
 			}
-			return this.fetchApplicationSetting(application.getCode(), user, token);
+			return this.fetchApplicationSetting(application.getCode(), user, authorization, token);
 		} catch (Exception e) {
 			return new OperationResult<>(e);
 		}
@@ -260,8 +267,10 @@ public class FileService extends FileRepositoryService {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public OperationMessage removeApplicationSetting(@QueryParam("application") String appCode,
-			@QueryParam("user") String user, @QueryParam("token") String token) {
+			@QueryParam("user") String user, @HeaderParam("authorization") String authorization,
+			@QueryParam("token") String token) {
 		try {
+			token = MyConfiguration.optToken(authorization, token);
 			Criteria criteria = new Criteria();
 			ICondition condition = criteria.getConditions().create();
 			condition.setAlias(UserMapping.PROPERTY_APPLICATION.getName());

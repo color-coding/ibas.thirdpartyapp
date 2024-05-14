@@ -20,7 +20,7 @@ namespace thirdpartyapp {
             toUrl(filename: string): string {
                 if (!this.address.endsWith("/")) { this.address += "/"; }
                 let url: string = this.address.replace("/services/rest/data/", "/services/rest/file/");
-                url += ibas.strings.format("{0}?token={1}", filename, this.token);
+                url += ibas.strings.format("{0}?token={1}", filename, ibas.tokens.content(this.token));
                 return encodeURI(url);
             }
             /**
@@ -89,7 +89,7 @@ namespace thirdpartyapp {
                 }
                 let method: string =
                     ibas.strings.format("fetchUserApplications?user={0}&token={1}",
-                        caller.user, this.token);
+                        caller.user, ibas.tokens.content(this.token));
                 boRepository.callRemoteMethod(method, undefined, (opRslt) => {
                     caller.onCompleted.call(ibas.objects.isNull(caller.caller) ? caller : caller.caller, opRslt);
                 });
@@ -149,7 +149,7 @@ namespace thirdpartyapp {
                 builder.append("&");
                 builder.append("token");
                 builder.append("=");
-                builder.append(this.token);
+                builder.append(ibas.tokens.content(this.token));
                 boRepository.callRemoteMethod(builder.toString(), undefined, (opRslt) => {
                     caller.onCompleted.call(ibas.objects.isNull(caller.caller) ? caller : caller.caller, opRslt);
                 });
@@ -182,7 +182,7 @@ namespace thirdpartyapp {
                 builder.append("&");
                 builder.append("token");
                 builder.append("=");
-                builder.append(this.token);
+                builder.append(ibas.tokens.content(this.token));
                 boRepository.callRemoteMethod(builder.toString(), undefined, (opRslt) => {
                     caller.onCompleted.call(ibas.objects.isNull(caller.caller) ? caller : caller.caller, opRslt);
                 });
