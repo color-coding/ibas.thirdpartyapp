@@ -35,8 +35,10 @@ namespace thirdpartyapp {
                 this.register(new UserMappingFunc());
                 // 注册服务应用
                 this.register(new ApplicationChooseServiceMapping());
+                this.register(new ApplicationLinkServiceMapping());
                 this.register(new ApplicationConfigChooseServiceMapping());
                 this.register(new ApplicationSettingServiceMapping());
+                this.register(new ApplicationConfigLinkServiceMapping());
                 // 注册常驻应用
 
             }

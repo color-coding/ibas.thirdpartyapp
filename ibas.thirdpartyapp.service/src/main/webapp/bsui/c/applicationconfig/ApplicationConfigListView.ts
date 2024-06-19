@@ -30,7 +30,8 @@ namespace thirdpartyapp {
                         columns: [
                             new sap.extension.table.DataColumn("", {
                                 label: ibas.i18n.prop("bo_applicationconfig_code"),
-                                template: new sap.extension.m.Text("", {
+                                template: new sap.extension.m.DataLink("", {
+                                    objectCode: bo.ApplicationConfig.BUSINESS_OBJECT_CODE,
                                 }).bindProperty("bindingValue", {
                                     path: "code",
                                     type: new sap.extension.data.Alphanumeric(),

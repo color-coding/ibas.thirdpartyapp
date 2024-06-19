@@ -140,7 +140,6 @@ namespace thirdpartyapp {
                                                 maxLength: 200
                                             }),
                                         }),
-                                        width: "100%",
                                     }),
                                 ]
                             }),

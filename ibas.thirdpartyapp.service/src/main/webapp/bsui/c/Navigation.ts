@@ -31,6 +31,9 @@ namespace thirdpartyapp {
                     case app.ApplicationEditApp.APPLICATION_ID:
                         view = new c.ApplicationEditView();
                         break;
+                    case app.ApplicationViewApp.APPLICATION_ID:
+                        view = new c.ApplicationViewView();
+                        break;
                     case app.ApplicationConfigListApp.APPLICATION_ID:
                         view = new c.ApplicationConfigListView();
                         break;
@@ -39,6 +42,9 @@ namespace thirdpartyapp {
                         break;
                     case app.ApplicationConfigEditApp.APPLICATION_ID:
                         view = new c.ApplicationConfigEditView();
+                        break;
+                    case app.ApplicationConfigViewApp.APPLICATION_ID:
+                        view = new c.ApplicationConfigViewView();
                         break;
                     case app.UserApplicationApp.APPLICATION_ID:
                         view = new c.UserApplicationView();

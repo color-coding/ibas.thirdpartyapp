@@ -46,6 +46,16 @@ namespace thirdpartyapp {
                                 attributes: [
                                     new sap.extension.m.ObjectAttribute("", {
                                         title: ibas.i18n.prop("bo_user_code"),
+                                        active: true,
+                                        press(): void {
+                                            let data: any = this.getBindingContext().getObject();
+                                            if (data instanceof initialfantasy.bo.User) {
+                                                ibas.servicesManager.runLinkService({
+                                                    boCode: initialfantasy.bo.User.BUSINESS_OBJECT_CODE,
+                                                    linkValue: data.code,
+                                                });
+                                            }
+                                        }
                                     }).bindProperty("bindingValue", {
                                         path: "code",
                                         type: new sap.extension.data.Alphanumeric(),

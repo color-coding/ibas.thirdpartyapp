@@ -133,9 +133,8 @@ public class FileService extends FileRepositoryService {
 			@QueryParam("user") String user, @HeaderParam("authorization") String authorization,
 			@QueryParam("token") String token) {
 		try {
-			token = MyConfiguration.optToken(authorization, token);
 			BORepositoryThirdPartyApp boRepository = new BORepositoryThirdPartyApp();
-			boRepository.setUserToken(token);
+			boRepository.setUserToken(MyConfiguration.optToken(authorization, token));
 			OperationResult<ApplicationSetting> operationResult = new OperationResult<>();
 			if (DataConvert.isNullOrEmpty(user)) {
 				Criteria criteria = new Criteria();
@@ -183,13 +182,12 @@ public class FileService extends FileRepositoryService {
 			@QueryParam("application") String appCode, @QueryParam("user") String user,
 			@HeaderParam("authorization") String authorization, @QueryParam("token") String token) {
 		try {
-			token = MyConfiguration.optToken(authorization, token);
 			Criteria criteria = new Criteria();
 			ICondition condition = criteria.getConditions().create();
 			condition.setAlias(Application.PROPERTY_CODE.getName());
 			condition.setValue(appCode);
 			BORepositoryThirdPartyApp boRepository = new BORepositoryThirdPartyApp();
-			boRepository.setUserToken(token);
+			boRepository.setUserToken(MyConfiguration.optToken(authorization, token));
 			IOperationResult<IApplication> opRsltApp = boRepository.fetchApplication(criteria);
 			if (opRsltApp.getError() != null) {
 				throw opRsltApp.getError();
@@ -208,7 +206,8 @@ public class FileService extends FileRepositoryService {
 				if (bodyPart != null) {
 					if (settingItem.getCategory() == emConfigItemCategory.FILE
 							&& bodyPart.getMediaType() != MediaType.TEXT_PLAIN_TYPE) {
-						OperationResult<FileData> opRsltFile = super.save(bodyPart, token);
+						OperationResult<FileData> opRsltFile = super.save(bodyPart,
+								MyConfiguration.optToken(authorization, token));
 						if (opRsltFile.getError() != null) {
 							throw opRsltFile.getError();
 						}
@@ -239,7 +238,7 @@ public class FileService extends FileRepositoryService {
 				condition.setAlias(UserMapping.PROPERTY_USER.getName());
 				condition.setValue(user);
 				boRepository = new BORepositoryThirdPartyApp();
-				boRepository.setUserToken(token);
+				boRepository.setUserToken(MyConfiguration.optToken(authorization, token));
 				IOperationResult<IUserMapping> opRsltMapping = boRepository.fetchUserMapping(criteria);
 				if (opRsltMapping.getError() != null) {
 					throw opRsltMapping.getError();
@@ -270,7 +269,6 @@ public class FileService extends FileRepositoryService {
 			@QueryParam("user") String user, @HeaderParam("authorization") String authorization,
 			@QueryParam("token") String token) {
 		try {
-			token = MyConfiguration.optToken(authorization, token);
 			Criteria criteria = new Criteria();
 			ICondition condition = criteria.getConditions().create();
 			condition.setAlias(UserMapping.PROPERTY_APPLICATION.getName());
@@ -279,7 +277,7 @@ public class FileService extends FileRepositoryService {
 			condition.setAlias(UserMapping.PROPERTY_USER.getName());
 			condition.setValue(user);
 			BORepositoryThirdPartyApp boRepository = new BORepositoryThirdPartyApp();
-			boRepository.setUserToken(token);
+			boRepository.setUserToken(MyConfiguration.optToken(authorization, token));
 			IOperationResult<IUserMapping> opRsltMapping = boRepository.fetchUserMapping(criteria);
 			if (opRsltMapping.getError() != null) {
 				throw opRsltMapping.getError();

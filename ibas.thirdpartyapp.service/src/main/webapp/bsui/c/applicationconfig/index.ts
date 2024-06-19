@@ -8,3 +8,4 @@
 /// <reference path="./ApplicationConfigListView.ts" />
 /// <reference path="./ApplicationConfigChooseView.ts" />
 /// <reference path="./ApplicationConfigEditView.ts" />
+/// <reference path="./ApplicationConfigViewView.ts" />

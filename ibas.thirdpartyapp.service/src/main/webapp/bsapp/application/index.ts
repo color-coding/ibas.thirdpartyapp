@@ -9,3 +9,4 @@
 /// <reference path="./ApplicationListApp.ts" />
 /// <reference path="./ApplicationChooseApp.ts" />
 /// <reference path="./ApplicationEditApp.ts" />
+/// <reference path="./ApplicationViewApp.ts" />

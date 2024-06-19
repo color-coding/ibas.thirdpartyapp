@@ -69,6 +69,22 @@ namespace thirdpartyapp {
             /** 查询数据 */
             protected fetchData(criteria: ibas.ICriteria): void {
                 this.busy(true);
+                if (!ibas.objects.isNull(criteria)) {
+                    if (criteria.conditions.firstOrDefault(
+                        c => c.alias === initialfantasy.bo.User.PROPERTY_DOCENTRY_NAME
+                            && c.operation === ibas.emConditionOperation.GRATER_THAN
+                            && c.value === "0"
+                    ) === null) {
+                        if (criteria.conditions.length > 2) {
+                            criteria.conditions.firstOrDefault().bracketOpen++;
+                            criteria.conditions.lastOrDefault().bracketClose++;
+                        }
+                        let condition: ibas.ICondition = criteria.conditions.create();
+                        condition.alias = initialfantasy.bo.User.PROPERTY_DOCENTRY_NAME;
+                        condition.operation = ibas.emConditionOperation.GRATER_THAN;
+                        condition.value = "0";
+                    }
+                }
                 let that: this = this;
                 let boRepository: initialfantasy.bo.BORepositoryInitialFantasy = new initialfantasy.bo.BORepositoryInitialFantasy();
                 boRepository.fetchUser({
@@ -107,7 +123,7 @@ namespace thirdpartyapp {
                     return;
                 }
                 if (ibas.objects.isNull(this.appMaps)) {
-                    this.messages(ibas.emMessageType.WARNING, ibas.i18n.prop("sthirdpartyapp_initializing_please_wait"));
+                    this.messages(ibas.emMessageType.WARNING, ibas.i18n.prop("thirdpartyapp_initializing_please_wait"));
                     return;
                 }
                 let criteria: ibas.Criteria = new ibas.Criteria();

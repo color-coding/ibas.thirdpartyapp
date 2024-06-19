@@ -8,3 +8,4 @@
 /// <reference path="./ApplicationListView.ts" />
 /// <reference path="./ApplicationChooseView.ts" />
 /// <reference path="./ApplicationEditView.ts" />
+/// <reference path="./ApplicationViewView.ts" />
