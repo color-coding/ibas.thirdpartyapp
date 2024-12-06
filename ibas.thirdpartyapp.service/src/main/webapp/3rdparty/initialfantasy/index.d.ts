@@ -1109,6 +1109,8 @@ declare namespace initialfantasy {
             createActionId: string;
             /** 更新动作标识 */
             updateActionId: string;
+            /** 宽度 */
+            width: string;
         }
     }
 }
@@ -3868,6 +3870,12 @@ declare namespace initialfantasy {
             get updateActionId(): string;
             /** 设置-更新动作标识 */
             set updateActionId(value: string);
+            /** 映射的属性名称-宽度 */
+            static PROPERTY_WIDTH_NAME: string;
+            /** 获取-宽度 */
+            get width(): string;
+            /** 设置-宽度 */
+            set width(value: string);
             /** 初始化数据 */
             protected init(): void;
         }
@@ -7645,6 +7653,8 @@ declare namespace initialfantasy {
             set authorised(value: bo.emAuthorisedValue);
             get position(): number;
             set position(value: number);
+            get width(): string;
+            set width(value: string);
             get required(): bo.emRequiredValue;
             set required(value: bo.emRequiredValue);
             protected firePropertyChanged(property: string): void;
