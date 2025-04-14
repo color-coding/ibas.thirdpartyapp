@@ -156,8 +156,13 @@ namespace thirdpartyapp {
                                             ]
                                         },
                                         info: {
-                                            path: "mapping/acount",
-                                            data: new sap.extension.data.Alphanumeric()
+                                            path: "mapping/account",
+                                            formatter(data: string): string {
+                                                if (ibas.strings.isEmpty(data)) {
+                                                    return "";
+                                                }
+                                                return data;
+                                            }
                                         },
                                         actions: [
                                             new sap.m.FeedListItemAction("", {
@@ -186,12 +191,9 @@ namespace thirdpartyapp {
                             new sap.extension.m.Page("", {
                                 showHeader: false,
                                 content: [
-                                    new sap.m.MessagePage("", {
-                                        text: ibas.i18n.prop("thirdpartyapp_user_mapping_page_initial"),
-                                        description: "",
-                                        showHeader: false,
-                                        showNavButton: false,
-                                        textDirection: sap.ui.core.TextDirection.Inherit
+                                    new sap.m.IllustratedMessage("", {
+                                        illustrationType: sap.m.IllustratedMessageType.NoData,
+                                        description: ibas.i18n.prop("thirdpartyapp_user_mapping_page_initial"),
                                     })
                                 ]
                             }),

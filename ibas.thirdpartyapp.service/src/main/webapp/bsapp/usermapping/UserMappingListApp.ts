@@ -201,7 +201,7 @@ namespace thirdpartyapp {
                                 throw new Error(opRslt.message);
                             }
                             this.viewData(data.mapping.user);
-                            this.messages(ibas.emMessageType.SUCCESS,
+                            this.proceeding(ibas.emMessageType.SUCCESS,
                                 ibas.i18n.prop("shell_data_remove") + ibas.i18n.prop("shell_sucessful"));
                         } catch (error) {
                             this.messages(error);

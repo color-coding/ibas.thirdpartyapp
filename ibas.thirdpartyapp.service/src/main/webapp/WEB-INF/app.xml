@@ -32,5 +32,9 @@
         <add key="OrgManagerExpiry" value="-1" />
         <!-- 配置项目-权限过期时间（建议120） -->
         <add key="OwnJudgerExpiry" value="-1" />
+        <!-- 配置项目-应用客户端-阿里身份认证 -->
+        <add key="ApplicationClient|IDAAS" value="IDaaS" />
+        <!-- 配置项目-应用登录地址 -->
+        <add key="LoginUrl" value="http://localhost:15386/shell/index.html" />
     </appSettings>
 </ns2:configuration>

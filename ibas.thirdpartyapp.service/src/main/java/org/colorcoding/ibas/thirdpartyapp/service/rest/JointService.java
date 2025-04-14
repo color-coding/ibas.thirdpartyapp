@@ -14,8 +14,12 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
+import org.colorcoding.ibas.bobas.common.IOperationResult;
 import org.colorcoding.ibas.bobas.common.OperationResult;
+import org.colorcoding.ibas.bobas.i18n.I18N;
+import org.colorcoding.ibas.bobas.message.Logger;
 import org.colorcoding.ibas.initialfantasy.bo.shell.User;
+import org.colorcoding.ibas.initialfantasy.data.DataConvert;
 import org.colorcoding.ibas.thirdpartyapp.MyConfiguration;
 import org.colorcoding.ibas.thirdpartyapp.client.ApplicationClient;
 import org.colorcoding.ibas.thirdpartyapp.client.ApplicationClientManager;
@@ -34,6 +38,10 @@ public class JointService {
 	 * 配置项目-登录地址
 	 */
 	public final static String PARAMETER_REDIRECT_URI = "redirect";
+	/**
+	 * 配置项目-应用
+	 */
+	public final static String PARAMETER_APP = "app";
 
 	/**
 	 * 连接
@@ -45,33 +53,46 @@ public class JointService {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Path("connect")
 	public OperationResult<User> connect(@Context HttpServletRequest request) {
-		OperationResult<User> operationResult = new OperationResult<User>();
 		try {
-			String app = "";
+			String key = null;
+			String app = null;
+			StringBuilder stringBuilder = null;
 			Properties params = new Properties();
 			for (Entry<String, String[]> item : request.getParameterMap().entrySet()) {
-				String key = item.getKey();
-				StringBuilder stringBuilder = new StringBuilder();
+				key = item.getKey();
+				stringBuilder = new StringBuilder();
 				for (String value : item.getValue()) {
 					if (stringBuilder.length() > 0) {
 						stringBuilder.append(",");
 					}
 					stringBuilder.append(value);
 				}
-				if (key.equalsIgnoreCase("app")) {
-					app = stringBuilder.toString();
-					continue;
+				if (app == null) {
+					if (PARAMETER_APP.equalsIgnoreCase(key)) {
+						app = stringBuilder.toString();
+						continue;
+					}
 				}
 				params.put(key, stringBuilder.toString());
 			}
+			if (DataConvert.isNullOrEmpty(app)) {
+				throw new Exception(I18N.prop("msg_tpa_no_param", PARAMETER_APP));
+			}
+			OperationResult<User> operationResult = new OperationResult<User>();
 			ApplicationClient appClient = ApplicationClientManager.newInstance().create(app);
 			operationResult.addResultObjects(appClient.authenticate(params));
+			return operationResult;
 		} catch (Exception e) {
-			operationResult.setError(e);
+			Logger.log(e);
+			return new OperationResult<User>(e);
 		}
-		return operationResult;
 	}
 
+	/**
+	 * 登录
+	 * @param request 请求
+	 * @param response 响应
+	 */
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.TEXT_HTML)
@@ -80,7 +101,7 @@ public class JointService {
 		try {
 			OperationResult<User> operationResult = this.connect(request);
 			if (operationResult.getError() != null) {
-				throw operationResult.getError();
+				throw new WebApplicationException(400);
 			}
 			User user = operationResult.getResultObjects().firstOrDefault();
 			if (user == null) {
@@ -94,11 +115,71 @@ public class JointService {
 			if (url == null || url.isEmpty()) {
 				throw new WebApplicationException(500);
 			}
-			url += url.indexOf("?") > 0 ? "&" : "?";
-			response.sendRedirect(url + String.format("userToken=%s", user.getToken()));
+			response.setHeader("authorization",
+					String.format("%s %s", MyConfiguration.AUTHENTICATION_SCHEMES_BEARER, user.getToken()));
+			if (MyConfiguration.isDisabledUrlToken()) {
+				response.sendRedirect(url);
+			} else {
+				url += url.indexOf("?") > 0 ? "&" : "?";
+				response.sendRedirect(url + String.format("userToken=%s", user.getToken()));
+			}
 		} catch (WebApplicationException e) {
 			throw e;
 		} catch (Exception e) {
+			throw new WebApplicationException(e);
+		}
+	}
+
+	/**
+	 * 授权
+	 * @param request
+	 * @param response
+	 */
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.TEXT_HTML)
+	@Path("authorize")
+	public void authorize(@Context HttpServletRequest request, @Context HttpServletResponse response) {
+		try {
+			String key = null;
+			String app = null;
+			StringBuilder stringBuilder = null;
+			Properties params = new Properties();
+			for (Entry<String, String[]> item : request.getParameterMap().entrySet()) {
+				key = item.getKey();
+				stringBuilder = new StringBuilder();
+				for (String value : item.getValue()) {
+					if (stringBuilder.length() > 0) {
+						stringBuilder.append(",");
+					}
+					stringBuilder.append(value);
+				}
+				if (app == null) {
+					if (PARAMETER_APP.equalsIgnoreCase(key)) {
+						app = stringBuilder.toString();
+						continue;
+					}
+				}
+				params.put(key, stringBuilder.toString());
+			}
+			if (DataConvert.isNullOrEmpty(app)) {
+				throw new Exception(I18N.prop("msg_tpa_no_param", PARAMETER_APP));
+			}
+			params.put("request", request.getRequestURL().toString());
+			ApplicationClient appClient = ApplicationClientManager.newInstance().create(app);
+			IOperationResult<String> operationResult = appClient.execute("authorize", params);
+			if (operationResult.getError() != null) {
+				throw operationResult.getError();
+			}
+			if (operationResult.getResultObjects().isEmpty()) {
+				throw new WebApplicationException(400);
+			}
+			Logger.log("authorize: %s", operationResult.getResultObjects().firstOrDefault());
+			response.sendRedirect(operationResult.getResultObjects().firstOrDefault());
+		} catch (WebApplicationException e) {
+			throw e;
+		} catch (Exception e) {
+			Logger.log(e);
 			throw new WebApplicationException(e);
 		}
 	}

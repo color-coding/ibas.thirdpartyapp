@@ -23,15 +23,15 @@ namespace thirdpartyapp {
                         columns: [
                             new sap.extension.m.Column("", {
                                 header: ibas.i18n.prop("bo_applicationsettingitem_name"),
-                                width: "30%",
+                                width: "20%",
                             }),
                             new sap.extension.m.Column("", {
                                 header: ibas.i18n.prop("bo_applicationsettingitem_description"),
-                                width: "30%",
+                                width: "25%",
                             }),
                             new sap.extension.m.Column("", {
                                 header: ibas.i18n.prop("bo_applicationsettingitem_value"),
-                                width: "40%",
+                                width: "auto",
                             }),
                         ],
                         items: {

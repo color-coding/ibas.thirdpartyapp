@@ -21,6 +21,7 @@ import org.colorcoding.ibas.bobas.common.IOperationResult;
 import org.colorcoding.ibas.bobas.common.OperationMessage;
 import org.colorcoding.ibas.bobas.common.OperationResult;
 import org.colorcoding.ibas.bobas.data.FileData;
+import org.colorcoding.ibas.bobas.data.List;
 import org.colorcoding.ibas.bobas.i18n.I18N;
 import org.colorcoding.ibas.bobas.repository.FileRepository;
 import org.colorcoding.ibas.bobas.repository.jersey.FileRepositoryService;
@@ -35,6 +36,7 @@ import org.colorcoding.ibas.thirdpartyapp.bo.usermapping.UserMapping;
 import org.colorcoding.ibas.thirdpartyapp.data.DataConvert;
 import org.colorcoding.ibas.thirdpartyapp.data.emConfigItemCategory;
 import org.colorcoding.ibas.thirdpartyapp.repository.BORepositoryThirdPartyApp;
+import org.glassfish.jersey.media.multipart.BodyPart;
 import org.glassfish.jersey.media.multipart.FormDataBodyPart;
 import org.glassfish.jersey.media.multipart.FormDataMultiPart;
 
@@ -196,33 +198,48 @@ public class FileService extends FileRepositoryService {
 			if (application == null) {
 				throw new Exception(I18N.prop("msg_tpa_invaild_application", appCode));
 			}
+
 			ApplicationSettingItems savingItems = new ApplicationSettingItems();
+			ApplicationSettingItems undefineItems = new ApplicationSettingItems();
 			ApplicationSetting appSetting = boRepository.createApplicationSetting(application, false);
-			for (ApplicationSettingItem settingItem : appSetting.getSettingItems()) {
-				if (DataConvert.isNullOrEmpty(settingItem.getName())) {
-					continue;
-				}
-				FormDataBodyPart bodyPart = formData.getField(settingItem.getName());
-				if (bodyPart != null) {
-					if (settingItem.getCategory() == emConfigItemCategory.FILE
-							&& bodyPart.getMediaType() != MediaType.TEXT_PLAIN_TYPE) {
-						OperationResult<FileData> opRsltFile = super.save(bodyPart,
-								MyConfiguration.optToken(authorization, token));
-						if (opRsltFile.getError() != null) {
-							throw opRsltFile.getError();
-						}
-						FileData fileData = opRsltFile.getResultObjects().firstOrDefault();
-						if (fileData == null) {
-							throw new Exception(
-									I18N.prop("msg_tpa_invaild_application_setting_item", settingItem.getName()));
-						}
-						settingItem.setValue(fileData.getFileName());
-					} else {
-						settingItem.setValue(bodyPart.getValue());
+
+			for (BodyPart formItem : formData.getBodyParts()) {
+				if (formItem instanceof FormDataBodyPart) {
+					FormDataBodyPart bodyPart = (FormDataBodyPart) formItem;
+					List<ApplicationSettingItem> items = appSetting.getSettingItems()
+							.where(c -> c.getName() != null && c.getName().equalsIgnoreCase(bodyPart.getName()));
+					if (items.isEmpty()) {
+						ApplicationSettingItem item = new ApplicationSettingItem();
+						item.setCategory(emConfigItemCategory.TEXT);
+						item.setName(bodyPart.getName());
+						item.setValue(bodyPart.getValue());
+						items.add(item);
+						undefineItems.add(item);
 					}
-					savingItems.add(settingItem);
+					for (ApplicationSettingItem settingItem : items) {
+						if (settingItem.getCategory() == emConfigItemCategory.FILE
+								&& bodyPart.getMediaType() != MediaType.TEXT_PLAIN_TYPE) {
+							OperationResult<FileData> opRsltFile = super.save(bodyPart,
+									MyConfiguration.optToken(authorization, token));
+							if (opRsltFile.getError() != null) {
+								throw opRsltFile.getError();
+							}
+							FileData fileData = opRsltFile.getResultObjects().firstOrDefault();
+							if (fileData == null) {
+								throw new Exception(
+										I18N.prop("msg_tpa_invaild_application_setting_item", settingItem.getName()));
+							}
+							settingItem.setValue(fileData.getFileName());
+						} else {
+							settingItem.setValue(bodyPart.getValue());
+						}
+						if (!undefineItems.contains(settingItem)) {
+							savingItems.add(settingItem);
+						}
+					}
 				}
 			}
+
 			if (DataConvert.isNullOrEmpty(user)) {
 				application.setSettings(savingItems.encode());
 				opRsltApp = boRepository.saveApplication(application);
@@ -248,6 +265,17 @@ public class FileService extends FileRepositoryService {
 					userMapping = new UserMapping();
 					userMapping.setApplication(appCode);
 					userMapping.setUser(user);
+				}
+				for (ApplicationSettingItem item : undefineItems) {
+					if (item.getValue() == null || "undefined".equalsIgnoreCase(item.getValue())
+							|| "null".equalsIgnoreCase(item.getValue())) {
+						continue;
+					}
+					if (UserMapping.PROPERTY_ACCOUNT.getName().equalsIgnoreCase(item.getName())) {
+						userMapping.setAccount(item.getValue());
+					} else if (UserMapping.PROPERTY_ACCESSDATA.getName().equalsIgnoreCase(item.getName())) {
+						userMapping.setAccessData(item.getValue());
+					}
 				}
 				userMapping.setSettings(savingItems.encode());
 				opRsltMapping = boRepository.saveUserMapping(userMapping);

@@ -41,6 +41,9 @@ public class ApplicationClientManager {
 
 	public ApplicationClient create(String appCode) throws RuntimeException {
 		try {
+			if (DataConvert.isNullOrEmpty(appCode)) {
+				throw new Exception(I18N.prop("msg_tpa_no_param", "appCode"));
+			}
 			ICriteria criteria = new Criteria();
 			ICondition condition = criteria.getConditions().create();
 			condition.setAlias(Application.PROPERTY_CODE.getName());

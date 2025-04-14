@@ -25,7 +25,6 @@ namespace thirdpartyapp {
                     let formTop: sap.ui.layout.form.SimpleForm = new sap.ui.layout.form.SimpleForm("", {
                         editable: true,
                         content: [
-                            new sap.ui.core.Title("", { text: ibas.i18n.prop("thirdpartyapp_title_general") }),
                             new sap.m.Label("", { text: ibas.i18n.prop("bo_applicationconfig_code") }),
                             new sap.extension.m.Input("", {
                             }).bindProperty("bindingValue", {
@@ -57,95 +56,89 @@ namespace thirdpartyapp {
                                 path: "remarks",
                                 type: new sap.extension.data.Alphanumeric()
                             }),
-                            new sap.ui.core.Title("", { text: ibas.i18n.prop("bo_applicationconfigitem") }),
-                            this.tableApplicationConfigItem = new sap.extension.table.DataTable("", {
-                                visibleRowCount: 5,
-                                rowActionCount: 1,
-                                chooseType: ibas.emChooseType.NONE,
-                                dataInfo: {
-                                    code: bo.ApplicationConfig.BUSINESS_OBJECT_CODE,
-                                    name: bo.ApplicationConfigItem.name
-                                },
-                                footer: new sap.m.Button("", {
-                                    // text: ibas.i18n.prop("shell_data_add"),
-                                    type: sap.m.ButtonType.Accept,
-                                    icon: "sap-icon://add",
-                                    press: function (): void {
-                                        that.fireViewEvents(that.addApplicationConfigItemEvent);
+                        ]
+                    });
+                    this.tableApplicationConfigItem = new sap.extension.table.DataTable("", {
+                        rowActionCount: 1,
+                        chooseType: ibas.emChooseType.NONE,
+                        visibleRowCountMode: sap.ui.table.VisibleRowCountMode.Auto,
+                        dataInfo: {
+                            code: bo.ApplicationConfig.BUSINESS_OBJECT_CODE,
+                            name: bo.ApplicationConfigItem.name
+                        },
+                        rowActionTemplate: new sap.ui.table.RowAction("", {
+                            items: [
+                                new sap.ui.table.RowActionItem("", {
+                                    icon: "sap-icon://decline",
+                                    type: sap.ui.table.RowActionType.Delete,
+                                    press: function (oEvent: sap.ui.base.Event): void {
+                                        let source: any = oEvent.getSource();
+                                        if (source instanceof sap.ui.core.Element) {
+                                            that.fireViewEvents(that.removeApplicationConfigItemEvent, source.getBindingContext().getObject());
+                                        }
                                     },
+                                })
+                            ]
+                        }),
+                        rows: "{/rows}",
+                        columns: [
+                            new sap.extension.table.DataColumn("", {
+                                label: ibas.i18n.prop("bo_applicationconfigitem_name"),
+                                template: new sap.extension.m.Input("", {
+                                }).bindProperty("bindingValue", {
+                                    path: "name",
+                                    type: new sap.extension.data.Alphanumeric({
+                                        maxLength: 30
+                                    }),
                                 }),
-                                rowActionTemplate: new sap.ui.table.RowAction("", {
-                                    items: [
-                                        new sap.ui.table.RowActionItem("", {
-                                            icon: "sap-icon://decline",
-                                            type: sap.ui.table.RowActionType.Delete,
-                                            press: function (oEvent: sap.ui.base.Event): void {
-                                                let source: any = oEvent.getSource();
-                                                if (source instanceof sap.ui.core.Element) {
-                                                    that.fireViewEvents(that.removeApplicationConfigItemEvent, source.getBindingContext().getObject());
-                                                }
-                                            },
-                                        })
-                                    ]
+                                width: "15%",
+                            }),
+                            new sap.extension.table.DataColumn("", {
+                                label: ibas.i18n.prop("bo_applicationconfigitem_description"),
+                                template: new sap.extension.m.Input("", {
+                                }).bindProperty("bindingValue", {
+                                    path: "description",
+                                    type: new sap.extension.data.Alphanumeric({
+                                        maxLength: 100
+                                    }),
                                 }),
-                                rows: "{/rows}",
-                                columns: [
-                                    new sap.extension.table.DataColumn("", {
-                                        label: ibas.i18n.prop("bo_applicationconfigitem_name"),
-                                        template: new sap.extension.m.Input("", {
-                                        }).bindProperty("bindingValue", {
-                                            path: "name",
-                                            type: new sap.extension.data.Alphanumeric({
-                                                maxLength: 30
-                                            }),
-                                        }),
+                                width: "25%",
+                            }),
+                            new sap.extension.table.DataColumn("", {
+                                label: ibas.i18n.prop("bo_applicationconfigitem_category"),
+                                template: new sap.extension.m.EnumSelect("", {
+                                    enumType: bo.emConfigItemCategory,
+                                }).bindProperty("bindingValue", {
+                                    path: "category",
+                                    type: new sap.extension.data.Enum({
+                                        enumType: bo.emConfigItemCategory,
                                     }),
-                                    new sap.extension.table.DataColumn("", {
-                                        label: ibas.i18n.prop("bo_applicationconfigitem_description"),
-                                        template: new sap.extension.m.Input("", {
-                                        }).bindProperty("bindingValue", {
-                                            path: "description",
-                                            type: new sap.extension.data.Alphanumeric({
-                                                maxLength: 100
-                                            }),
-                                        }),
+                                }),
+                                width: "8rem",
+                            }),
+                            new sap.extension.table.DataColumn("", {
+                                label: ibas.i18n.prop("bo_applicationconfigitem_foruser"),
+                                template: new sap.extension.m.CheckBox("", {
+                                }).bindProperty("bindingValue", {
+                                    path: "forUser",
+                                    type: new sap.extension.data.YesNo(),
+                                }),
+                                width: "5rem",
+                            }),
+                            new sap.extension.table.DataColumn("", {
+                                label: ibas.i18n.prop("bo_applicationconfigitem_value"),
+                                template: new sap.extension.m.Input("", {
+                                }).bindProperty("bindingValue", {
+                                    path: "value",
+                                    type: new sap.extension.data.Alphanumeric({
+                                        maxLength: 200
                                     }),
-                                    new sap.extension.table.DataColumn("", {
-                                        label: ibas.i18n.prop("bo_applicationconfigitem_category"),
-                                        template: new sap.extension.m.EnumSelect("", {
-                                            enumType: bo.emConfigItemCategory,
-                                        }).bindProperty("bindingValue", {
-                                            path: "category",
-                                            type: new sap.extension.data.Enum({
-                                                enumType: bo.emConfigItemCategory,
-                                            }),
-                                        }),
-                                        width: "8rem",
-                                    }),
-                                    new sap.extension.table.DataColumn("", {
-                                        label: ibas.i18n.prop("bo_applicationconfigitem_foruser"),
-                                        template: new sap.extension.m.CheckBox("", {
-                                        }).bindProperty("bindingValue", {
-                                            path: "forUser",
-                                            type: new sap.extension.data.YesNo(),
-                                        }),
-                                        width: "5rem",
-                                    }),
-                                    new sap.extension.table.DataColumn("", {
-                                        label: ibas.i18n.prop("bo_applicationconfigitem_value"),
-                                        template: new sap.extension.m.Input("", {
-                                        }).bindProperty("bindingValue", {
-                                            path: "value",
-                                            type: new sap.extension.data.Alphanumeric({
-                                                maxLength: 200
-                                            }),
-                                        }),
-                                    }),
-                                ]
+                                }),
+                                width: "auto",
                             }),
                         ]
                     });
-                    return this.page = new sap.extension.m.DataPage("", {
+                    return new sap.extension.m.DataPage("", {
                         showHeader: false,
                         dataInfo: {
                             code: bo.ApplicationConfig.BUSINESS_OBJECT_CODE,
@@ -195,10 +188,37 @@ namespace thirdpartyapp {
                                         ],
                                     })
                                 }),
+                                new sap.m.ToolbarSpacer(""),
+                                new sap.m.Button("", {
+                                    text: ibas.i18n.prop("shell_data_add_line"),
+                                    type: sap.m.ButtonType.Transparent,
+                                    icon: "sap-icon://add",
+                                    press: function (): void {
+                                        that.fireViewEvents(that.addApplicationConfigItemEvent);
+                                    },
+                                })
                             ]
                         }),
                         content: [
-                            formTop,
+                            new sap.m.SplitContainer("", {
+                                masterPages: [
+                                    this.page = new sap.extension.m.Page("", {
+                                        showHeader: false,
+                                        floatingFooter: true,
+                                        content: [
+                                            formTop
+                                        ]
+                                    })
+                                ],
+                                detailPages: [
+                                    new sap.m.Page("", {
+                                        showHeader: false,
+                                        content: [
+                                            this.tableApplicationConfigItem
+                                        ],
+                                    })
+                                ],
+                            })
                         ]
                     });
                 }

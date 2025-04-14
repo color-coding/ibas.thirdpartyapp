@@ -4,8 +4,8 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLConnection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -68,10 +68,26 @@ public abstract class WebApp extends ApplicationClient {
 		headers.put("Accept", "*/*");
 		headers.put("Connection", "Keep-Alive");
 		headers.put("Content-Type", "application/json; charset=UTF-8");
-		return doGet(url, headers);
+		return this.connection("GET", url, headers);
 	}
 
 	protected JsonNode doGet(String url, Map<String, String> headers) throws IOException {
+		return this.connection("GET", url, headers);
+	}
+
+	protected JsonNode doPost(String url) throws IOException {
+		Map<String, String> headers = new HashMap<String, String>(3);
+		headers.put("Accept", "*/*");
+		headers.put("Connection", "Keep-Alive");
+		headers.put("Content-Type", "application/json; charset=UTF-8");
+		return this.connection("POST", url, headers);
+	}
+
+	protected JsonNode doPost(String url, Map<String, String> headers) throws IOException {
+		return this.connection("POST", url, headers);
+	}
+
+	protected JsonNode connection(String method, String url, Map<String, String> headers) throws IOException {
 		if (MyConfiguration.isDebugMode()) {
 			// 显示请求
 			StringBuilder builder = new StringBuilder();
@@ -91,7 +107,8 @@ public abstract class WebApp extends ApplicationClient {
 		}
 		URL realUrl = new URL(url);
 		// 打开和URL之间的连接
-		URLConnection connection = realUrl.openConnection();
+		HttpURLConnection connection = (HttpURLConnection) realUrl.openConnection();
+		connection.setRequestMethod(method);
 		if (headers != null && !headers.isEmpty()) {
 			for (String key : headers.keySet()) {
 				if (key == null || key.isEmpty()) {
@@ -105,19 +122,20 @@ public abstract class WebApp extends ApplicationClient {
 		InputStream inputStream = connection.getInputStream();
 		if (MyConfiguration.isDebugMode()) {
 			// 输出返回值
-			ByteArrayOutputStream result = new ByteArrayOutputStream();
-			byte[] buffer = new byte[1024];
-			int length;
-			while ((length = inputStream.read(buffer)) != -1) {
-				result.write(buffer, 0, length);
+			try (ByteArrayOutputStream result = new ByteArrayOutputStream()) {
+				byte[] buffer = new byte[1024];
+				int length;
+				while ((length = inputStream.read(buffer)) != -1) {
+					result.write(buffer, 0, length);
+				}
+				StringBuilder builder = new StringBuilder();
+				builder.append(String.format(MSG_CONNECTED_URL, url.hashCode()));
+				builder.append(System.getProperty("NEW_LINE", "\n"));
+				builder.append(result.toString("UTF-8"));
+				Logger.log(MessageLevel.INFO, builder.toString());
+				// 重置数据
+				inputStream = new ByteArrayInputStream(result.toByteArray());
 			}
-			StringBuilder builder = new StringBuilder();
-			builder.append(String.format(MSG_CONNECTED_URL, url.hashCode()));
-			builder.append(System.getProperty("NEW_LINE", "\n"));
-			builder.append(result.toString("UTF-8"));
-			Logger.log(MessageLevel.INFO, builder.toString());
-			// 重置数据
-			inputStream = new ByteArrayInputStream(result.toByteArray());
 		} else {
 			Logger.log(MessageLevel.INFO, MSG_CONNECTED_URL, url.hashCode());
 		}

@@ -56,7 +56,7 @@ namespace thirdpartyapp {
                                     path: "remarks",
                                     type: new sap.extension.data.Alphanumeric(),
                                 }),
-                                width: "20rem",
+                                width: "100%",
                             }),
                         ],
                         nextDataSet(event: sap.ui.base.Event): void {

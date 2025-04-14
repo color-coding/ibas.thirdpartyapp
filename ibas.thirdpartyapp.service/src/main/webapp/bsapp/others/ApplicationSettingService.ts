@@ -99,6 +99,19 @@ namespace thirdpartyapp {
                                             throw new Error(ibas.i18n.prop("thirdpartyapp_not_found_application_config"));
                                         }
                                         let applicationConfig: bo.ApplicationConfig = opRslt.resultObjects.firstOrDefault();
+                                        // 增加用户映射配置
+                                        if (!ibas.objects.isNull(contract.user)) {
+                                            let sItem: bo.ApplicationSettingItem = new bo.ApplicationSettingItem();
+                                            sItem.name = bo.UserMapping.PROPERTY_ACCOUNT_NAME;
+                                            sItem.description = ibas.i18n.prop("bo_usermapping_account");
+                                            sItem.category = bo.emConfigItemCategory.TEXT;
+                                            this.applicationSetting.settingItems.add(sItem);
+                                            sItem = new bo.ApplicationSettingItem();
+                                            sItem.name = bo.UserMapping.PROPERTY_ACCESSDATA_NAME;
+                                            sItem.description = ibas.i18n.prop("bo_usermapping_accessdata");
+                                            sItem.category = bo.emConfigItemCategory.TEXT;
+                                            this.applicationSetting.settingItems.add(sItem);
+                                        }
                                         for (let item of applicationConfig.applicationConfigItems) {
                                             if (!ibas.objects.isNull(contract.user)) {
                                                 if (item.forUser !== ibas.emYesNo.YES) {
@@ -162,9 +175,18 @@ namespace thirdpartyapp {
             }
 
             private saveData(): void {
-                let formData: FormData = new FormData();
-                for (let item of this.applicationSetting.settingItems) {
-                    formData.append(item.name, item.value);
+                if (ibas.strings.isEmpty(this.user?.code)) {
+                    throw new Error(ibas.i18n.prop("sys_invalid_parameter", "user"));
+                }
+                let formData: FormData;
+                if (this.applicationSetting.settingItems.length > 0) {
+                    formData = new FormData();
+                    for (let item of this.applicationSetting.settingItems) {
+                        formData.append(item.name, ibas.objects.isNull(item.value) ? "" : item.value);
+                    }
+                }
+                if (ibas.objects.isNull(formData)) {
+                    throw new Error(ibas.i18n.prop("sys_invalid_parameter", "settings"));
                 }
                 this.busy(true);
                 let boRepository: bo.BORepositoryThirdPartyApp = new bo.BORepositoryThirdPartyApp();

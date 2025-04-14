@@ -24,7 +24,6 @@ namespace thirdpartyapp {
                     let formTop: sap.ui.layout.form.SimpleForm = new sap.ui.layout.form.SimpleForm("", {
                         editable: true,
                         content: [
-                            new sap.ui.core.Title("", { text: ibas.i18n.prop("thirdpartyapp_title_general") }),
                             new sap.m.Label("", { text: ibas.i18n.prop("bo_application_code") }),
                             new sap.extension.m.Input("", {
                             }).bindProperty("bindingValue", {
@@ -129,92 +128,93 @@ namespace thirdpartyapp {
                                 path: "remarks",
                                 type: new sap.extension.data.Alphanumeric()
                             }),
-                            new sap.ui.core.Title("", { text: ibas.i18n.prop("bo_application") + ibas.i18n.prop("bo_application_settings") }),
-                            this.table = new sap.extension.table.Table("", {
-                                visibleRowCount: 5,
-                                rowActionCount: 1,
-                                chooseType: ibas.emChooseType.NONE,
-                                rowActionTemplate: new sap.ui.table.RowAction("", {
-                                    items: [
-                                        new sap.ui.table.RowActionItem("", {
-                                            icon: "sap-icon://browse-folder",
-                                            press: function (oEvent: sap.ui.base.Event): void {
-                                                let source: any = oEvent.getSource();
-                                                if (source instanceof sap.ui.core.Element) {
-                                                    let data: any = source.getBindingContext().getObject();
-                                                    if (data instanceof bo.ApplicationSettingItem) {
-                                                        ibas.files.open((files) => {
-                                                            if (files.length > 0) {
-                                                                data.value = files[0];
-                                                            }
-                                                        });
-                                                    }
-                                                }
-                                            },
-                                        }).bindProperty("visible", {
-                                            path: "category",
-                                            formatter(data: bo.emConfigItemCategory): boolean {
-                                                return data === bo.emConfigItemCategory.FILE ? true : false;
-                                            }
-                                        }),
-                                    ]
-                                }),
-                                rows: "{/rows}",
-                                columns: [
-                                    new sap.extension.table.Column("", {
-                                        label: ibas.i18n.prop("bo_applicationsettingitem_name"),
-                                        template: new sap.extension.m.Text("", {
-                                        }).bindProperty("bindingValue", {
-                                            path: "name",
-                                            type: new sap.extension.data.Alphanumeric(),
-                                        }),
-                                    }),
-                                    new sap.extension.table.DataColumn("", {
-                                        label: ibas.i18n.prop("bo_applicationsettingitem_description"),
-                                        template: new sap.extension.m.Text("", {
-                                        }).bindProperty("bindingValue", {
-                                            path: "description",
-                                            type: new sap.extension.data.Alphanumeric(),
-                                        }),
-                                    }),
-                                    new sap.extension.table.DataColumn("", {
-                                        label: ibas.i18n.prop("bo_applicationsettingitem_value"),
-                                        template: new sap.extension.m.Input("", {
-                                            autocomplete: false,
-                                        }).bindProperty("bindingValue", {
-                                            path: "value",
-                                            type: new sap.extension.data.Unknown({
-                                                formatValue(oValue: any, sInternalType: string): any {
-                                                    if (oValue instanceof File && sInternalType === "string") {
-                                                        return oValue.name;
-                                                    }
-                                                    return oValue;
-                                                },
-                                                parseValue(oValue: any, sInternalType: string): any {
-                                                    return oValue;
-                                                }
-                                            }),
-                                        }).bindProperty("editable", {
-                                            path: "category",
-                                            formatter(data: bo.emConfigItemCategory): boolean {
-                                                return data !== bo.emConfigItemCategory.FILE ? true : false;
-                                            }
-                                        }).bindProperty("type", {
-                                            path: "category",
-                                            formatter(data: bo.emConfigItemCategory): sap.m.InputType {
-                                                if (ibas.config.get(ibas.CONFIG_ITEM_DEBUG_MODE, false)) {
-                                                    return sap.m.InputType.Text;
-                                                }
-                                                return data === bo.emConfigItemCategory.PASSWORD ? sap.m.InputType.Password : sap.m.InputType.Text;
-                                            }
-                                        }),
-                                        width: "100%",
-                                    }),
-                                ],
-                            }),
                         ]
                     });
-                    return this.page = new sap.extension.m.DataPage("", {
+                    this.table = new sap.extension.table.Table("", {
+                        rowActionCount: 1,
+                        chooseType: ibas.emChooseType.NONE,
+                        visibleRowCountMode: sap.ui.table.VisibleRowCountMode.Auto,
+                        rowActionTemplate: new sap.ui.table.RowAction("", {
+                            items: [
+                                new sap.ui.table.RowActionItem("", {
+                                    icon: "sap-icon://browse-folder",
+                                    press: function (oEvent: sap.ui.base.Event): void {
+                                        let source: any = oEvent.getSource();
+                                        if (source instanceof sap.ui.core.Element) {
+                                            let data: any = source.getBindingContext().getObject();
+                                            if (data instanceof bo.ApplicationSettingItem) {
+                                                ibas.files.open((files) => {
+                                                    if (files.length > 0) {
+                                                        data.value = files[0];
+                                                    }
+                                                });
+                                            }
+                                        }
+                                    },
+                                }).bindProperty("visible", {
+                                    path: "category",
+                                    formatter(data: bo.emConfigItemCategory): boolean {
+                                        return data === bo.emConfigItemCategory.FILE ? true : false;
+                                    }
+                                }),
+                            ]
+                        }),
+                        rows: "{/rows}",
+                        columns: [
+                            new sap.extension.table.Column("", {
+                                label: ibas.i18n.prop("bo_applicationsettingitem_name"),
+                                template: new sap.extension.m.Text("", {
+                                }).bindProperty("bindingValue", {
+                                    path: "name",
+                                    type: new sap.extension.data.Alphanumeric(),
+                                }),
+                                width: "20%",
+                            }),
+                            new sap.extension.table.DataColumn("", {
+                                label: ibas.i18n.prop("bo_applicationsettingitem_description"),
+                                template: new sap.extension.m.Text("", {
+                                }).bindProperty("bindingValue", {
+                                    path: "description",
+                                    type: new sap.extension.data.Alphanumeric(),
+                                }),
+                                width: "25%",
+                            }),
+                            new sap.extension.table.DataColumn("", {
+                                label: ibas.i18n.prop("bo_applicationsettingitem_value"),
+                                template: new sap.extension.m.Input("", {
+                                    autocomplete: false,
+                                }).bindProperty("bindingValue", {
+                                    path: "value",
+                                    type: new sap.extension.data.Unknown({
+                                        formatValue(oValue: any, sInternalType: string): any {
+                                            if (oValue instanceof File && sInternalType === "string") {
+                                                return oValue.name;
+                                            }
+                                            return oValue;
+                                        },
+                                        parseValue(oValue: any, sInternalType: string): any {
+                                            return oValue;
+                                        }
+                                    }),
+                                }).bindProperty("editable", {
+                                    path: "category",
+                                    formatter(data: bo.emConfigItemCategory): boolean {
+                                        return data !== bo.emConfigItemCategory.FILE ? true : false;
+                                    }
+                                }).bindProperty("type", {
+                                    path: "category",
+                                    formatter(data: bo.emConfigItemCategory): sap.m.InputType {
+                                        if (ibas.config.get(ibas.CONFIG_ITEM_DEBUG_MODE, false)) {
+                                            return sap.m.InputType.Text;
+                                        }
+                                        return data === bo.emConfigItemCategory.PASSWORD ? sap.m.InputType.Password : sap.m.InputType.Text;
+                                    }
+                                }),
+                                width: "auto",
+                            }),
+                        ],
+                    });
+                    return new sap.extension.m.DataPage("", {
                         showHeader: false,
                         dataInfo: {
                             code: bo.Application.BUSINESS_OBJECT_CODE,
@@ -295,7 +295,25 @@ namespace thirdpartyapp {
                             ]
                         }),
                         content: [
-                            formTop,
+                            new sap.m.SplitContainer("", {
+                                masterPages: [
+                                    this.page = new sap.extension.m.Page("", {
+                                        showHeader: false,
+                                        floatingFooter: true,
+                                        content: [
+                                            formTop
+                                        ]
+                                    })
+                                ],
+                                detailPages: [
+                                    new sap.m.Page("", {
+                                        showHeader: false,
+                                        content: [
+                                            this.table
+                                        ],
+                                    })
+                                ],
+                            })
                         ]
                     });
                 }
