@@ -7,8 +7,8 @@ import java.io.FileReader;
 import org.colorcoding.ibas.bobas.common.Criteria;
 import org.colorcoding.ibas.bobas.common.ICondition;
 import org.colorcoding.ibas.bobas.common.ICriteria;
+import org.colorcoding.ibas.bobas.organization.InvalidAuthorizationException;
 import org.colorcoding.ibas.bobas.organization.OrganizationFactory;
-import org.colorcoding.ibas.bobas.repository.InvalidTokenException;
 import org.colorcoding.ibas.initialfantasy.bo.boinformation.BOPropertyValue;
 import org.colorcoding.ibas.thirdpartyapp.bo.application.Application;
 import org.colorcoding.ibas.thirdpartyapp.repository.BORepositoryThirdPartyApp;
@@ -17,32 +17,33 @@ import junit.framework.TestCase;
 
 public class TestApplication extends TestCase {
 
-	public void testApplication() throws InvalidTokenException {
-		BORepositoryThirdPartyApp boRepository = new BORepositoryThirdPartyApp();
-		boRepository.setUserToken(OrganizationFactory.SYSTEM_USER.getToken());
-		ICriteria criteria = new Criteria();
-		ICondition condition = criteria.getConditions().create();
-		condition.setAlias(Application.PROPERTY_CODE.getName());
-		condition.setValue("AL-PAY01");
-		/*
-		 * for (KeyValue item :
-		 * boRepository.fetchApplicationConfig(criteria).getResultObjects()) {
-		 * System.out.println(item.toString());
-		 * 
-		 * if (item.getKey() == Application.PROPERTY_APPKEY.getName() || item.getKey()
-		 * == Application.PROPERTY_APPSECRET.getName() || item.getKey() ==
-		 * Application.PROPERTY_CERTIFICATE.getName()) { File file = new
-		 * File(item.getValue().toString()); if (file.exists()) {
-		 * System.out.println(this.txt2String(file)); } }
-		 * 
-		 * }
-		 */
-		BOPropertyValue value = new BOPropertyValue();
-		value.setCode("${Company}_TPA_APP");
-		value.setPropertyName("Category");
-		value.setValue("WebApp");
-		value.setDescription("Web应用");
-		System.out.println(value.toString("xml"));
+	public void testApplication() throws InvalidAuthorizationException {
+		try (BORepositoryThirdPartyApp boRepository = new BORepositoryThirdPartyApp()) {
+			boRepository.setUserToken(OrganizationFactory.SYSTEM_USER.getToken());
+			ICriteria criteria = new Criteria();
+			ICondition condition = criteria.getConditions().create();
+			condition.setAlias(Application.PROPERTY_CODE.getName());
+			condition.setValue("AL-PAY01");
+			/*
+			 * for (KeyValue item :
+			 * boRepository.fetchApplicationConfig(criteria).getResultObjects()) {
+			 * System.out.println(item.toString());
+			 * 
+			 * if (item.getKey() == Application.PROPERTY_APPKEY.getName() || item.getKey()
+			 * == Application.PROPERTY_APPSECRET.getName() || item.getKey() ==
+			 * Application.PROPERTY_CERTIFICATE.getName()) { File file = new
+			 * File(item.getValue().toString()); if (file.exists()) {
+			 * System.out.println(this.txt2String(file)); } }
+			 * 
+			 * }
+			 */
+			BOPropertyValue value = new BOPropertyValue();
+			value.setCode("${Company}_TPA_APP");
+			value.setPropertyName("Category");
+			value.setValue("WebApp");
+			value.setDescription("Web应用");
+			System.out.println(value.toString());
+		}
 	}
 
 	public String txt2String(File file) {
