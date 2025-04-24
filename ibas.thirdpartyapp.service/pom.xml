@@ -1,10 +1,10 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" 
+<project xmlns="http://maven.apache.org/POM/4.0.0"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.colorcoding.apps</groupId>
         <artifactId>ibas.thirdpartyapp.parent</artifactId>
-        <version>0.1.0</version>
+        <version>0.2.0</version>
     </parent>
     <artifactId>ibas.thirdpartyapp.service</artifactId>
     <packaging>war</packaging>
@@ -22,7 +22,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
-                <version>3.2.0</version>
+                <version>3.4.0</version>
                 <configuration>
                     <archiveClasses>true</archiveClasses>
                     <warSourceExcludes>index.html,config.json,**/tsconfig*.json,**/*.map,**/*.ts,**/*.bat,**/*.sh,3rdparty/*.txt,3rdparty/ibas/**,3rdparty/openui5/**,3rdparty/shell/**,modules/**,test/**</warSourceExcludes>
@@ -47,9 +47,9 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
-            <version>3.1.0</version>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
+            <version>4.0.4</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
