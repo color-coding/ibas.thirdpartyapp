@@ -12,7 +12,7 @@ import javax.xml.bind.annotation.XmlType;
 import org.colorcoding.ibas.bobas.data.ArrayList;
 import org.colorcoding.ibas.bobas.message.Logger;
 import org.colorcoding.ibas.bobas.serialization.ISerializer;
-import org.colorcoding.ibas.bobas.serialization.SerializerFactory;
+import org.colorcoding.ibas.bobas.serialization.SerializationFactory;
 import org.colorcoding.ibas.thirdpartyapp.MyConfiguration;
 import org.colorcoding.ibas.thirdpartyapp.data.emConfigItemCategory;
 
@@ -63,7 +63,7 @@ public class ApplicationSettingItems extends ArrayList<ApplicationSettingItem> {
 	}
 
 	public String encode() throws Exception {
-		ISerializer<?> serializer = SerializerFactory.create().createManager().create("json");
+		ISerializer serializer = SerializationFactory.createManager().create("json");
 		try (ByteArrayOutputStream writer = new ByteArrayOutputStream()) {
 			serializer.serialize(this, writer, ApplicationSettingItem.class);
 			return Base64.getEncoder().encodeToString(writer.toByteArray());
@@ -74,7 +74,7 @@ public class ApplicationSettingItems extends ArrayList<ApplicationSettingItem> {
 
 	@SuppressWarnings("unchecked")
 	public void decode(String value) throws Exception {
-		ISerializer<?> serializer = SerializerFactory.create().createManager().create("json");
+		ISerializer serializer = SerializationFactory.createManager().create("json");
 		try (InputStream inputStream = new ByteArrayInputStream(Base64.getDecoder().decode(value))) {
 			Object settings = serializer.deserialize(inputStream, ApplicationSettingItem.class);
 			if (settings instanceof Collection) {

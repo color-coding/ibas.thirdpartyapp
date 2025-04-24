@@ -4,7 +4,7 @@ import java.lang.reflect.Field;
 import java.util.UUID;
 
 import org.colorcoding.ibas.bobas.serialization.ISerializer;
-import org.colorcoding.ibas.bobas.serialization.SerializerFactory;
+import org.colorcoding.ibas.bobas.serialization.SerializationFactory;
 import org.colorcoding.ibas.thirdpartyapp.bo.other.ApplicationSetting;
 import org.colorcoding.ibas.thirdpartyapp.bo.other.ApplicationSettingItem;
 import org.colorcoding.ibas.thirdpartyapp.bo.other.ApplicationSettingItems;
@@ -33,7 +33,7 @@ public class TestApplicationSetting extends TestCase {
 		System.out.println(String.format("Using: %s", settingItem.getValue()));
 		System.out.println("*********************************************************");
 
-		ISerializer<?> serializer = SerializerFactory.create().createManager().create("json");
+		ISerializer serializer = SerializationFactory.createManager().create("json");
 		ApplicationSetting nSetting = (ApplicationSetting) serializer.clone(setting, ApplicationSetting.class,
 				ApplicationSettingItem.class, ApplicationSettingItems.class);
 		nSetting.setSecretKey(setting.getSecretKey());

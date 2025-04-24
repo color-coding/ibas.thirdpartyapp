@@ -6,10 +6,14 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
 
+import javax.json.JsonObject;
+import javax.json.JsonValue;
+
 import org.colorcoding.ibas.bobas.common.Criteria;
 import org.colorcoding.ibas.bobas.common.ICondition;
 import org.colorcoding.ibas.bobas.common.IOperationResult;
 import org.colorcoding.ibas.bobas.common.OperationResult;
+import org.colorcoding.ibas.bobas.common.Strings;
 import org.colorcoding.ibas.bobas.i18n.I18N;
 import org.colorcoding.ibas.bobas.organization.OrganizationFactory;
 import org.colorcoding.ibas.initialfantasy.bo.organization.IUser;
@@ -17,10 +21,7 @@ import org.colorcoding.ibas.initialfantasy.bo.organization.User;
 import org.colorcoding.ibas.initialfantasy.repository.BORepositoryInitialFantasy;
 import org.colorcoding.ibas.thirdpartyapp.bo.usermapping.IUserMapping;
 import org.colorcoding.ibas.thirdpartyapp.bo.usermapping.UserMapping;
-import org.colorcoding.ibas.thirdpartyapp.data.DataConvert;
 import org.colorcoding.ibas.thirdpartyapp.repository.BORepositoryThirdPartyApp;
-
-import com.fasterxml.jackson.databind.JsonNode;
 
 public class IDaaS extends WebApp {
 	/**
@@ -65,7 +66,7 @@ public class IDaaS extends WebApp {
 		try {
 			if ("authorize".equalsIgnoreCase(instruct)) {
 				String endpoint = this.paramValue(PARAM_NAME_AUTHORIZE_ENDPOINT, "");
-				if (DataConvert.isNullOrEmpty(endpoint)) {
+				if (Strings.isNullOrEmpty(endpoint)) {
 					throw new Exception(
 							I18N.prop("msg_tpa_invaild_application_setting_item", PARAM_NAME_AUTHORIZE_ENDPOINT));
 				}
@@ -107,7 +108,7 @@ public class IDaaS extends WebApp {
 	@Override
 	protected IUserMapping fetchUser(Properties params) throws Exception {
 		String endpoint = this.paramValue(PARAM_NAME_TOKEN_ENDPOINT, "");
-		if (DataConvert.isNullOrEmpty(endpoint)) {
+		if (Strings.isNullOrEmpty(endpoint)) {
 			throw new Exception(I18N.prop("msg_tpa_no_param", PARAM_NAME_TOKEN_ENDPOINT));
 		}
 		StringBuilder stringBuilder = new StringBuilder();
@@ -135,29 +136,29 @@ public class IDaaS extends WebApp {
 
 		Map<String, String> headers = new HashMap<String, String>();
 		headers.put("Content-Type", "application/x-www-form-urlencoded");
-		JsonNode result = this.doPost(stringBuilder.toString(), headers);
+		JsonObject result = this.doPost(stringBuilder.toString(), headers);
 		if (result == null) {
 			throw new Exception(I18N.prop("msg_tpa_faild_oauth_request"));
 		}
-		JsonNode idToken = result.get("id_token");
+		JsonValue idToken = result.get("id_token");
 		if (idToken == null) {
 			throw new Exception(I18N.prop("msg_tpa_faild_oauth_request"));
 		}
-		JsonNode accessToken = result.get("access_token");
+		JsonValue accessToken = result.getJsonObject("access_token");
 		if (accessToken == null) {
 			throw new Exception(I18N.prop("msg_tpa_faild_oauth_request"));
 		}
 		stringBuilder = new StringBuilder();
 		endpoint = this.paramValue(PARAM_NAME_USERINFO_ENDPOINT, "");
-		if (DataConvert.isNullOrEmpty(endpoint)) {
+		if (Strings.isNullOrEmpty(endpoint)) {
 			throw new Exception(I18N.prop("msg_tpa_no_param", PARAM_NAME_USERINFO_ENDPOINT));
 		}
 		stringBuilder.append(endpoint);
 		headers = new HashMap<>();
-		headers.put("Authorization", String.format("Bearer %s", accessToken.asText()));
+		headers.put("Authorization", String.format("Bearer %s", accessToken.toString()));
 		result = this.doGet(stringBuilder.toString(), headers);
-		JsonNode userName = result.get("preferred_username");
-		if (userName == null || DataConvert.isNullOrEmpty(userName.asText())) {
+		JsonValue userName = result.getJsonObject("preferred_username");
+		if (userName == null || Strings.isNullOrEmpty(userName.toString())) {
 			throw new Exception(I18N.prop("msg_tpa_faild_user_info_request"));
 		}
 		Criteria criteria = new Criteria();
@@ -166,36 +167,38 @@ public class IDaaS extends WebApp {
 		condition.setValue(this.getName());
 		condition = criteria.getConditions().create();
 		condition.setAlias(UserMapping.PROPERTY_ACCOUNT.getName());
-		condition.setValue(userName.asText());
+		condition.setValue(userName.toString());
 
-		BORepositoryThirdPartyApp boRepository3RD = new BORepositoryThirdPartyApp();
-		boRepository3RD.setUserToken(OrganizationFactory.SYSTEM_USER.getToken());
-		IOperationResult<IUserMapping> opRsltMap = boRepository3RD.fetchUserMapping(criteria);
-		if (opRsltMap.getError() != null) {
-			throw opRsltMap.getError();
-		}
-		// 没有应用用户映射，则按编码直查用户
-		if (opRsltMap.getResultObjects().isEmpty()) {
-			criteria = new Criteria();
-			condition = criteria.getConditions().create();
-			condition.setAlias(User.PROPERTY_CODE.getName());
-			condition.setValue(userName.asText());
-			BORepositoryInitialFantasy boRepositoryIF = new BORepositoryInitialFantasy();
-			boRepositoryIF.setUserToken(OrganizationFactory.SYSTEM_USER.getToken());
-			IOperationResult<IUser> opRsltUsr = boRepositoryIF.fetchUser(criteria);
-			if (opRsltUsr.getError() != null) {
-				throw opRsltUsr.getError();
+		try (BORepositoryThirdPartyApp boRepository3RD = new BORepositoryThirdPartyApp()) {
+			boRepository3RD.setUserToken(OrganizationFactory.SYSTEM_USER.getToken());
+			IOperationResult<IUserMapping> opRsltMap = boRepository3RD.fetchUserMapping(criteria);
+			if (opRsltMap.getError() != null) {
+				throw opRsltMap.getError();
 			}
-			IUser user = opRsltUsr.getResultObjects().firstOrDefault();
-			if (user == null) {
-				throw new Exception(I18N.prop("msg_tpa_no_matching_user"));
+			// 没有应用用户映射，则按编码直查用户
+			if (opRsltMap.getResultObjects().isEmpty()) {
+				criteria = new Criteria();
+				condition = criteria.getConditions().create();
+				condition.setAlias(User.PROPERTY_CODE.getName());
+				condition.setValue(userName.toString());
+				try (BORepositoryInitialFantasy boRepositoryIF = new BORepositoryInitialFantasy()) {
+					boRepositoryIF.setUserToken(OrganizationFactory.SYSTEM_USER.getToken());
+					IOperationResult<IUser> opRsltUsr = boRepositoryIF.fetchUser(criteria);
+					if (opRsltUsr.getError() != null) {
+						throw opRsltUsr.getError();
+					}
+					IUser user = opRsltUsr.getResultObjects().firstOrDefault();
+					if (user == null) {
+						throw new Exception(I18N.prop("msg_tpa_no_matching_user"));
+					}
+					IUserMapping userMapping = new UserMapping();
+					userMapping.setApplication(this.getName());
+					userMapping.setUser(user.getCode());
+					userMapping.setAccount(user.getCode());
+					opRsltMap.getResultObjects().add(userMapping);
+				}
 			}
-			IUserMapping userMapping = new UserMapping();
-			userMapping.setApplication(this.getName());
-			userMapping.setUser(user.getCode());
-			userMapping.setAccount(user.getCode());
-			opRsltMap.getResultObjects().add(userMapping);
+			return opRsltMap.getResultObjects().firstOrDefault();
 		}
-		return opRsltMap.getResultObjects().firstOrDefault();
 	}
 }

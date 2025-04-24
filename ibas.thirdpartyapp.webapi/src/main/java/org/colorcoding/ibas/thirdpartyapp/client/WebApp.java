@@ -11,6 +11,10 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 
+import javax.json.Json;
+import javax.json.JsonObject;
+import javax.json.JsonValue;
+
 import org.colorcoding.ibas.bobas.common.Criteria;
 import org.colorcoding.ibas.bobas.common.ICondition;
 import org.colorcoding.ibas.bobas.common.ICriteria;
@@ -24,9 +28,6 @@ import org.colorcoding.ibas.initialfantasy.bo.organization.User;
 import org.colorcoding.ibas.initialfantasy.repository.BORepositoryInitialFantasy;
 import org.colorcoding.ibas.thirdpartyapp.MyConfiguration;
 import org.colorcoding.ibas.thirdpartyapp.bo.usermapping.IUserMapping;
-
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 public abstract class WebApp extends ApplicationClient {
 
@@ -63,7 +64,7 @@ public abstract class WebApp extends ApplicationClient {
 		return params;
 	}
 
-	protected JsonNode doGet(String url) throws IOException {
+	protected JsonObject doGet(String url) throws IOException {
 		Map<String, String> headers = new HashMap<String, String>(3);
 		headers.put("Accept", "*/*");
 		headers.put("Connection", "Keep-Alive");
@@ -71,11 +72,11 @@ public abstract class WebApp extends ApplicationClient {
 		return this.connection("GET", url, headers);
 	}
 
-	protected JsonNode doGet(String url, Map<String, String> headers) throws IOException {
+	protected JsonObject doGet(String url, Map<String, String> headers) throws IOException {
 		return this.connection("GET", url, headers);
 	}
 
-	protected JsonNode doPost(String url) throws IOException {
+	protected JsonObject doPost(String url) throws IOException {
 		Map<String, String> headers = new HashMap<String, String>(3);
 		headers.put("Accept", "*/*");
 		headers.put("Connection", "Keep-Alive");
@@ -83,11 +84,11 @@ public abstract class WebApp extends ApplicationClient {
 		return this.connection("POST", url, headers);
 	}
 
-	protected JsonNode doPost(String url, Map<String, String> headers) throws IOException {
+	protected JsonObject doPost(String url, Map<String, String> headers) throws IOException {
 		return this.connection("POST", url, headers);
 	}
 
-	protected JsonNode connection(String method, String url, Map<String, String> headers) throws IOException {
+	protected JsonObject connection(String method, String url, Map<String, String> headers) throws IOException {
 		if (MyConfiguration.isDebugMode()) {
 			// 显示请求
 			StringBuilder builder = new StringBuilder();
@@ -139,15 +140,15 @@ public abstract class WebApp extends ApplicationClient {
 		} else {
 			Logger.log(MessageLevel.INFO, MSG_CONNECTED_URL, url.hashCode());
 		}
-		return new ObjectMapper().readTree(inputStream);
+		return Json.createReader(inputStream).readObject();
 	}
 
-	protected String paramValue(String name, JsonNode data) throws IndexOutOfBoundsException {
-		JsonNode node = data.get(name);
+	protected String paramValue(String name, JsonObject data) throws IndexOutOfBoundsException {
+		JsonValue node = data.get(name);
 		if (node == null) {
 			throw new IndexOutOfBoundsException(I18N.prop("msg_tpa_no_return_value", name));
 		}
-		return node.textValue();
+		return node.toString();
 	}
 
 	public final org.colorcoding.ibas.initialfantasy.bo.shell.User authenticate(Properties params)
@@ -164,19 +165,20 @@ public abstract class WebApp extends ApplicationClient {
 			condition = criteria.getConditions().create();
 			condition.setAlias(User.PROPERTY_ACTIVATED.getName());
 			condition.setValue(emYesNo.YES);
-			BORepositoryInitialFantasy boRepository = new BORepositoryInitialFantasy();
-			boRepository.setUserToken(OrganizationFactory.SYSTEM_USER.getToken());
-			IOperationResult<org.colorcoding.ibas.initialfantasy.bo.organization.IUser> opRsltUser = boRepository
-					.fetchUser(criteria);
-			org.colorcoding.ibas.initialfantasy.bo.organization.IUser boUser = opRsltUser.getResultObjects()
-					.firstOrDefault();
-			if (boUser == null) {
-				return null;
+			try (BORepositoryInitialFantasy boRepository = new BORepositoryInitialFantasy()) {
+				boRepository.setUserToken(OrganizationFactory.SYSTEM_USER.getToken());
+				IOperationResult<org.colorcoding.ibas.initialfantasy.bo.organization.IUser> opRsltUser = boRepository
+						.fetchUser(criteria);
+				org.colorcoding.ibas.initialfantasy.bo.organization.IUser boUser = opRsltUser.getResultObjects()
+						.firstOrDefault();
+				if (boUser == null) {
+					return null;
+				}
+				org.colorcoding.ibas.initialfantasy.bo.shell.User orgUser = org.colorcoding.ibas.initialfantasy.bo.shell.User
+						.create(boUser);
+				OrganizationFactory.createManager().register(orgUser);
+				return orgUser;
 			}
-			org.colorcoding.ibas.initialfantasy.bo.shell.User orgUser = org.colorcoding.ibas.initialfantasy.bo.shell.User
-					.create(boUser);
-			OrganizationFactory.create().createManager().register(orgUser);
-			return orgUser;
 		} catch (Exception e) {
 			throw new AuthenticationException(e);
 		}

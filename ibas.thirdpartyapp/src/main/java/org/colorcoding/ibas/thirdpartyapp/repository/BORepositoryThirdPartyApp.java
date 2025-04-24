@@ -5,6 +5,7 @@ import org.colorcoding.ibas.bobas.common.ICondition;
 import org.colorcoding.ibas.bobas.common.ICriteria;
 import org.colorcoding.ibas.bobas.common.IOperationResult;
 import org.colorcoding.ibas.bobas.common.OperationResult;
+import org.colorcoding.ibas.bobas.common.Strings;
 import org.colorcoding.ibas.bobas.data.emYesNo;
 import org.colorcoding.ibas.bobas.i18n.I18N;
 import org.colorcoding.ibas.bobas.repository.BORepositoryServiceApplication;
@@ -19,7 +20,6 @@ import org.colorcoding.ibas.thirdpartyapp.bo.other.ApplicationSettingItem;
 import org.colorcoding.ibas.thirdpartyapp.bo.other.UserApplication;
 import org.colorcoding.ibas.thirdpartyapp.bo.usermapping.IUserMapping;
 import org.colorcoding.ibas.thirdpartyapp.bo.usermapping.UserMapping;
-import org.colorcoding.ibas.thirdpartyapp.data.DataConvert;
 
 /**
  * ThirdPartyApp仓库
@@ -62,7 +62,7 @@ public class BORepositoryThirdPartyApp extends BORepositoryServiceApplication
 			appSettingItem.setDescription(configItem.getDescription());
 			appSettingItem.setCategory(configItem.getCategory());
 		}
-		if (!DataConvert.isNullOrEmpty(application.getSettings())) {
+		if (!Strings.isNullOrEmpty(application.getSettings())) {
 			appSetting.getSettingItems().decode(application.getSettings());
 		}
 		return appSetting;
@@ -97,7 +97,7 @@ public class BORepositoryThirdPartyApp extends BORepositoryServiceApplication
 			throw new Exception(I18N.prop("msg_tpa_invaild_application", userMapping.getApplication()));
 		}
 		ApplicationSetting appSetting = this.createApplicationSetting(application, false);
-		if (!DataConvert.isNullOrEmpty(userMapping.getSettings())) {
+		if (!Strings.isNullOrEmpty(userMapping.getSettings())) {
 			appSetting.getSettingItems().decode(userMapping.getSettings());
 		}
 		return appSetting;
@@ -165,7 +165,7 @@ public class BORepositoryThirdPartyApp extends BORepositoryServiceApplication
 	 * @return 操作结果
 	 */
 	public OperationResult<Application> fetchApplication(ICriteria criteria, String token) {
-		return super.fetch(criteria, token, Application.class);
+		return super.fetch(Application.class, criteria, token);
 	}
 
 	/**
@@ -208,7 +208,7 @@ public class BORepositoryThirdPartyApp extends BORepositoryServiceApplication
 	 * @return 操作结果
 	 */
 	public OperationResult<ApplicationConfig> fetchApplicationConfig(ICriteria criteria, String token) {
-		return super.fetch(criteria, token, ApplicationConfig.class);
+		return super.fetch(ApplicationConfig.class, criteria, token);
 	}
 
 	/**
@@ -252,7 +252,7 @@ public class BORepositoryThirdPartyApp extends BORepositoryServiceApplication
 	 * @return 操作结果
 	 */
 	public OperationResult<UserMapping> fetchUserMapping(ICriteria criteria, String token) {
-		return super.fetch(criteria, token, UserMapping.class);
+		return super.fetch(UserMapping.class, criteria, token);
 	}
 
 	/**

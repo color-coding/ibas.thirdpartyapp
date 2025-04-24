@@ -16,10 +16,10 @@ import javax.ws.rs.core.MediaType;
 
 import org.colorcoding.ibas.bobas.common.IOperationResult;
 import org.colorcoding.ibas.bobas.common.OperationResult;
+import org.colorcoding.ibas.bobas.common.Strings;
 import org.colorcoding.ibas.bobas.i18n.I18N;
 import org.colorcoding.ibas.bobas.message.Logger;
 import org.colorcoding.ibas.initialfantasy.bo.shell.User;
-import org.colorcoding.ibas.initialfantasy.data.DataConvert;
 import org.colorcoding.ibas.thirdpartyapp.MyConfiguration;
 import org.colorcoding.ibas.thirdpartyapp.client.ApplicationClient;
 import org.colorcoding.ibas.thirdpartyapp.client.ApplicationClientManager;
@@ -75,7 +75,7 @@ public class JointService {
 				}
 				params.put(key, stringBuilder.toString());
 			}
-			if (DataConvert.isNullOrEmpty(app)) {
+			if (Strings.isNullOrEmpty(app)) {
 				throw new Exception(I18N.prop("msg_tpa_no_param", PARAMETER_APP));
 			}
 			OperationResult<User> operationResult = new OperationResult<User>();
@@ -90,7 +90,8 @@ public class JointService {
 
 	/**
 	 * 登录
-	 * @param request 请求
+	 * 
+	 * @param request  请求
 	 * @param response 响应
 	 */
 	@GET
@@ -132,6 +133,7 @@ public class JointService {
 
 	/**
 	 * 授权
+	 * 
 	 * @param request
 	 * @param response
 	 */
@@ -162,7 +164,7 @@ public class JointService {
 				}
 				params.put(key, stringBuilder.toString());
 			}
-			if (DataConvert.isNullOrEmpty(app)) {
+			if (Strings.isNullOrEmpty(app)) {
 				throw new Exception(I18N.prop("msg_tpa_no_param", PARAMETER_APP));
 			}
 			params.put("request", request.getRequestURL().toString());

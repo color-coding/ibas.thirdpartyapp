@@ -1,7 +1,5 @@
 package org.colorcoding.ibas.thirdpartyapp.service.rest;
 
-import java.io.OutputStream;
-
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -20,7 +18,8 @@ import org.colorcoding.ibas.bobas.common.ICondition;
 import org.colorcoding.ibas.bobas.common.IOperationResult;
 import org.colorcoding.ibas.bobas.common.OperationMessage;
 import org.colorcoding.ibas.bobas.common.OperationResult;
-import org.colorcoding.ibas.bobas.data.FileData;
+import org.colorcoding.ibas.bobas.common.Strings;
+import org.colorcoding.ibas.bobas.data.FileItem;
 import org.colorcoding.ibas.bobas.data.List;
 import org.colorcoding.ibas.bobas.i18n.I18N;
 import org.colorcoding.ibas.bobas.repository.FileRepository;
@@ -33,7 +32,6 @@ import org.colorcoding.ibas.thirdpartyapp.bo.other.ApplicationSettingItem;
 import org.colorcoding.ibas.thirdpartyapp.bo.other.ApplicationSettingItems;
 import org.colorcoding.ibas.thirdpartyapp.bo.usermapping.IUserMapping;
 import org.colorcoding.ibas.thirdpartyapp.bo.usermapping.UserMapping;
-import org.colorcoding.ibas.thirdpartyapp.data.DataConvert;
 import org.colorcoding.ibas.thirdpartyapp.data.emConfigItemCategory;
 import org.colorcoding.ibas.thirdpartyapp.repository.BORepositoryThirdPartyApp;
 import org.glassfish.jersey.media.multipart.BodyPart;
@@ -47,14 +45,14 @@ public class FileService extends FileRepositoryService {
 
 	public FileService() {
 		// 设置工作目录
-		this.getRepository().setRepositoryFolder(FileService.WORK_FOLDER);
+		this.setRepositoryFolder(FileService.WORK_FOLDER);
 	}
 
 	@POST
 	@Path("upload")
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	@Produces(MediaType.APPLICATION_JSON)
-	public OperationResult<FileData> upload(FormDataMultiPart formData,
+	public OperationResult<FileItem> upload(FormDataMultiPart formData,
 			@HeaderParam("authorization") String authorization, @QueryParam("token") String token) {
 		return super.save(formData.getField("file"), MyConfiguration.optToken(authorization, token));
 	}
@@ -67,22 +65,21 @@ public class FileService extends FileRepositoryService {
 			@QueryParam("token") String token, @Context HttpServletResponse response) {
 		try {
 			// 获取文件
-			IOperationResult<FileData> operationResult = this.fetch(criteria,
+			IOperationResult<FileItem> operationResult = this.fetch(criteria,
 					MyConfiguration.optToken(authorization, token));
 			if (operationResult.getError() != null) {
 				throw operationResult.getError();
 			}
-			FileData fileData = operationResult.getResultObjects().firstOrDefault();
-			if (fileData != null) {
+			FileItem fileItem = operationResult.getResultObjects().firstOrDefault();
+			if (fileItem != null) {
 				// 设置文件名
-				response.setHeader("Content-Disposition",
-						String.format("attachment;filename=%s", fileData.getFileName()));
+				response.setHeader("Content-Disposition", String.format("attachment;filename=%s", fileItem.getName()));
 				// 设置内容类型
 				response.setContentType(MediaType.APPLICATION_OCTET_STREAM);
 				// 写入响应输出流
-				OutputStream os = response.getOutputStream();
-				os.write(fileData.getFileBytes());
-				os.flush();
+				fileItem.writeTo(response.getOutputStream());
+				// 提交
+				response.getOutputStream().flush();
 			} else {
 				// 文件不存在
 				throw new WebApplicationException(404);
@@ -101,21 +98,21 @@ public class FileService extends FileRepositoryService {
 		try {
 			Criteria criteria = new Criteria();
 			ICondition condition = criteria.getConditions().create();
-			condition.setAlias(FileRepository.CRITERIA_CONDITION_ALIAS_FILE_NAME);
+			condition.setAlias(FileRepository.CONDITION_ALIAS_FILE_NAME);
 			condition.setValue(resource);
 			// 获取文件
-			IOperationResult<FileData> operationResult = this.fetch(criteria, token);
+			IOperationResult<FileItem> operationResult = this.fetch(criteria, token);
 			if (operationResult.getError() != null) {
 				throw operationResult.getError();
 			}
-			FileData fileData = operationResult.getResultObjects().firstOrDefault();
-			if (fileData != null) {
+			FileItem fileItem = operationResult.getResultObjects().firstOrDefault();
+			if (fileItem != null) {
 				// 设置内容类型
-				response.setContentType(this.getContentType(fileData));
+				response.setContentType(this.getContentType(fileItem));
 				// 写入响应输出流
-				OutputStream os = response.getOutputStream();
-				os.write(fileData.getFileBytes());
-				os.flush();
+				fileItem.writeTo(response.getOutputStream());
+				// 提交
+				response.getOutputStream().flush();
 			} else {
 				// 文件不存在
 				throw new WebApplicationException(404);
@@ -134,11 +131,10 @@ public class FileService extends FileRepositoryService {
 	public OperationResult<ApplicationSetting> fetchApplicationSetting(@QueryParam("application") String appCode,
 			@QueryParam("user") String user, @HeaderParam("authorization") String authorization,
 			@QueryParam("token") String token) {
-		try {
-			BORepositoryThirdPartyApp boRepository = new BORepositoryThirdPartyApp();
+		try (BORepositoryThirdPartyApp boRepository = new BORepositoryThirdPartyApp()) {
 			boRepository.setUserToken(MyConfiguration.optToken(authorization, token));
 			OperationResult<ApplicationSetting> operationResult = new OperationResult<>();
-			if (DataConvert.isNullOrEmpty(user)) {
+			if (Strings.isNullOrEmpty(user)) {
 				Criteria criteria = new Criteria();
 				ICondition condition = criteria.getConditions().create();
 				condition.setAlias(Application.PROPERTY_CODE.getName());
@@ -183,12 +179,11 @@ public class FileService extends FileRepositoryService {
 	public OperationResult<ApplicationSetting> saveApplicationSetting(FormDataMultiPart formData,
 			@QueryParam("application") String appCode, @QueryParam("user") String user,
 			@HeaderParam("authorization") String authorization, @QueryParam("token") String token) {
-		try {
-			Criteria criteria = new Criteria();
-			ICondition condition = criteria.getConditions().create();
-			condition.setAlias(Application.PROPERTY_CODE.getName());
-			condition.setValue(appCode);
-			BORepositoryThirdPartyApp boRepository = new BORepositoryThirdPartyApp();
+		Criteria criteria = new Criteria();
+		ICondition condition = criteria.getConditions().create();
+		condition.setAlias(Application.PROPERTY_CODE.getName());
+		condition.setValue(appCode);
+		try (BORepositoryThirdPartyApp boRepository = new BORepositoryThirdPartyApp()) {
 			boRepository.setUserToken(MyConfiguration.optToken(authorization, token));
 			IOperationResult<IApplication> opRsltApp = boRepository.fetchApplication(criteria);
 			if (opRsltApp.getError() != null) {
@@ -219,17 +214,17 @@ public class FileService extends FileRepositoryService {
 					for (ApplicationSettingItem settingItem : items) {
 						if (settingItem.getCategory() == emConfigItemCategory.FILE
 								&& bodyPart.getMediaType() != MediaType.TEXT_PLAIN_TYPE) {
-							OperationResult<FileData> opRsltFile = super.save(bodyPart,
+							OperationResult<FileItem> opRsltFile = super.save(bodyPart,
 									MyConfiguration.optToken(authorization, token));
 							if (opRsltFile.getError() != null) {
 								throw opRsltFile.getError();
 							}
-							FileData fileData = opRsltFile.getResultObjects().firstOrDefault();
-							if (fileData == null) {
+							FileItem fileItem = opRsltFile.getResultObjects().firstOrDefault();
+							if (fileItem == null) {
 								throw new Exception(
 										I18N.prop("msg_tpa_invaild_application_setting_item", settingItem.getName()));
 							}
-							settingItem.setValue(fileData.getFileName());
+							settingItem.setValue(fileItem.getName());
 						} else {
 							settingItem.setValue(bodyPart.getValue());
 						}
@@ -240,7 +235,7 @@ public class FileService extends FileRepositoryService {
 				}
 			}
 
-			if (DataConvert.isNullOrEmpty(user)) {
+			if (Strings.isNullOrEmpty(user)) {
 				application.setSettings(savingItems.encode());
 				opRsltApp = boRepository.saveApplication(application);
 				if (opRsltApp.getError() != null) {
@@ -254,8 +249,6 @@ public class FileService extends FileRepositoryService {
 				condition = criteria.getConditions().create();
 				condition.setAlias(UserMapping.PROPERTY_USER.getName());
 				condition.setValue(user);
-				boRepository = new BORepositoryThirdPartyApp();
-				boRepository.setUserToken(MyConfiguration.optToken(authorization, token));
 				IOperationResult<IUserMapping> opRsltMapping = boRepository.fetchUserMapping(criteria);
 				if (opRsltMapping.getError() != null) {
 					throw opRsltMapping.getError();
@@ -296,15 +289,14 @@ public class FileService extends FileRepositoryService {
 	public OperationMessage removeApplicationSetting(@QueryParam("application") String appCode,
 			@QueryParam("user") String user, @HeaderParam("authorization") String authorization,
 			@QueryParam("token") String token) {
-		try {
-			Criteria criteria = new Criteria();
-			ICondition condition = criteria.getConditions().create();
-			condition.setAlias(UserMapping.PROPERTY_APPLICATION.getName());
-			condition.setValue(appCode);
-			condition = criteria.getConditions().create();
-			condition.setAlias(UserMapping.PROPERTY_USER.getName());
-			condition.setValue(user);
-			BORepositoryThirdPartyApp boRepository = new BORepositoryThirdPartyApp();
+		Criteria criteria = new Criteria();
+		ICondition condition = criteria.getConditions().create();
+		condition.setAlias(UserMapping.PROPERTY_APPLICATION.getName());
+		condition.setValue(appCode);
+		condition = criteria.getConditions().create();
+		condition.setAlias(UserMapping.PROPERTY_USER.getName());
+		condition.setValue(user);
+		try (BORepositoryThirdPartyApp boRepository = new BORepositoryThirdPartyApp()) {
 			boRepository.setUserToken(MyConfiguration.optToken(authorization, token));
 			IOperationResult<IUserMapping> opRsltMapping = boRepository.fetchUserMapping(criteria);
 			if (opRsltMapping.getError() != null) {

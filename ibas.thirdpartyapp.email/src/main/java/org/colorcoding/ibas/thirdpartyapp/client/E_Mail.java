@@ -21,10 +21,10 @@ import javax.mail.search.SearchTerm;
 import javax.mail.search.SentDateTerm;
 import javax.mail.search.SubjectTerm;
 
+import org.colorcoding.ibas.bobas.common.DateTimes;
 import org.colorcoding.ibas.bobas.common.IOperationResult;
 import org.colorcoding.ibas.bobas.common.OperationResult;
-import org.colorcoding.ibas.bobas.data.DataConvert;
-import org.colorcoding.ibas.bobas.data.DateTime;
+import org.colorcoding.ibas.bobas.common.Strings;
 import org.colorcoding.ibas.bobas.message.Logger;
 import org.colorcoding.ibas.bobas.message.MessageLevel;
 import org.colorcoding.ibas.initialfantasy.bo.shell.User;
@@ -199,13 +199,13 @@ public class E_Mail extends ApplicationClient {
 				searchTerms.add(new SentDateTerm(ComparisonTerm.LE, (Date) value));
 			}
 			value = params.get(PROPERTIES_SEARCH_SUBJECT);
-			if (value != null && !DataConvert.isNullOrEmpty(value.toString())) {
+			if (value != null && !Strings.isNullOrEmpty(value.toString())) {
 				searchTerms.add(new SubjectTerm(value.toString()));
 			}
 			SearchTerm searchTerm;
 			if (searchTerms.isEmpty()) {
 				value = params.get(PROPERTIES_SEARCH_TOP);
-				if (value != null && !DataConvert.isNullOrEmpty(value.toString())) {
+				if (value != null && !Strings.isNullOrEmpty(value.toString())) {
 					int top = Integer.valueOf(value.toString());
 					int count = mbox.getMessageCount();
 					int start = top > count ? 1 : count - top + 1;
@@ -278,7 +278,7 @@ public class E_Mail extends ApplicationClient {
 		message.setText(this.paramValue(PROPERTIES_SEND_CONTENT, "", params)); // 发送 纯文本
 		// message.setContent(mailContent, "text/html;charset=utf-8"); //
 		// 发送HTML邮件，内容样式比较丰富
-		message.setSentDate(DateTime.getNow());// 设置发信时间
+		message.setSentDate(DateTimes.now());// 设置发信时间
 		message.saveChanges();// 存储邮件信息
 		// 发送邮件
 		Transport transport = session.getTransport(protocol);

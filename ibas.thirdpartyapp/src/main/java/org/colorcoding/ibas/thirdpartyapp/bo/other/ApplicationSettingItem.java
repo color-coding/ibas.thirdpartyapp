@@ -8,8 +8,8 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 
-import org.colorcoding.ibas.bobas.serialization.Serializable;
-import org.colorcoding.ibas.bobas.util.Encrypt;
+import org.colorcoding.ibas.bobas.common.Bytes;
+import org.colorcoding.ibas.bobas.core.Serializable;
 import org.colorcoding.ibas.thirdpartyapp.MyConfiguration;
 import org.colorcoding.ibas.thirdpartyapp.data.emConfigItemCategory;
 
@@ -111,7 +111,7 @@ public class ApplicationSettingItem extends Serializable {
 			tmpValues = new byte[valueBytes.length + valueMdBytes.length];
 			System.arraycopy(valueMdBytes, 0, tmpValues, 0, valueMdBytes.length);
 			System.arraycopy(valueBytes, 0, tmpValues, valueMdBytes.length, valueBytes.length);
-			return Encrypt.toHexString(tmpValues);
+			return Bytes.toHexString(tmpValues);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -131,7 +131,7 @@ public class ApplicationSettingItem extends Serializable {
 			}
 			MessageDigest digest = MessageDigest.getInstance("MD5");
 			byte[] valueMdBytes, valueBytes, secretBytes, tmpValues;
-			valueBytes = Encrypt.toBytes(value);
+			valueBytes = Bytes.toBytes(value);
 			if (valueBytes != null && valueBytes.length > 16) {
 				// 判断是否已加密，前16字节为值的md信息
 				valueMdBytes = new byte[16];
