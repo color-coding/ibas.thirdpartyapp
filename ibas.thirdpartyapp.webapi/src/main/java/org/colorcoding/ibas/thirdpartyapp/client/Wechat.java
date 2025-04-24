@@ -2,7 +2,9 @@ package org.colorcoding.ibas.thirdpartyapp.client;
 
 import java.util.Properties;
 
-import javax.ws.rs.BadRequestException;
+import javax.json.JsonObject;
+import javax.json.JsonString;
+import javax.json.JsonValue;
 
 import org.colorcoding.ibas.bobas.common.ConditionOperation;
 import org.colorcoding.ibas.bobas.common.Criteria;
@@ -17,8 +19,6 @@ import org.colorcoding.ibas.thirdpartyapp.MyConfiguration;
 import org.colorcoding.ibas.thirdpartyapp.bo.usermapping.IUserMapping;
 import org.colorcoding.ibas.thirdpartyapp.bo.usermapping.UserMapping;
 import org.colorcoding.ibas.thirdpartyapp.repository.BORepositoryThirdPartyApp;
-
-import com.fasterxml.jackson.databind.JsonNode;
 
 public class Wechat extends WebApp {
 
@@ -57,13 +57,19 @@ public class Wechat extends WebApp {
 			throw new Exception(I18N.prop("msg_tpa_no_param", PARAM_NAME_CODE));
 		}
 		String url = this.applyVariables(URL_TEMPLATE_OAUTH, params);
-		JsonNode data = this.doGet(url);
+		JsonObject data = this.doGet(url);
+		// 1. 检查空响应
 		if (data == null) {
 			throw new Exception(I18N.prop("msg_tpa_faild_oauth_request"));
 		}
-		JsonNode errNode = data.get("errmsg");
-		if (errNode != null) {
-			throw new Exception(errNode.textValue());
+		// 2. 检查错误消息字段
+		if (data.containsKey("errmsg")) { // 直接判断字段是否存在
+			JsonValue errValue = data.get("errmsg");
+			if (errValue.getValueType() == JsonValue.ValueType.STRING) { // 确保类型是字符串
+				throw new Exception(((JsonString) errValue).getString());
+			} else {
+				throw new Exception(I18N.prop("msg_bobas_data_type_not_support", errValue.getValueType()));
+			}
 		}
 		IUserMapping user = null;
 		ICriteria criteria = new Criteria();
@@ -88,24 +94,31 @@ public class Wechat extends WebApp {
 	}
 
 	protected IUserMapping fetchUser(ICriteria criteria) throws Exception {
-		BORepositoryThirdPartyApp boRepository = new BORepositoryThirdPartyApp();
-		boRepository.setUserToken(OrganizationFactory.SYSTEM_USER.getToken());
-		IOperationResult<IUserMapping> operationResult = boRepository.fetchUserMapping(criteria);
-		if (operationResult.getError() != null) {
-			throw operationResult.getError();
+		try (BORepositoryThirdPartyApp boRepository = new BORepositoryThirdPartyApp()) {
+			boRepository.setUserToken(OrganizationFactory.SYSTEM_USER.getToken());
+			IOperationResult<IUserMapping> operationResult = boRepository.fetchUserMapping(criteria);
+			if (operationResult.getError() != null) {
+				throw operationResult.getError();
+			}
+			return operationResult.getResultObjects().firstOrDefault();
 		}
-		return operationResult.getResultObjects().firstOrDefault();
 	}
 
 	protected IUserMapping createUser(Properties params) throws Exception {
 		String url = this.applyVariables(URL_TEMPLATE_USER_INFO, params);
-		JsonNode data = this.doGet(url);
+		JsonObject data = this.doGet(url);
+		// 1. 检查空响应
 		if (data == null) {
-			throw new BadRequestException(I18N.prop("msg_tpa_faild_user_info_request"));
+			throw new Exception(I18N.prop("msg_tpa_faild_user_info_request"));
 		}
-		JsonNode errNode = data.get("errmsg");
-		if (errNode != null) {
-			throw new BadRequestException(errNode.textValue());
+		// 2. 检查错误消息字段
+		if (data.containsKey("errmsg")) { // 直接判断字段是否存在
+			JsonValue errValue = data.get("errmsg");
+			if (errValue.getValueType() == JsonValue.ValueType.STRING) { // 确保类型是字符串
+				throw new Exception(((JsonString) errValue).getString());
+			} else {
+				throw new Exception(I18N.prop("msg_bobas_data_type_not_support", errValue.getValueType()));
+			}
 		}
 		// 查询别的应用是否已映射用户
 		IUserMapping existUser = null;
@@ -128,14 +141,15 @@ public class Wechat extends WebApp {
 			userIF.setSeries(MyConfiguration.getConfigValue(CONFIG_ITEM_USER_SERIES, 1));// 编号系列
 			userIF.setName(this.paramValue("nickname", data));
 			userIF.setActivated(emYesNo.YES);
-			BORepositoryInitialFantasy boRepositoryIF = new BORepositoryInitialFantasy();
-			boRepositoryIF.setUserToken(OrganizationFactory.SYSTEM_USER.getToken());
-			IOperationResult<org.colorcoding.ibas.initialfantasy.bo.organization.IUser> opRsltIF = boRepositoryIF
-					.saveUser(userIF);
-			if (opRsltIF.getError() != null) {
-				throw opRsltIF.getError();
+			try (BORepositoryInitialFantasy boRepositoryIF = new BORepositoryInitialFantasy()) {
+				boRepositoryIF.setUserToken(OrganizationFactory.SYSTEM_USER.getToken());
+				IOperationResult<org.colorcoding.ibas.initialfantasy.bo.organization.IUser> opRsltIF = boRepositoryIF
+						.saveUser(userIF);
+				if (opRsltIF.getError() != null) {
+					throw opRsltIF.getError();
+				}
+				code = userIF.getCode();
 			}
-			code = userIF.getCode();
 		} else {
 			code = existUser.getUser();
 		}
@@ -148,13 +162,14 @@ public class Wechat extends WebApp {
 		} catch (Exception e) {
 			userTA.setAccount(this.paramValue("unionid", data));
 		}
-		BORepositoryThirdPartyApp boRepositoryTA = new BORepositoryThirdPartyApp();
-		boRepositoryTA.setUserToken(OrganizationFactory.SYSTEM_USER.getToken());
-		IOperationResult<IUserMapping> opRsltTA = boRepositoryTA.saveUserMapping(userTA);
-		if (opRsltTA.getError() != null) {
-			throw opRsltTA.getError();
+		try (BORepositoryThirdPartyApp boRepositoryTA = new BORepositoryThirdPartyApp()) {
+			boRepositoryTA.setUserToken(OrganizationFactory.SYSTEM_USER.getToken());
+			IOperationResult<IUserMapping> opRsltTA = boRepositoryTA.saveUserMapping(userTA);
+			if (opRsltTA.getError() != null) {
+				throw opRsltTA.getError();
+			}
+			return opRsltTA.getResultObjects().firstOrDefault();
 		}
-		return opRsltTA.getResultObjects().firstOrDefault();
 	}
 
 	@Override
