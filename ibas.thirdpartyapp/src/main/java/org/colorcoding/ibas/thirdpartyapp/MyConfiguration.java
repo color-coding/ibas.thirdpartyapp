@@ -2,6 +2,7 @@ package org.colorcoding.ibas.thirdpartyapp;
 
 import java.io.File;
 
+import org.colorcoding.ibas.bobas.common.Files;
 import org.colorcoding.ibas.bobas.configuration.ConfigurationFactory;
 import org.colorcoding.ibas.bobas.configuration.ConfigurationManager;
 
@@ -64,8 +65,8 @@ public class MyConfiguration extends org.colorcoding.ibas.initialfantasy.MyConfi
 	 * @return
 	 */
 	public static String getFileFolder() {
-		String workFolder = MyConfiguration.getConfigValue(MyConfiguration.CONFIG_ITEM_DOCUMENT_FOLDER,
-				MyConfiguration.getDataFolder() + File.separator + "thirdpartyapp_files");
+		String workFolder = Files.valueOf(MyConfiguration.getConfigValue(MyConfiguration.CONFIG_ITEM_DOCUMENT_FOLDER,
+				MyConfiguration.getDataFolder()), "thirdpartyapp_files").getPath();
 		if (!workFolder.endsWith(File.separator)) {
 			workFolder += File.separator;
 		}
