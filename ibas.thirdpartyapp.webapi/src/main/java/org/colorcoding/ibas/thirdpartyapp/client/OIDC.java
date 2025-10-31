@@ -23,7 +23,7 @@ import org.colorcoding.ibas.thirdpartyapp.bo.usermapping.IUserMapping;
 import org.colorcoding.ibas.thirdpartyapp.bo.usermapping.UserMapping;
 import org.colorcoding.ibas.thirdpartyapp.repository.BORepositoryThirdPartyApp;
 
-public class IDaaS extends WebApp {
+public abstract class OIDC extends WebApp {
 	/**
 	 * 参数名称-应用标记
 	 */
@@ -157,8 +157,11 @@ public class IDaaS extends WebApp {
 		headers = new HashMap<>();
 		headers.put("Authorization", String.format("Bearer %s", accessToken.toString()));
 		result = this.doGet(stringBuilder.toString(), headers);
-		JsonValue userName = result.getJsonObject("preferred_username");
-		if (userName == null || Strings.isNullOrEmpty(userName.toString())) {
+		if (result == null) {
+			throw new Exception(I18N.prop("msg_tpa_faild_oauth_request"));
+		}
+		String userName = this.userNameOf(result);
+		if (Strings.isNullOrEmpty(userName)) {
 			throw new Exception(I18N.prop("msg_tpa_faild_user_info_request"));
 		}
 		Criteria criteria = new Criteria();
@@ -167,7 +170,7 @@ public class IDaaS extends WebApp {
 		condition.setValue(this.getName());
 		condition = criteria.getConditions().create();
 		condition.setAlias(UserMapping.PROPERTY_ACCOUNT.getName());
-		condition.setValue(userName.toString());
+		condition.setValue(userName);
 
 		try (BORepositoryThirdPartyApp boRepository3RD = new BORepositoryThirdPartyApp()) {
 			boRepository3RD.setUserToken(OrganizationFactory.SYSTEM_USER.getToken());
@@ -180,7 +183,7 @@ public class IDaaS extends WebApp {
 				criteria = new Criteria();
 				condition = criteria.getConditions().create();
 				condition.setAlias(User.PROPERTY_CODE.getName());
-				condition.setValue(userName.toString());
+				condition.setValue(userName);
 				try (BORepositoryInitialFantasy boRepositoryIF = new BORepositoryInitialFantasy()) {
 					boRepositoryIF.setUserToken(OrganizationFactory.SYSTEM_USER.getToken());
 					IOperationResult<IUser> opRsltUsr = boRepositoryIF.fetchUser(criteria);
@@ -201,4 +204,6 @@ public class IDaaS extends WebApp {
 			return opRsltMap.getResultObjects().firstOrDefault();
 		}
 	}
+
+	protected abstract String userNameOf(JsonObject result);
 }
