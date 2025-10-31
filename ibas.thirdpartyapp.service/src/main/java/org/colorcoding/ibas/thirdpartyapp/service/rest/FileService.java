@@ -22,7 +22,6 @@ import org.colorcoding.ibas.bobas.common.Strings;
 import org.colorcoding.ibas.bobas.data.FileItem;
 import org.colorcoding.ibas.bobas.data.List;
 import org.colorcoding.ibas.bobas.i18n.I18N;
-import org.colorcoding.ibas.bobas.repository.FileRepository;
 import org.colorcoding.ibas.bobas.repository.jersey.FileRepositoryService;
 import org.colorcoding.ibas.thirdpartyapp.MyConfiguration;
 import org.colorcoding.ibas.thirdpartyapp.bo.application.Application;
@@ -41,11 +40,9 @@ import org.glassfish.jersey.media.multipart.FormDataMultiPart;
 @Path("file")
 public class FileService extends FileRepositoryService {
 
-	public final static String WORK_FOLDER = MyConfiguration.getFileFolder();
-
 	public FileService() {
 		// 设置工作目录
-		this.setRepositoryFolder(FileService.WORK_FOLDER);
+		this.setRepositoryFolder(MyConfiguration.getFileFolder());
 	}
 
 	@POST
@@ -98,7 +95,7 @@ public class FileService extends FileRepositoryService {
 		try {
 			Criteria criteria = new Criteria();
 			ICondition condition = criteria.getConditions().create();
-			condition.setAlias(FileRepository.CONDITION_ALIAS_FILE_NAME);
+			condition.setAlias(FileRepositoryService.CONDITION_ALIAS_FILE_NAME);
 			condition.setValue(resource);
 			// 获取文件
 			IOperationResult<FileItem> operationResult = this.fetch(criteria, token);
@@ -109,6 +106,11 @@ public class FileService extends FileRepositoryService {
 			if (fileItem != null) {
 				// 设置内容类型
 				response.setContentType(this.getContentType(fileItem));
+				// 设置缓存时间（单位：秒）
+				int cacheAge = 60 * 60 * 24 * 30;
+				// 设置缓存控制头
+				response.setHeader("Cache-Control", "private, max-age=" + cacheAge);
+				response.setDateHeader("Expires", System.currentTimeMillis() + cacheAge * 1000L);
 				// 写入响应输出流
 				fileItem.writeTo(response.getOutputStream());
 				// 提交
