@@ -267,7 +267,7 @@ namespace thirdpartyapp {
                 let boRepository: bo.BORepositoryThirdPartyApp = new bo.BORepositoryThirdPartyApp();
                 boRepository.upload({
                     fileData: formData,
-                    onCompleted(opRslt: ibas.IOperationResult<ibas.FileData>): void {
+                    onCompleted(opRslt: ibas.IOperationResult<ibas.FileItem>): void {
                         try {
                             that.busy(false);
                             if (opRslt.resultCode !== 0) {
@@ -275,8 +275,8 @@ namespace thirdpartyapp {
                             }
                             that.proceeding(ibas.emMessageType.INFORMATION,
                                 ibas.i18n.prop("shell_upload") + ibas.i18n.prop("shell_sucessful"));
-                            let fileData: ibas.FileData = opRslt.resultObjects.firstOrDefault();
-                            that.editData.picture = fileData.fileName;
+                            let fileData: ibas.FileItem = opRslt.resultObjects.firstOrDefault();
+                            that.editData.picture = fileData.name;
                         } catch (error) {
                             that.messages(error);
                         }
