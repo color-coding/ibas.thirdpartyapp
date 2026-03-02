@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <!DOCTYPE ApplicationConfig>
 <ns:ApplicationConfig xmlns:ns="https://colorcoding.org/ibas/thirdpartyapp/bo">
-	<Code>SAP_IAS</Code>
-	<Name>SAP身份认证服务（基于OIDC协议）</Name>
+	<Code>ALY_IDAAS</Code>
+	<Name>阿里云身份认证服务（基于OIDC协议）</Name>
 	<Group>SSO</Group>
-	<Remarks>客户端名：SAP_IAS</Remarks>
+	<Remarks>客户端名：ALY_IDaaS</Remarks>
 	<ApplicationConfigItems>
 		<ApplicationConfigItem>
 			<Name>client_id</Name>

@@ -19,8 +19,8 @@ import org.colorcoding.ibas.bobas.common.IOperationResult;
 import org.colorcoding.ibas.bobas.common.OperationMessage;
 import org.colorcoding.ibas.bobas.common.OperationResult;
 import org.colorcoding.ibas.bobas.common.Strings;
-import org.colorcoding.ibas.bobas.data.FileItem;
 import org.colorcoding.ibas.bobas.data.List;
+import org.colorcoding.ibas.bobas.file.FileItem;
 import org.colorcoding.ibas.bobas.i18n.I18N;
 import org.colorcoding.ibas.bobas.repository.jersey.FileRepositoryService;
 import org.colorcoding.ibas.thirdpartyapp.MyConfiguration;
@@ -43,6 +43,7 @@ public class FileService extends FileRepositoryService {
 	public FileService() {
 		// 设置工作目录
 		this.setRepositoryFolder(MyConfiguration.getFileFolder());
+		this.setGroupingFiles(false);
 	}
 
 	@POST

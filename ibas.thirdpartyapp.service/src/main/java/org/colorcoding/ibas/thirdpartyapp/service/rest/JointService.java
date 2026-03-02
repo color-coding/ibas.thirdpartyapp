@@ -3,6 +3,7 @@ package org.colorcoding.ibas.thirdpartyapp.service.rest;
 import java.net.URLDecoder;
 import java.util.Map.Entry;
 import java.util.Properties;
+import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -14,11 +15,13 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
+import org.colorcoding.ibas.bobas.common.EncryptMD5;
 import org.colorcoding.ibas.bobas.common.IOperationResult;
 import org.colorcoding.ibas.bobas.common.OperationResult;
 import org.colorcoding.ibas.bobas.common.Strings;
 import org.colorcoding.ibas.bobas.i18n.I18N;
 import org.colorcoding.ibas.bobas.message.Logger;
+import org.colorcoding.ibas.bobas.organization.OrganizationFactory;
 import org.colorcoding.ibas.initialfantasy.bo.shell.User;
 import org.colorcoding.ibas.thirdpartyapp.MyConfiguration;
 import org.colorcoding.ibas.thirdpartyapp.client.ApplicationClient;
@@ -34,6 +37,10 @@ public class JointService {
 	 * 配置项目-登录地址
 	 */
 	public final static String CONFIG_ITEM_LOGIN_URL = "LoginUrl";
+	/**
+	 * 配置项目-启用登录口令
+	 */
+	public final static String CONFIG_ITEM_ENABLE_LOGIN_TOKEN = "EnableLoginToken";
 	/**
 	 * 配置项目-登录地址
 	 */
@@ -99,14 +106,14 @@ public class JointService {
 	@Consumes(MediaType.TEXT_HTML)
 	@Path("login")
 	public void login(@Context HttpServletRequest request, @Context HttpServletResponse response) {
+		OperationResult<User> operationResult = this.connect(request);
+		if (operationResult.getError() != null) {
+			throw new WebApplicationException(operationResult.getError(), 500);
+		}
 		try {
-			OperationResult<User> operationResult = this.connect(request);
-			if (operationResult.getError() != null) {
-				throw new WebApplicationException(400);
-			}
 			User user = operationResult.getResultObjects().firstOrDefault();
-			if (user == null) {
-				throw new WebApplicationException(404);
+			if (user == null || !(user.getId() > 0)) {
+				throw new Exception(I18N.prop("msg_tpa_no_matching_user"));
 			}
 			String url = request.getParameter(PARAMETER_REDIRECT_URI);
 			if (url != null && !url.isEmpty()) {
@@ -114,20 +121,31 @@ public class JointService {
 			}
 			url = MyConfiguration.getConfigValue(CONFIG_ITEM_LOGIN_URL, url);
 			if (url == null || url.isEmpty()) {
-				throw new WebApplicationException(500);
+				throw new Exception(I18N.prop("msg_tpa_no_param", CONFIG_ITEM_LOGIN_URL));
+			}
+			if (MyConfiguration.getConfigValue(CONFIG_ITEM_ENABLE_LOGIN_TOKEN, true)) {
+				// 启用登录token（临时用户，用完即清）
+				User tmpUser = new User();
+				tmpUser.setId(User.TEMPORARY_USER_ID_FEATURE_VALUE - user.getId());
+				tmpUser.setCode(user.getCode());
+				tmpUser.setName(user.getName());
+				tmpUser.setSuper(false);
+				tmpUser.setTokenTimeStamp();
+				tmpUser.setIdentities(Strings.VALUE_EMPTY);
+				tmpUser.setToken(EncryptMD5.md5(UUID.randomUUID().toString()));
+				OrganizationFactory.createManager().register(tmpUser);
+				user = tmpUser;
 			}
 			response.setHeader("authorization",
 					String.format("%s %s", MyConfiguration.AUTHENTICATION_SCHEMES_BEARER, user.getToken()));
-			if (MyConfiguration.isDisabledUrlToken()) {
-				response.sendRedirect(url);
-			} else {
-				url += url.indexOf("?") > 0 ? "&" : "?";
-				response.sendRedirect(url + String.format("userToken=%s", user.getToken()));
-			}
-		} catch (WebApplicationException e) {
-			throw e;
+			StringBuilder stringBuilder = new StringBuilder(url);
+			stringBuilder.append(url.indexOf("?") > 0 ? "&" : "?");
+			stringBuilder.append("userToken=");
+			stringBuilder.append(user.getToken());
+			response.sendRedirect(stringBuilder.toString());
 		} catch (Exception e) {
-			throw new WebApplicationException(e);
+			Logger.log(e);
+			throw new WebApplicationException(e, 500);
 		}
 	}
 
@@ -173,16 +191,17 @@ public class JointService {
 			if (operationResult.getError() != null) {
 				throw operationResult.getError();
 			}
-			if (operationResult.getResultObjects().isEmpty()) {
-				throw new WebApplicationException(400);
+			String url = operationResult.getResultObjects().firstOrDefault();
+			if (Strings.isNullOrEmpty(url)) {
+				throw new Exception(I18N.prop("msg_tpa_no_return_value", appClient.getName()));
 			}
-			Logger.log("authorize: %s", operationResult.getResultObjects().firstOrDefault());
-			response.sendRedirect(operationResult.getResultObjects().firstOrDefault());
+			Logger.log("authorize: %s", url);
+			response.sendRedirect(url);
 		} catch (WebApplicationException e) {
 			throw e;
 		} catch (Exception e) {
 			Logger.log(e);
-			throw new WebApplicationException(e);
+			throw new WebApplicationException(e, 500);
 		}
 	}
 }

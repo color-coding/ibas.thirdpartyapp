@@ -4,6 +4,7 @@
 	<Code>E_MAIL</Code>
 	<Name>电子邮件</Name>
 	<Group>MAIL</Group>
+	<Remarks>客户端名：E_Mail</Remarks>
 	<ApplicationConfigItems>
 		<ApplicationConfigItem>
 			<Name>mail.debug</Name>

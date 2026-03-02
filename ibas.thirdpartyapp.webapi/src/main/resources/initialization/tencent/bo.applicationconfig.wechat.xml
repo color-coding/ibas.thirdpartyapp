@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <!DOCTYPE ApplicationConfig>
 <ns:ApplicationConfig xmlns:ns="https://colorcoding.org/ibas/thirdpartyapp/bo">
-	<Code>ALY-IDAAS</Code>
-	<Name>阿里云身份认证服务（基于OIDC协议）</Name>
-	<Group>SSO</Group>
-	<Remarks>客户端名：ALYIDaaS</Remarks>
+	<Code>TX_WECHAT</Code>
+	<Name>微信</Name>
+	<Group>APP</Group>
+	<Remarks>客户端名：WeChat</Remarks>
 	<ApplicationConfigItems>
 		<ApplicationConfigItem>
 			<Name>client_id</Name>
@@ -29,25 +29,22 @@
 			<Category>TEXT</Category>
 		</ApplicationConfigItem>
 		<ApplicationConfigItem>
-			<Name>redirect_uri</Name>
-			<Description>登录后重定向地址</Description>
-			<Value></Value>
-			<Category>TEXT</Category>
-		</ApplicationConfigItem>
-		<ApplicationConfigItem>
 			<Name>authorize_endpoint</Name>
 			<Description>授权端点</Description>
 			<Category>TEXT</Category>
+			<Value>https://open.weixin.qq.com/connect/oauth2/authorize</Value>
 		</ApplicationConfigItem>
 		<ApplicationConfigItem>
 			<Name>token_endpoint</Name>
 			<Description>令牌端点</Description>
 			<Category>TEXT</Category>
+			<Value>https://api.weixin.qq.com/sns/oauth2/access_token</Value>
 		</ApplicationConfigItem>
 		<ApplicationConfigItem>
 			<Name>userinfo_endpoint</Name>
 			<Description>用户信息端点</Description>
 			<Category>TEXT</Category>
+			<Value>https://api.weixin.qq.com/sns/userinfo</Value>
 		</ApplicationConfigItem>
 	</ApplicationConfigItems>
 </ns:ApplicationConfig>

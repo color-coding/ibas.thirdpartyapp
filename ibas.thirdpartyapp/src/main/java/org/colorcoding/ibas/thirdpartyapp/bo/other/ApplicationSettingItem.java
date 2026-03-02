@@ -9,6 +9,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 
 import org.colorcoding.ibas.bobas.common.Bytes;
+import org.colorcoding.ibas.bobas.common.Files;
 import org.colorcoding.ibas.bobas.core.Serializable;
 import org.colorcoding.ibas.thirdpartyapp.MyConfiguration;
 import org.colorcoding.ibas.thirdpartyapp.data.emConfigItemCategory;
@@ -69,8 +70,7 @@ public class ApplicationSettingItem extends Serializable {
 			return this.decryptValue(this.value);
 		} else if (this.getCategory() == emConfigItemCategory.FILE) {
 			if (this.value != null && this.value.indexOf(File.separator) < 0) {
-				File file = new File(MyConfiguration.getFileFolder(), this.value);
-				return file.getPath();
+				return Files.pathOf(MyConfiguration.getFileFolder(), File.separator, this.value);
 			}
 		}
 		return this.value;

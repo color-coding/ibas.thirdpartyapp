@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!DOCTYPE User>
+<ns:SystemUser xmlns:ns="http://colorcoding.org/ibas/initialfantasy/bo">
+	<Code>#_3RD_WC</Code>
+	<Name>模板-微信用户</Name>
+	<Activated>NO</Activated>
+	<Super>NO</Super>
+	<DocEntry>-103701</DocEntry>
+</ns:SystemUser>

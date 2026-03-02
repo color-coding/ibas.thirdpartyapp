@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <!DOCTYPE ApplicationConfig>
 <ns:ApplicationConfig xmlns:ns="https://colorcoding.org/ibas/thirdpartyapp/bo">
-	<Code>WA-LIGHT</Code>
+	<Code>WA_LIGHT</Code>
 	<Name>WEB应用-轻量</Name>
 	<Group>WEBAPP</Group>
 	<ApplicationConfigItems>
