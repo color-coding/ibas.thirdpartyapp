@@ -1,6 +1,5 @@
 package org.colorcoding.ibas.thirdpartyapp.bo.other;
 
-import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 
@@ -9,15 +8,15 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 
 import org.colorcoding.ibas.bobas.common.Bytes;
-import org.colorcoding.ibas.bobas.common.Files;
 import org.colorcoding.ibas.bobas.core.Serializable;
-import org.colorcoding.ibas.thirdpartyapp.MyConfiguration;
 import org.colorcoding.ibas.thirdpartyapp.data.emConfigItemCategory;
 
 @XmlAccessorType(XmlAccessType.NONE)
 public class ApplicationSettingItem extends Serializable {
 
 	private static final long serialVersionUID = 1059078765093164250L;
+
+	public static final String URL_HEAD_FILE = "file://";
 
 	private ApplicationSetting parent;
 
@@ -68,10 +67,6 @@ public class ApplicationSettingItem extends Serializable {
 	public final String getValue() {
 		if (this.getCategory() == emConfigItemCategory.PASSWORD) {
 			return this.decryptValue(this.value);
-		} else if (this.getCategory() == emConfigItemCategory.FILE) {
-			if (this.value != null && this.value.indexOf(File.separator) < 0) {
-				return Files.pathOf(MyConfiguration.getFileFolder(), File.separator, this.value);
-			}
 		}
 		return this.value;
 	}

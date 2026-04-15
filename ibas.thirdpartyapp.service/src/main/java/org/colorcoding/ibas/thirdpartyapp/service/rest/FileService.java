@@ -42,7 +42,7 @@ public class FileService extends FileRepositoryService {
 
 	public FileService() {
 		// 设置工作目录
-		this.setRepositoryFolder(MyConfiguration.getFileFolder());
+		this.setRepositoryFolder(MyConfiguration.getDocumetsFolder());
 		this.setGroupingFiles(false);
 	}
 
@@ -227,7 +227,7 @@ public class FileService extends FileRepositoryService {
 								throw new Exception(
 										I18N.prop("msg_tpa_invaild_application_setting_item", settingItem.getName()));
 							}
-							settingItem.setValue(fileItem.getName());
+							settingItem.setValue(ApplicationSettingItem.URL_HEAD_FILE + fileItem.relativePath());
 						} else {
 							settingItem.setValue(bodyPart.getValue());
 						}

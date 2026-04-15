@@ -61,7 +61,7 @@ public class MyConfiguration extends org.colorcoding.ibas.initialfantasy.MyConfi
 	 * 
 	 * @return
 	 */
-	public static String getFileFolder() {
+	public static String getDocumetsFolder() {
 		return "thirdpartyapp_files";
 	}
 }
