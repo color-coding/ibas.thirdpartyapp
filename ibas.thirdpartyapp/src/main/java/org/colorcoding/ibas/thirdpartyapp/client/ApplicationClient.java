@@ -7,7 +7,6 @@ import java.util.Properties;
 import org.colorcoding.ibas.bobas.common.IOperationResult;
 import org.colorcoding.ibas.bobas.data.IKeyText;
 import org.colorcoding.ibas.bobas.data.KeyText;
-import org.colorcoding.ibas.initialfantasy.bo.shell.User;
 import org.colorcoding.ibas.thirdpartyapp.MyConfiguration;
 import org.colorcoding.ibas.thirdpartyapp.bo.other.ApplicationSetting;
 import org.colorcoding.ibas.thirdpartyapp.data.DataConvert;
@@ -27,7 +26,7 @@ public abstract class ApplicationClient {
 
 	private final ApplicationSetting getSetting() {
 		if (this.setting == null) {
-			throw new ParameterException("Not found Setting.");
+			throw new ParameterException("not found setting.");
 		}
 		return this.setting;
 	}
@@ -112,17 +111,8 @@ public abstract class ApplicationClient {
 
 	@Override
 	public String toString() {
-		return String.format("{%s %s}", "AppClient", this.getName());
+		return String.format("{%s: %s}", "appClient", this.getName());
 	}
-
-	/**
-	 * 认证用户
-	 * 
-	 * @param params 参数
-	 * @return 识别的用户
-	 * @throws Exception
-	 */
-	public abstract User authenticate(Properties params) throws AuthenticationException;
 
 	/**
 	 * 执行指令

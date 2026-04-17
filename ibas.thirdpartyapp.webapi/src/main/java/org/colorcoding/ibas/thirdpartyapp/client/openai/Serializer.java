@@ -1,0 +1,930 @@
+package org.colorcoding.ibas.thirdpartyapp.client.openai;
+
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+
+import javax.json.Json;
+import javax.json.JsonArray;
+import javax.json.JsonArrayBuilder;
+import javax.json.JsonNumber;
+import javax.json.JsonObject;
+import javax.json.JsonObjectBuilder;
+import javax.json.JsonString;
+import javax.json.JsonValue;
+
+import org.colorcoding.ibas.bobas.common.Strings;
+import org.colorcoding.ibas.bobas.data.ArrayList;
+import org.colorcoding.ibas.bobas.serialization.SerializationException;
+import org.colorcoding.ibas.bobas.serialization.jersey.SerializerJson;
+
+public class Serializer extends SerializerJson {
+
+	// ==================== 序列化（请求） ====================
+
+	public void serialize(ChatCompletionRequest request, OutputStream output) {
+		JsonObjectBuilder b = Json.createObjectBuilder();
+		b.add("model", request.getModel());
+		if (request.getMessages() != null) {
+			JsonArrayBuilder arr = Json.createArrayBuilder();
+			for (ChatMessage msg : request.getMessages()) {
+				JsonObjectBuilder mb = Json.createObjectBuilder();
+				if (msg.getRole() != null) {
+					mb.add("role", msg.getRole());
+				}
+				if (msg.getContent() != null) {
+					Object content = msg.getContent();
+					if (content instanceof String) {
+						mb.add("content", (String) content);
+					} else if (content instanceof List) {
+						JsonArrayBuilder ca = Json.createArrayBuilder();
+						for (Object item : (List<?>) content) {
+							if (item instanceof ContentPart) {
+								ContentPart part = (ContentPart) item;
+								JsonObjectBuilder pb = Json.createObjectBuilder();
+								if (part.getType() != null) {
+									pb.add("type", part.getType());
+								}
+								if (part.getText() != null) {
+									pb.add("text", part.getText());
+								}
+								if (part.getImageUrl() != null) {
+									JsonObjectBuilder ib = Json.createObjectBuilder();
+									if (part.getImageUrl().getUrl() != null) {
+										ib.add("url", part.getImageUrl().getUrl());
+									}
+									if (part.getImageUrl().getDetail() != null) {
+										ib.add("detail", part.getImageUrl().getDetail());
+									}
+									pb.add("image_url", ib.build());
+								}
+								if (part.getInputAudio() != null) {
+									JsonObjectBuilder ab = Json.createObjectBuilder();
+									if (part.getInputAudio().getData() != null) {
+										ab.add("data", part.getInputAudio().getData());
+									}
+									if (part.getInputAudio().getFormat() != null) {
+										ab.add("format", part.getInputAudio().getFormat());
+									}
+									pb.add("input_audio", ab.build());
+								}
+								if (part.getFile() != null) {
+									JsonObjectBuilder fb = Json.createObjectBuilder();
+									if (part.getFile().getFileId() != null) {
+										fb.add("file_id", part.getFile().getFileId());
+									}
+									if (part.getFile().getFilename() != null) {
+										fb.add("filename", part.getFile().getFilename());
+									}
+									if (part.getFile().getData() != null) {
+										fb.add("data", part.getFile().getData());
+									}
+									pb.add("file", fb.build());
+								}
+								ca.add(pb.build());
+							}
+						}
+						mb.add("content", ca.build());
+					}
+				}
+				if (msg.getName() != null) {
+					mb.add("name", msg.getName());
+				}
+				if (msg.getToolCalls() != null) {
+					JsonArrayBuilder ta = Json.createArrayBuilder();
+					for (ToolCall tc : msg.getToolCalls()) {
+						JsonObjectBuilder tcb = Json.createObjectBuilder();
+						if (tc.getId() != null) {
+							tcb.add("id", tc.getId());
+						}
+						if (tc.getType() != null) {
+							tcb.add("type", tc.getType());
+						}
+						if (tc.getFunction() != null) {
+							JsonObjectBuilder fb = Json.createObjectBuilder();
+							if (tc.getFunction().getName() != null) {
+								fb.add("name", tc.getFunction().getName());
+							}
+							if (tc.getFunction().getArguments() != null) {
+								fb.add("arguments", tc.getFunction().getArguments());
+							}
+							tcb.add("function", fb.build());
+						}
+						ta.add(tcb.build());
+					}
+					mb.add("tool_calls", ta.build());
+				}
+				if (msg.getToolCallId() != null) {
+					mb.add("tool_call_id", msg.getToolCallId());
+				}
+				if (msg.getRefusal() != null) {
+					mb.add("refusal", msg.getRefusal());
+				}
+				arr.add(mb.build());
+			}
+			b.add("messages", arr.build());
+		}
+		if (request.getTemperature() != null) {
+			b.add("temperature", request.getTemperature());
+		}
+		if (request.getTopP() != null) {
+			b.add("top_p", request.getTopP());
+		}
+		if (request.getN() != null) {
+			b.add("n", request.getN());
+		}
+		if (request.getMaxTokens() != null) {
+			b.add("max_tokens", request.getMaxTokens());
+		}
+		if (request.getMaxCompletionTokens() != null) {
+			b.add("max_completion_tokens", request.getMaxCompletionTokens());
+		}
+		if (request.getStop() != null) {
+			Object stop = request.getStop();
+			if (stop instanceof String) {
+				b.add("stop", (String) stop);
+			} else if (stop instanceof List) {
+				JsonArrayBuilder sa = Json.createArrayBuilder();
+				for (Object item : (List<?>) stop) {
+					sa.add(Strings.valueOf(item));
+				}
+				b.add("stop", sa.build());
+			}
+		}
+		if (request.getStream() != null) {
+			b.add("stream", request.getStream());
+		}
+		if (request.getFrequencyPenalty() != null) {
+			b.add("frequency_penalty", request.getFrequencyPenalty());
+		}
+		if (request.getPresencePenalty() != null) {
+			b.add("presence_penalty", request.getPresencePenalty());
+		}
+		if (request.getSeed() != null) {
+			b.add("seed", request.getSeed());
+		}
+		if (request.getTools() != null) {
+			JsonArrayBuilder arr = Json.createArrayBuilder();
+			for (Tool tool : request.getTools()) {
+				JsonObjectBuilder tb = Json.createObjectBuilder();
+				if (tool.getType() != null) {
+					tb.add("type", tool.getType());
+				}
+				if (tool.getFunction() != null) {
+					JsonObjectBuilder fb = Json.createObjectBuilder();
+					if (tool.getFunction().getName() != null) {
+						fb.add("name", tool.getFunction().getName());
+					}
+					if (tool.getFunction().getDescription() != null) {
+						fb.add("description", tool.getFunction().getDescription());
+					}
+					if (tool.getFunction().getParameters() != null) {
+						Object p = tool.getFunction().getParameters();
+						if (p instanceof String) {
+							fb.add("parameters", (String) p);
+						} else if (p instanceof Map) {
+							fb.add("parameters", toJsonObject((Map<?, ?>) p));
+						} else {
+							fb.add("parameters", p.toString());
+						}
+					}
+					tb.add("function", fb.build());
+				}
+				arr.add(tb.build());
+			}
+			b.add("tools", arr.build());
+		}
+		if (request.getToolChoice() != null) {
+			Object tc = request.getToolChoice();
+			if (tc instanceof String) {
+				b.add("tool_choice", (String) tc);
+			} else if (tc instanceof Tool) {
+				Tool tool = (Tool) tc;
+				JsonObjectBuilder tb = Json.createObjectBuilder();
+				if (tool.getType() != null) {
+					tb.add("type", tool.getType());
+				}
+				if (tool.getFunction() != null) {
+					JsonObjectBuilder fb = Json.createObjectBuilder();
+					if (tool.getFunction().getName() != null) {
+						fb.add("name", tool.getFunction().getName());
+					}
+					if (tool.getFunction().getDescription() != null) {
+						fb.add("description", tool.getFunction().getDescription());
+					}
+					if (tool.getFunction().getParameters() != null) {
+						Object p = tool.getFunction().getParameters();
+						if (p instanceof String) {
+							fb.add("parameters", (String) p);
+						} else if (p instanceof Map) {
+							fb.add("parameters", toJsonObject((Map<?, ?>) p));
+						} else {
+							fb.add("parameters", p.toString());
+						}
+					}
+					tb.add("function", fb.build());
+				}
+				b.add("tool_choice", tb.build());
+			}
+		}
+		if (request.getParallelToolCalls() != null) {
+			b.add("parallel_tool_calls", request.getParallelToolCalls());
+		}
+		if (request.getUser() != null) {
+			b.add("user", request.getUser());
+		}
+		if (request.getLogprobs() != null) {
+			b.add("logprobs", request.getLogprobs());
+		}
+		if (request.getTopLogprobs() != null) {
+			b.add("top_logprobs", request.getTopLogprobs());
+		}
+		if (request.getResponseFormat() != null) {
+			ResponseFormat format = request.getResponseFormat();
+			JsonObjectBuilder fb = Json.createObjectBuilder();
+			if (format.getType() != null) {
+				fb.add("type", format.getType());
+			}
+			if (format.getJsonSchema() != null) {
+				Object js = format.getJsonSchema();
+				if (js instanceof String) {
+					fb.add("json_schema", (String) js);
+				} else if (js instanceof Map) {
+					fb.add("json_schema", toJsonObject((Map<?, ?>) js));
+				} else {
+					fb.add("json_schema", js.toString());
+				}
+			}
+			b.add("response_format", fb.build());
+		}
+		if (request.getLogitBias() != null) {
+			JsonObjectBuilder lb = Json.createObjectBuilder();
+			for (Entry<String, Integer> entry : request.getLogitBias().entrySet()) {
+				lb.add(entry.getKey(), entry.getValue());
+			}
+			b.add("logit_bias", lb.build());
+		}
+		try {
+			output.write(b.build().toString().getBytes("utf-8"));
+		} catch (IOException e) {
+			throw new SerializationException(e);
+		}
+	}
+
+	public void serialize(ChatMessage msg, OutputStream output) {
+		JsonObjectBuilder b = Json.createObjectBuilder();
+		if (msg.getRole() != null) {
+			b.add("role", msg.getRole());
+		}
+		if (msg.getContent() != null) {
+			Object content = msg.getContent();
+			if (content instanceof String) {
+				b.add("content", (String) content);
+			} else if (content instanceof List) {
+				JsonArrayBuilder arr = Json.createArrayBuilder();
+				for (Object item : (List<?>) content) {
+					if (item instanceof ContentPart) {
+						ContentPart part = (ContentPart) item;
+						JsonObjectBuilder pb = Json.createObjectBuilder();
+						if (part.getType() != null) {
+							pb.add("type", part.getType());
+						}
+						if (part.getText() != null) {
+							pb.add("text", part.getText());
+						}
+						if (part.getImageUrl() != null) {
+							JsonObjectBuilder ib = Json.createObjectBuilder();
+							if (part.getImageUrl().getUrl() != null) {
+								ib.add("url", part.getImageUrl().getUrl());
+							}
+							if (part.getImageUrl().getDetail() != null) {
+								ib.add("detail", part.getImageUrl().getDetail());
+							}
+							pb.add("image_url", ib.build());
+						}
+						if (part.getInputAudio() != null) {
+							JsonObjectBuilder ab = Json.createObjectBuilder();
+							if (part.getInputAudio().getData() != null) {
+								ab.add("data", part.getInputAudio().getData());
+							}
+							if (part.getInputAudio().getFormat() != null) {
+								ab.add("format", part.getInputAudio().getFormat());
+							}
+							pb.add("input_audio", ab.build());
+						}
+						if (part.getFile() != null) {
+							JsonObjectBuilder fb = Json.createObjectBuilder();
+							if (part.getFile().getFileId() != null) {
+								fb.add("file_id", part.getFile().getFileId());
+							}
+							if (part.getFile().getFilename() != null) {
+								fb.add("filename", part.getFile().getFilename());
+							}
+							if (part.getFile().getData() != null) {
+								fb.add("data", part.getFile().getData());
+							}
+							pb.add("file", fb.build());
+						}
+						arr.add(pb.build());
+					}
+				}
+				b.add("content", arr.build());
+			}
+		}
+		if (msg.getName() != null) {
+			b.add("name", msg.getName());
+		}
+		if (msg.getToolCalls() != null) {
+			JsonArrayBuilder arr = Json.createArrayBuilder();
+			for (ToolCall tc : msg.getToolCalls()) {
+				JsonObjectBuilder tcb = Json.createObjectBuilder();
+				if (tc.getId() != null) {
+					tcb.add("id", tc.getId());
+				}
+				if (tc.getType() != null) {
+					tcb.add("type", tc.getType());
+				}
+				if (tc.getFunction() != null) {
+					JsonObjectBuilder fb = Json.createObjectBuilder();
+					if (tc.getFunction().getName() != null) {
+						fb.add("name", tc.getFunction().getName());
+					}
+					if (tc.getFunction().getArguments() != null) {
+						fb.add("arguments", tc.getFunction().getArguments());
+					}
+					tcb.add("function", fb.build());
+				}
+				arr.add(tcb.build());
+			}
+			b.add("tool_calls", arr.build());
+		}
+		if (msg.getToolCallId() != null) {
+			b.add("tool_call_id", msg.getToolCallId());
+		}
+		if (msg.getRefusal() != null) {
+			b.add("refusal", msg.getRefusal());
+		}
+		try {
+			output.write(b.build().toString().getBytes("utf-8"));
+		} catch (IOException e) {
+			throw new SerializationException(e);
+		}
+	}
+
+	public void serialize(ContentPart part, OutputStream output) {
+		JsonObjectBuilder b = Json.createObjectBuilder();
+		if (part.getType() != null) {
+			b.add("type", part.getType());
+		}
+		if (part.getText() != null) {
+			b.add("text", part.getText());
+		}
+		if (part.getImageUrl() != null) {
+			JsonObjectBuilder ib = Json.createObjectBuilder();
+			if (part.getImageUrl().getUrl() != null) {
+				ib.add("url", part.getImageUrl().getUrl());
+			}
+			if (part.getImageUrl().getDetail() != null) {
+				ib.add("detail", part.getImageUrl().getDetail());
+			}
+			b.add("image_url", ib.build());
+		}
+		if (part.getInputAudio() != null) {
+			JsonObjectBuilder ab = Json.createObjectBuilder();
+			if (part.getInputAudio().getData() != null) {
+				ab.add("data", part.getInputAudio().getData());
+			}
+			if (part.getInputAudio().getFormat() != null) {
+				ab.add("format", part.getInputAudio().getFormat());
+			}
+			b.add("input_audio", ab.build());
+		}
+		if (part.getFile() != null) {
+			JsonObjectBuilder fb = Json.createObjectBuilder();
+			if (part.getFile().getFileId() != null) {
+				fb.add("file_id", part.getFile().getFileId());
+			}
+			if (part.getFile().getFilename() != null) {
+				fb.add("filename", part.getFile().getFilename());
+			}
+			if (part.getFile().getData() != null) {
+				fb.add("data", part.getFile().getData());
+			}
+			b.add("file", fb.build());
+		}
+		try {
+			output.write(b.build().toString().getBytes("utf-8"));
+		} catch (IOException e) {
+			throw new SerializationException(e);
+		}
+	}
+
+	public void serialize(ImageUrl imageUrl, OutputStream output) {
+		JsonObjectBuilder b = Json.createObjectBuilder();
+		if (imageUrl.getUrl() != null) {
+			b.add("url", imageUrl.getUrl());
+		}
+		if (imageUrl.getDetail() != null) {
+			b.add("detail", imageUrl.getDetail());
+		}
+		try {
+			output.write(b.build().toString().getBytes("utf-8"));
+		} catch (IOException e) {
+			throw new SerializationException(e);
+		}
+	}
+
+	public void serialize(InputAudio inputAudio, OutputStream output) {
+		JsonObjectBuilder b = Json.createObjectBuilder();
+		if (inputAudio.getData() != null) {
+			b.add("data", inputAudio.getData());
+		}
+		if (inputAudio.getFormat() != null) {
+			b.add("format", inputAudio.getFormat());
+		}
+		try {
+			output.write(b.build().toString().getBytes("utf-8"));
+		} catch (IOException e) {
+			throw new SerializationException(e);
+		}
+	}
+
+	public void serialize(FileReference file, OutputStream output) {
+		JsonObjectBuilder b = Json.createObjectBuilder();
+		if (file.getFileId() != null) {
+			b.add("file_id", file.getFileId());
+		}
+		if (file.getFilename() != null) {
+			b.add("filename", file.getFilename());
+		}
+		if (file.getData() != null) {
+			b.add("data", file.getData());
+		}
+		try {
+			output.write(b.build().toString().getBytes("utf-8"));
+		} catch (IOException e) {
+			throw new SerializationException(e);
+		}
+	}
+
+	public void serialize(ToolCall toolCall, OutputStream output) {
+		JsonObjectBuilder b = Json.createObjectBuilder();
+		if (toolCall.getId() != null) {
+			b.add("id", toolCall.getId());
+		}
+		if (toolCall.getType() != null) {
+			b.add("type", toolCall.getType());
+		}
+		if (toolCall.getFunction() != null) {
+			JsonObjectBuilder fb = Json.createObjectBuilder();
+			if (toolCall.getFunction().getName() != null) {
+				fb.add("name", toolCall.getFunction().getName());
+			}
+			if (toolCall.getFunction().getArguments() != null) {
+				fb.add("arguments", toolCall.getFunction().getArguments());
+			}
+			b.add("function", fb.build());
+		}
+		try {
+			output.write(b.build().toString().getBytes("utf-8"));
+		} catch (IOException e) {
+			throw new SerializationException(e);
+		}
+	}
+
+	public void serialize(FunctionCall func, OutputStream output) {
+		JsonObjectBuilder b = Json.createObjectBuilder();
+		if (func.getName() != null) {
+			b.add("name", func.getName());
+		}
+		if (func.getArguments() != null) {
+			b.add("arguments", func.getArguments());
+		}
+		try {
+			output.write(b.build().toString().getBytes("utf-8"));
+		} catch (IOException e) {
+			throw new SerializationException(e);
+		}
+	}
+
+	public void serialize(Tool tool, OutputStream output) {
+		JsonObjectBuilder b = Json.createObjectBuilder();
+		if (tool.getType() != null) {
+			b.add("type", tool.getType());
+		}
+		if (tool.getFunction() != null) {
+			JsonObjectBuilder fb = Json.createObjectBuilder();
+			if (tool.getFunction().getName() != null) {
+				fb.add("name", tool.getFunction().getName());
+			}
+			if (tool.getFunction().getDescription() != null) {
+				fb.add("description", tool.getFunction().getDescription());
+			}
+			if (tool.getFunction().getParameters() != null) {
+				Object p = tool.getFunction().getParameters();
+				if (p instanceof String) {
+					fb.add("parameters", (String) p);
+				} else if (p instanceof Map) {
+					fb.add("parameters", toJsonObject((Map<?, ?>) p));
+				} else {
+					fb.add("parameters", p.toString());
+				}
+			}
+			b.add("function", fb.build());
+		}
+		try {
+			output.write(b.build().toString().getBytes("utf-8"));
+		} catch (IOException e) {
+			throw new SerializationException(e);
+		}
+	}
+
+	public void serialize(ToolFunction func, OutputStream output) {
+		JsonObjectBuilder b = Json.createObjectBuilder();
+		if (func.getName() != null) {
+			b.add("name", func.getName());
+		}
+		if (func.getDescription() != null) {
+			b.add("description", func.getDescription());
+		}
+		if (func.getParameters() != null) {
+			Object p = func.getParameters();
+			if (p instanceof String) {
+				b.add("parameters", (String) p);
+			} else if (p instanceof Map) {
+				b.add("parameters", toJsonObject((Map<?, ?>) p));
+			} else {
+				b.add("parameters", p.toString());
+			}
+		}
+		try {
+			output.write(b.build().toString().getBytes("utf-8"));
+		} catch (IOException e) {
+			throw new SerializationException(e);
+		}
+	}
+
+	public void serialize(ResponseFormat format, OutputStream output) {
+		JsonObjectBuilder b = Json.createObjectBuilder();
+		if (format.getType() != null) {
+			b.add("type", format.getType());
+		}
+		if (format.getJsonSchema() != null) {
+			Object js = format.getJsonSchema();
+			if (js instanceof String) {
+				b.add("json_schema", (String) js);
+			} else if (js instanceof Map) {
+				b.add("json_schema", toJsonObject((Map<?, ?>) js));
+			} else {
+				b.add("json_schema", js.toString());
+			}
+		}
+		try {
+			output.write(b.build().toString().getBytes("utf-8"));
+		} catch (IOException e) {
+			throw new SerializationException(e);
+		}
+	}
+
+	private JsonObject toJsonObject(Map<?, ?> map) {
+		JsonObjectBuilder b = Json.createObjectBuilder();
+		for (Entry<?, ?> entry : map.entrySet()) {
+			Object value = entry.getValue();
+			if (value instanceof String) {
+				b.add(entry.getKey().toString(), (String) value);
+			} else if (value instanceof Integer) {
+				b.add(entry.getKey().toString(), (Integer) value);
+			} else if (value instanceof Long) {
+				b.add(entry.getKey().toString(), (Long) value);
+			} else if (value instanceof Double) {
+				b.add(entry.getKey().toString(), (Double) value);
+			} else if (value instanceof Boolean) {
+				b.add(entry.getKey().toString(), (Boolean) value);
+			} else if (value instanceof Map) {
+				b.add(entry.getKey().toString(), toJsonObject((Map<?, ?>) value));
+			} else {
+				b.add(entry.getKey().toString(), value.toString());
+			}
+		}
+		return b.build();
+	}
+
+	// ==================== 反序列化（响应） ====================
+
+	public ChatCompletionResponse deserialize(JsonObject json, ChatCompletionResponse response) {
+		JsonValue jsonValue = null;
+		for (Entry<String, JsonValue> item : json.entrySet()) {
+			jsonValue = item.getValue();
+			if (Strings.equals(item.getKey(), "id") && jsonValue instanceof JsonString) {
+				response.setId(((JsonString) jsonValue).getString());
+			} else if (Strings.equals(item.getKey(), "object") && jsonValue instanceof JsonString) {
+				response.setObject(((JsonString) jsonValue).getString());
+			} else if (Strings.equals(item.getKey(), "created") && jsonValue instanceof JsonNumber) {
+				response.setCreated(((JsonNumber) jsonValue).longValue());
+			} else if (Strings.equals(item.getKey(), "model") && jsonValue instanceof JsonString) {
+				response.setModel(((JsonString) jsonValue).getString());
+			} else if (Strings.equals(item.getKey(), "choices") && jsonValue instanceof JsonArray) {
+				response.setChoices(new ArrayList<>());
+				JsonArray values = ((JsonArray) jsonValue);
+				for (int i = 0; i < values.size(); i++) {
+					response.getChoices()
+							.add(this.deserialize(values.getJsonObject(i), new ChatCompletionResponse.Choice()));
+				}
+			} else if (Strings.equals(item.getKey(), "usage") && jsonValue instanceof JsonObject) {
+				response.setUsage(this.deserialize((JsonObject) jsonValue, new ChatCompletionResponse.Usage()));
+			} else if (Strings.equals(item.getKey(), "system_fingerprint") && jsonValue instanceof JsonString) {
+				response.setSystemFingerprint(((JsonString) jsonValue).getString());
+			} else if (Strings.equals(item.getKey(), "service_tier") && jsonValue instanceof JsonString) {
+				response.setServiceTier(((JsonString) jsonValue).getString());
+			} else if (Strings.equals(item.getKey(), "error") && jsonValue instanceof JsonObject) {
+				response.setError(this.deserialize((JsonObject) jsonValue, new ChatCompletionResponse.Error()));
+			}
+		}
+		return response;
+	}
+
+	public ChatCompletionResponse.Error deserialize(JsonObject json, ChatCompletionResponse.Error error) {
+		JsonValue jsonValue = null;
+		for (Entry<String, JsonValue> item : json.entrySet()) {
+			jsonValue = item.getValue();
+			if (Strings.equals(item.getKey(), "message") && jsonValue instanceof JsonString) {
+				error.setMessage(((JsonString) jsonValue).getString());
+			} else if (Strings.equals(item.getKey(), "type") && jsonValue instanceof JsonString) {
+				error.setType(((JsonString) jsonValue).getString());
+			} else if (Strings.equals(item.getKey(), "param") && jsonValue instanceof JsonString) {
+				error.setParam(((JsonString) jsonValue).getString());
+			} else if (Strings.equals(item.getKey(), "code") && jsonValue instanceof JsonString) {
+				error.setCode(((JsonString) jsonValue).getString());
+			}
+		}
+		return error;
+	}
+	
+	public ChatCompletionResponse.Choice deserialize(JsonObject json, ChatCompletionResponse.Choice choice) {
+		JsonValue jsonValue = null;
+		for (Entry<String, JsonValue> item : json.entrySet()) {
+			jsonValue = item.getValue();
+			if (Strings.equals(item.getKey(), "index") && jsonValue instanceof JsonNumber) {
+				choice.setIndex(((JsonNumber) jsonValue).intValue());
+			} else if (Strings.equals(item.getKey(), "finish_reason") && jsonValue instanceof JsonString) {
+				choice.setFinishReason(((JsonString) jsonValue).getString());
+			} else if (Strings.equals(item.getKey(), "message") && jsonValue instanceof JsonObject) {
+				choice.setMessage(this.deserialize((JsonObject) jsonValue, new ChatMessage()));
+			} else if (Strings.equals(item.getKey(), "delta") && jsonValue instanceof JsonObject) {
+				choice.setDelta(this.deserialize((JsonObject) jsonValue, new ChatMessage()));
+			} else if (Strings.equals(item.getKey(), "logprobs") && jsonValue instanceof JsonObject) {
+				choice.setLogprobs(this.deserialize((JsonObject) jsonValue, new ChatCompletionResponse.Logprobs()));
+			}
+		}
+		return choice;
+	}
+
+	public ChatCompletionResponse.Logprobs deserialize(JsonObject json, ChatCompletionResponse.Logprobs logprobs) {
+		JsonValue jsonValue = null;
+		for (Entry<String, JsonValue> item : json.entrySet()) {
+			jsonValue = item.getValue();
+			if (Strings.equals(item.getKey(), "content") && jsonValue instanceof JsonArray) {
+				logprobs.setContent(new ArrayList<>());
+				JsonArray values = (JsonArray) jsonValue;
+				for (int i = 0; i < values.size(); i++) {
+					logprobs.getContent().add(this.deserialize(values.getJsonObject(i),
+							new ChatCompletionResponse.Logprobs.TokenLogprob()));
+				}
+			} else if (Strings.equals(item.getKey(), "refusal") && jsonValue instanceof JsonArray) {
+				logprobs.setRefusal(new ArrayList<>());
+				JsonArray values = (JsonArray) jsonValue;
+				for (int i = 0; i < values.size(); i++) {
+					logprobs.getRefusal().add(this.deserialize(values.getJsonObject(i),
+							new ChatCompletionResponse.Logprobs.TokenLogprob()));
+				}
+			}
+		}
+		return logprobs;
+	}
+
+	public ChatCompletionResponse.Logprobs.TokenLogprob deserialize(JsonObject json,
+			ChatCompletionResponse.Logprobs.TokenLogprob tokenLogprob) {
+		JsonValue jsonValue = null;
+		for (Entry<String, JsonValue> item : json.entrySet()) {
+			jsonValue = item.getValue();
+			if (Strings.equals(item.getKey(), "token") && jsonValue instanceof JsonString) {
+				tokenLogprob.setToken(((JsonString) jsonValue).getString());
+			} else if (Strings.equals(item.getKey(), "logprob") && jsonValue instanceof JsonNumber) {
+				tokenLogprob.setLogprob(((JsonNumber) jsonValue).doubleValue());
+			} else if (Strings.equals(item.getKey(), "bytes") && jsonValue instanceof JsonArray) {
+				tokenLogprob.setBytes(new ArrayList<>());
+				JsonArray values = (JsonArray) jsonValue;
+				for (int i = 0; i < values.size(); i++) {
+					tokenLogprob.getBytes().add(values.getInt(i));
+				}
+			} else if (Strings.equals(item.getKey(), "top_logprobs") && jsonValue instanceof JsonArray) {
+				tokenLogprob.setTopLogprobs(new ArrayList<>());
+				JsonArray values = (JsonArray) jsonValue;
+				for (int i = 0; i < values.size(); i++) {
+					tokenLogprob.getTopLogprobs().add(this.deserialize(values.getJsonObject(i),
+							new ChatCompletionResponse.Logprobs.TopLogprob()));
+				}
+			}
+		}
+		return tokenLogprob;
+	}
+
+	public ChatCompletionResponse.Logprobs.TopLogprob deserialize(JsonObject json,
+			ChatCompletionResponse.Logprobs.TopLogprob topLogprob) {
+		JsonValue jsonValue = null;
+		for (Entry<String, JsonValue> item : json.entrySet()) {
+			jsonValue = item.getValue();
+			if (Strings.equals(item.getKey(), "token") && jsonValue instanceof JsonString) {
+				topLogprob.setToken(((JsonString) jsonValue).getString());
+			} else if (Strings.equals(item.getKey(), "logprob") && jsonValue instanceof JsonNumber) {
+				topLogprob.setLogprob(((JsonNumber) jsonValue).doubleValue());
+			} else if (Strings.equals(item.getKey(), "bytes") && jsonValue instanceof JsonArray) {
+				topLogprob.setBytes(new ArrayList<>());
+				JsonArray values = (JsonArray) jsonValue;
+				for (int i = 0; i < values.size(); i++) {
+					topLogprob.getBytes().add(values.getInt(i));
+				}
+			}
+		}
+		return topLogprob;
+	}
+
+	public ChatCompletionResponse.Usage deserialize(JsonObject json, ChatCompletionResponse.Usage usage) {
+		JsonValue jsonValue = null;
+		for (Entry<String, JsonValue> item : json.entrySet()) {
+			jsonValue = item.getValue();
+			if (Strings.equals(item.getKey(), "prompt_tokens") && jsonValue instanceof JsonNumber) {
+				usage.setPromptTokens(((JsonNumber) jsonValue).intValue());
+			} else if (Strings.equals(item.getKey(), "completion_tokens") && jsonValue instanceof JsonNumber) {
+				usage.setCompletionTokens(((JsonNumber) jsonValue).intValue());
+			} else if (Strings.equals(item.getKey(), "total_tokens") && jsonValue instanceof JsonNumber) {
+				usage.setTotalTokens(((JsonNumber) jsonValue).intValue());
+			} else if (Strings.equals(item.getKey(), "completion_tokens_details") && jsonValue instanceof JsonObject) {
+				usage.setCompletionTokensDetails(
+						this.deserialize((JsonObject) jsonValue, new ChatCompletionResponse.CompletionTokensDetails()));
+			} else if (Strings.equals(item.getKey(), "prompt_tokens_details") && jsonValue instanceof JsonObject) {
+				usage.setPromptTokensDetails(
+						this.deserialize((JsonObject) jsonValue, new ChatCompletionResponse.PromptTokensDetails()));
+			}
+		}
+		return usage;
+	}
+
+	public ChatCompletionResponse.CompletionTokensDetails deserialize(JsonObject json,
+			ChatCompletionResponse.CompletionTokensDetails details) {
+		JsonValue jsonValue = null;
+		for (Entry<String, JsonValue> item : json.entrySet()) {
+			jsonValue = item.getValue();
+			if (Strings.equals(item.getKey(), "reasoning_tokens") && jsonValue instanceof JsonNumber) {
+				details.setReasoningTokens(((JsonNumber) jsonValue).intValue());
+			} else if (Strings.equals(item.getKey(), "audio_tokens") && jsonValue instanceof JsonNumber) {
+				details.setAudioTokens(((JsonNumber) jsonValue).intValue());
+			} else if (Strings.equals(item.getKey(), "accepted_prediction_tokens") && jsonValue instanceof JsonNumber) {
+				details.setAcceptedPredictionTokens(((JsonNumber) jsonValue).intValue());
+			} else if (Strings.equals(item.getKey(), "rejected_prediction_tokens") && jsonValue instanceof JsonNumber) {
+				details.setRejectedPredictionTokens(((JsonNumber) jsonValue).intValue());
+			}
+		}
+		return details;
+	}
+
+	public ChatCompletionResponse.PromptTokensDetails deserialize(JsonObject json,
+			ChatCompletionResponse.PromptTokensDetails details) {
+		JsonValue jsonValue = null;
+		for (Entry<String, JsonValue> item : json.entrySet()) {
+			jsonValue = item.getValue();
+			if (Strings.equals(item.getKey(), "cached_tokens") && jsonValue instanceof JsonNumber) {
+				details.setCachedTokens(((JsonNumber) jsonValue).intValue());
+			} else if (Strings.equals(item.getKey(), "audio_tokens") && jsonValue instanceof JsonNumber) {
+				details.setAudioTokens(((JsonNumber) jsonValue).intValue());
+			}
+		}
+		return details;
+	}
+
+	public ChatMessage deserialize(JsonObject json, ChatMessage message) {
+		JsonValue jsonValue = null;
+		for (Entry<String, JsonValue> item : json.entrySet()) {
+			jsonValue = item.getValue();
+			if (Strings.equals(item.getKey(), "role") && jsonValue instanceof JsonString) {
+				message.setRole(((JsonString) jsonValue).getString());
+			} else if (Strings.equals(item.getKey(), "content")) {
+				if (jsonValue instanceof JsonString) {
+					message.setContent(((JsonString) jsonValue).getString());
+				} else if (jsonValue instanceof JsonArray) {
+					ArrayList<ContentPart> contentParts = new ArrayList<>();
+					JsonArray values = (JsonArray) jsonValue;
+					for (int i = 0; i < values.size(); i++) {
+						contentParts.add(this.deserialize(values.getJsonObject(i), new ContentPart()));
+					}
+					message.setContent(contentParts);
+				} else if (jsonValue == null || jsonValue == JsonValue.NULL) {
+					message.setContent(null);
+				}
+			} else if (Strings.equals(item.getKey(), "name") && jsonValue instanceof JsonString) {
+				message.setName(((JsonString) jsonValue).getString());
+			} else if (Strings.equals(item.getKey(), "tool_calls") && jsonValue instanceof JsonArray) {
+				message.setToolCalls(new ArrayList<>());
+				JsonArray values = (JsonArray) jsonValue;
+				for (int i = 0; i < values.size(); i++) {
+					message.getToolCalls().add(this.deserialize(values.getJsonObject(i), new ToolCall()));
+				}
+			} else if (Strings.equals(item.getKey(), "tool_call_id") && jsonValue instanceof JsonString) {
+				message.setToolCallId(((JsonString) jsonValue).getString());
+			} else if (Strings.equals(item.getKey(), "refusal") && jsonValue instanceof JsonString) {
+				message.setRefusal(((JsonString) jsonValue).getString());
+			}
+		}
+		return message;
+	}
+
+	public ToolCall deserialize(JsonObject json, ToolCall toolCall) {
+		JsonValue jsonValue = null;
+		for (Entry<String, JsonValue> item : json.entrySet()) {
+			jsonValue = item.getValue();
+			if (Strings.equals(item.getKey(), "id") && jsonValue instanceof JsonString) {
+				toolCall.setId(((JsonString) jsonValue).getString());
+			} else if (Strings.equals(item.getKey(), "type") && jsonValue instanceof JsonString) {
+				toolCall.setType(((JsonString) jsonValue).getString());
+			} else if (Strings.equals(item.getKey(), "function") && jsonValue instanceof JsonObject) {
+				toolCall.setFunction(this.deserialize((JsonObject) jsonValue, new FunctionCall()));
+			}
+		}
+		return toolCall;
+	}
+
+	public FunctionCall deserialize(JsonObject json, FunctionCall functionCall) {
+		JsonValue jsonValue = null;
+		for (Entry<String, JsonValue> item : json.entrySet()) {
+			jsonValue = item.getValue();
+			if (Strings.equals(item.getKey(), "name") && jsonValue instanceof JsonString) {
+				functionCall.setName(((JsonString) jsonValue).getString());
+			} else if (Strings.equals(item.getKey(), "arguments") && jsonValue instanceof JsonString) {
+				functionCall.setArguments(((JsonString) jsonValue).getString());
+			}
+		}
+		return functionCall;
+	}
+
+	public ContentPart deserialize(JsonObject json, ContentPart contentPart) {
+		JsonValue jsonValue = null;
+		for (Entry<String, JsonValue> item : json.entrySet()) {
+			jsonValue = item.getValue();
+			if (Strings.equals(item.getKey(), "type") && jsonValue instanceof JsonString) {
+				contentPart.setType(((JsonString) jsonValue).getString());
+			} else if (Strings.equals(item.getKey(), "text") && jsonValue instanceof JsonString) {
+				contentPart.setText(((JsonString) jsonValue).getString());
+			} else if (Strings.equals(item.getKey(), "image_url") && jsonValue instanceof JsonObject) {
+				contentPart.setImageUrl(this.deserialize((JsonObject) jsonValue, new ImageUrl()));
+			} else if (Strings.equals(item.getKey(), "input_audio") && jsonValue instanceof JsonObject) {
+				contentPart.setInputAudio(this.deserialize((JsonObject) jsonValue, new InputAudio()));
+			} else if (Strings.equals(item.getKey(), "file") && jsonValue instanceof JsonObject) {
+				contentPart.setFile(this.deserialize((JsonObject) jsonValue, new FileReference()));
+			}
+		}
+		return contentPart;
+	}
+
+	public ImageUrl deserialize(JsonObject json, ImageUrl imageUrl) {
+		JsonValue jsonValue = null;
+		for (Entry<String, JsonValue> item : json.entrySet()) {
+			jsonValue = item.getValue();
+			if (Strings.equals(item.getKey(), "url") && jsonValue instanceof JsonString) {
+				imageUrl.setUrl(((JsonString) jsonValue).getString());
+			} else if (Strings.equals(item.getKey(), "detail") && jsonValue instanceof JsonString) {
+				imageUrl.setDetail(((JsonString) jsonValue).getString());
+			}
+		}
+		return imageUrl;
+	}
+
+	public InputAudio deserialize(JsonObject json, InputAudio inputAudio) {
+		JsonValue jsonValue = null;
+		for (Entry<String, JsonValue> item : json.entrySet()) {
+			jsonValue = item.getValue();
+			if (Strings.equals(item.getKey(), "data") && jsonValue instanceof JsonString) {
+				inputAudio.setData(((JsonString) jsonValue).getString());
+			} else if (Strings.equals(item.getKey(), "format") && jsonValue instanceof JsonString) {
+				inputAudio.setFormat(((JsonString) jsonValue).getString());
+			}
+		}
+		return inputAudio;
+	}
+
+	public FileReference deserialize(JsonObject json, FileReference file) {
+		JsonValue jsonValue = null;
+		for (Entry<String, JsonValue> item : json.entrySet()) {
+			jsonValue = item.getValue();
+			if (Strings.equals(item.getKey(), "file_id") && jsonValue instanceof JsonString) {
+				file.setFileId(((JsonString) jsonValue).getString());
+			} else if (Strings.equals(item.getKey(), "filename") && jsonValue instanceof JsonString) {
+				file.setFilename(((JsonString) jsonValue).getString());
+			} else if (Strings.equals(item.getKey(), "data") && jsonValue instanceof JsonString) {
+				file.setData(((JsonString) jsonValue).getString());
+			}
+		}
+		return file;
+	}
+}

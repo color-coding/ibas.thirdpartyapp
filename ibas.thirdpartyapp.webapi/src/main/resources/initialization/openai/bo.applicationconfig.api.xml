@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!DOCTYPE ApplicationConfig>
+<ns:ApplicationConfig xmlns:ns="https://colorcoding.org/ibas/thirdpartyapp/bo">
+	<Code>OPENAI_API</Code>
+	<Name>OpenAI接口</Name>
+	<Group>AI</Group>
+	<Remarks>客户端名：OpenAI_API</Remarks>
+	<ApplicationConfigItems>
+		<ApplicationConfigItem>
+			<Name>base_url</Name>
+			<Description>地址</Description>
+			<Category>TEXT</Category>
+		</ApplicationConfigItem>
+		<ApplicationConfigItem>
+			<Name>api_key</Name>
+			<Description>密钥</Description>
+			<Category>PASSWORD</Category>
+		</ApplicationConfigItem>
+		<ApplicationConfigItem>
+			<Name>model</Name>
+			<Description>模型</Description>
+			<Category>TEXT</Category>
+		</ApplicationConfigItem>
+	</ApplicationConfigItems>
+</ns:ApplicationConfig>

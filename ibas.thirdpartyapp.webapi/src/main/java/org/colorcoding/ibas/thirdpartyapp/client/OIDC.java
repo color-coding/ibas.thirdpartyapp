@@ -10,7 +10,7 @@ import org.colorcoding.ibas.bobas.common.Strings;
 import org.colorcoding.ibas.bobas.i18n.I18N;
 import org.colorcoding.ibas.thirdpartyapp.bo.usermapping.IUserMapping;
 
-public abstract class OIDC extends WebApp {
+public abstract class OIDC extends SSO {
 	/**
 	 * 参数名称-应用标记
 	 */
@@ -53,7 +53,7 @@ public abstract class OIDC extends WebApp {
 	public static final String PARAM_NAME_REQUEST = "request";
 
 	@Override
-	public <P> IOperationResult<P> execute(String instruct, Properties params) throws NotImplementedException {
+	public <P> IOperationResult<P> execute(String instruct, Properties params) throws ApplicationException {
 		try {
 			if ("authorize".equalsIgnoreCase(instruct)) {
 				String endpoint = this.paramValue(PARAM_NAME_AUTHORIZE_ENDPOINT, "");
@@ -93,7 +93,7 @@ public abstract class OIDC extends WebApp {
 		} catch (Exception e) {
 			return new OperationResult<>(e);
 		}
-		throw new NotImplementedException();
+		throw new ApplicationException("not implemented.");
 	}
 
 	@Override

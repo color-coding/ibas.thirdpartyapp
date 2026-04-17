@@ -26,6 +26,7 @@ import org.colorcoding.ibas.initialfantasy.bo.shell.User;
 import org.colorcoding.ibas.thirdpartyapp.MyConfiguration;
 import org.colorcoding.ibas.thirdpartyapp.client.ApplicationClient;
 import org.colorcoding.ibas.thirdpartyapp.client.ApplicationClientManager;
+import org.colorcoding.ibas.thirdpartyapp.client.SSO;
 
 /**
  * 联合应用
@@ -85,10 +86,16 @@ public class JointService {
 			if (Strings.isNullOrEmpty(app)) {
 				throw new Exception(I18N.prop("msg_tpa_no_param", PARAMETER_APP));
 			}
-			OperationResult<User> operationResult = new OperationResult<User>();
 			ApplicationClient appClient = ApplicationClientManager.newInstance().create(app);
-			operationResult.addResultObjects(appClient.authenticate(params));
-			return operationResult;
+			if (!(appClient instanceof SSO)) {
+				throw new Exception(I18N.prop("msg_tpa_invaild_application", PARAMETER_APP));
+			}
+			SSO ssoClient = (SSO) appClient;
+			User user = ssoClient.authenticate(params);
+			if (user == null) {
+				throw new Exception(I18N.prop("msg_tpa_no_matching_user"));
+			}
+			return new OperationResult<User>().addResultObjects(user);
 		} catch (Exception e) {
 			Logger.log(e);
 			return new OperationResult<User>(e);

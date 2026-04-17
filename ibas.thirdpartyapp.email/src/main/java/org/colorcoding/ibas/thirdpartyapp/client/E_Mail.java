@@ -27,7 +27,6 @@ import org.colorcoding.ibas.bobas.common.OperationResult;
 import org.colorcoding.ibas.bobas.common.Strings;
 import org.colorcoding.ibas.bobas.message.Logger;
 import org.colorcoding.ibas.bobas.message.MessageLevel;
-import org.colorcoding.ibas.initialfantasy.bo.shell.User;
 import org.colorcoding.ibas.thirdpartyapp.MyConfiguration;
 import org.colorcoding.ibas.thirdpartyapp.bo.other.ApplicationSetting;
 
@@ -79,11 +78,6 @@ public class E_Mail extends ApplicationClient {
 	}
 
 	@Override
-	public User authenticate(Properties params) throws AuthenticationException {
-		return null;
-	}
-
-	@Override
 	@SuppressWarnings("unchecked")
 	public <P> IOperationResult<P> execute(String instruct, Properties params) throws ApplicationException {
 		try {
@@ -100,7 +94,7 @@ public class E_Mail extends ApplicationClient {
 					return new OperationResult<P>(e);
 				}
 			} else {
-				throw new NotImplementedException();
+				throw new ApplicationException("not implemented.");
 			}
 		} catch (ApplicationException e) {
 			throw e;

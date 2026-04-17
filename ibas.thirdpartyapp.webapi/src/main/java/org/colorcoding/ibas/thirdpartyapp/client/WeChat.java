@@ -275,7 +275,7 @@ public class WeChat extends OIDC {
 	}
 
 	@Override
-	public <P> IOperationResult<P> execute(String instruct, Properties params) throws NotImplementedException {
-		throw new NotImplementedException();
+	public <P> IOperationResult<P> execute(String instruct, Properties params) throws ApplicationException {
+		throw new ApplicationException("not implemented.");
 	}
 }
