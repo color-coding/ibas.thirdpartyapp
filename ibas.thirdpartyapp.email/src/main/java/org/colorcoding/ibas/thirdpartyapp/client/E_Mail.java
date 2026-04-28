@@ -61,11 +61,11 @@ public class E_Mail extends ApplicationClient {
 	 */
 	public final static String PROPERTIES_SEND_RECIPIENT = "RECIPIENT";
 	/**
-	 * 邮件查询-主题
+	 * 邵件发送-主题
 	 */
 	public final static String PROPERTIES_SEND_SUBJECT = "SUBJECT";
 	/**
-	 * 邮件查询-内容
+	 * 邵件发送-内容
 	 */
 	public final static String PROPERTIES_SEND_CONTENT = "CONTENT";
 
@@ -112,45 +112,33 @@ public class E_Mail extends ApplicationClient {
 		if ("imap".equalsIgnoreCase(this.paramValue("mail.store.protocol", "pop3"))) {
 			properties.setProperty("mail.store.protocol", "imap");
 			properties.setProperty("mail.imap.host", this.paramValue("mail.imap.host", ""));
-			properties.setProperty("mail.imap.port", this.paramValue("mail.imap.port", "995"));
+			// IMAP默认端口应为993
+			properties.setProperty("mail.imap.port", this.paramValue("mail.imap.port", "993"));
 			properties.setProperty("mail.imap.auth", this.paramValue("mail.imap.auth", "true"));
-			// properties.setProperty("mail.user", this.paramValue("mail.user", ""));
-			// properties.setProperty("mail.pass", this.paramValue("mail.pass", ""));
 			// 使用ssl
 			if (this.paramValue("mail.imap.ssl", true) == true) {
 				properties.setProperty("mail.imap.ssl.enable", "true");
 				properties.setProperty("mail.imap.starttls.enable", "true");
 				properties.setProperty("mail.imap.socketFactory.fallback", "false");
-				properties.setProperty("mail.imap.socketFactory.class", "com.sun.mail.util.MailSSLSocketFactory");
-				properties.setProperty("mail.imap.socketFactory.port", this.paramValue("mail.imap.port", "995"));
+				// 统一使用标准SSLSocketFactory
+				properties.setProperty("mail.imap.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
+				properties.setProperty("mail.imap.socketFactory.port", this.paramValue("mail.imap.port", "993"));
 			}
-			/*
-			 * properties.setProperty("mail.imap.auth.plain.disable", "false");
-			 * properties.setProperty("mail.imap.auth.login.disable", "false");
-			 * properties.setProperty("mail.imap.auth.ntlm.disable", "false");
-			 * properties.setProperty("mail.imap.auth.xoauth2.disable", "false");
-			 */
 		} else {
 			properties.setProperty("mail.store.protocol", "pop3");
 			properties.setProperty("mail.pop3.host", this.paramValue("mail.pop3.host", ""));
-			properties.setProperty("mail.pop3.port", this.paramValue("mail.pop3.port", "993"));
+			// POP3默认端口应为995
+			properties.setProperty("mail.pop3.port", this.paramValue("mail.pop3.port", "995"));
 			properties.setProperty("mail.pop3.auth", this.paramValue("mail.pop3.auth", "true"));
-			// properties.setProperty("mail.user", this.paramValue("mail.user", ""));
-			// properties.setProperty("mail.pass", this.paramValue("mail.pass", ""));
 			// 使用ssl
 			if (this.paramValue("mail.pop3.ssl", true) == true) {
 				properties.setProperty("mail.pop3.ssl.enable", "true");
 				properties.setProperty("mail.pop3.starttls.enable", "true");
 				properties.setProperty("mail.pop3.socketFactory.fallback", "false");
-				properties.setProperty("mail.pop3.socketFactory.class", "com.sun.mail.util.MailSSLSocketFactory");
-				properties.setProperty("mail.pop3.socketFactory.port", this.paramValue("mail.pop3.port", "993"));
+				// 统一使用标准SSLSocketFactory
+				properties.setProperty("mail.pop3.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
+				properties.setProperty("mail.pop3.socketFactory.port", this.paramValue("mail.pop3.port", "995"));
 			}
-			/*
-			 * properties.setProperty("mail.pop3.auth.plain.disable", "false");
-			 * properties.setProperty("mail.pop3.auth.login.disable", "true");
-			 * properties.setProperty("mail.pop3.auth.ntlm.disable", "false");
-			 * properties.setProperty("mail.pop3.auth.xoauth2.disable", "false");
-			 */
 		}
 		return properties;
 	}
@@ -158,7 +146,8 @@ public class E_Mail extends ApplicationClient {
 	public OperationResult<Message> receive(Properties params) throws NumberFormatException, MessagingException {
 		Properties properties = this.receiveProperties();
 		String protocol = properties.getProperty("mail.store.protocol");
-		Session session = Session.getDefaultInstance(properties, new Authenticator() {
+		// 修复：使用Session.getInstance()替代getDefaultInstance()
+		Session session = Session.getInstance(properties, new Authenticator() {
 			@Override
 			protected PasswordAuthentication getPasswordAuthentication() {
 				if (Boolean.valueOf(properties.getProperty(String.format("mail.%s.auth", protocol)))) {
@@ -170,57 +159,77 @@ public class E_Mail extends ApplicationClient {
 			}
 		});
 		session.setDebug(this.paramValue("mail.debug", false));
-		Store store = session.getStore(protocol);
-		if (Boolean.valueOf(properties.getProperty(String.format("mail.%s.auth", protocol)))) {
-			// 需要认证
-			store.connect(properties.getProperty(String.format("mail.%s.host", protocol)),
-					Integer.valueOf(properties.getProperty(String.format("mail.%s.port", protocol))),
-					this.paramValue("mail.user", "anonymous"), this.paramValue("mail.pass", ""));
-		} else {
-			store.connect();
-		}
-		Folder mbox = store.getFolder(this.paramValue("folder", "INBOX"));
-		mbox.open(Folder.READ_ONLY);
-		Message[] messages;
-		if (params != null && params.size() > 0) {
-			List<SearchTerm> searchTerms = new ArrayList<>();
-			Object value = params.get(PROPERTIES_SEARCH_DATE_FROM);
-			if (value instanceof Date) {
-				searchTerms.add(new SentDateTerm(ComparisonTerm.GE, (Date) value));
+		Store store = null;
+		Folder mbox = null;
+		Message[] messages = null;
+		try {
+			store = session.getStore(protocol);
+			if (Boolean.valueOf(properties.getProperty(String.format("mail.%s.auth", protocol)))) {
+				// 需要认证
+				store.connect(properties.getProperty(String.format("mail.%s.host", protocol)),
+						Integer.valueOf(properties.getProperty(String.format("mail.%s.port", protocol))),
+						this.paramValue("mail.user", "anonymous"), this.paramValue("mail.pass", ""));
+			} else {
+				store.connect();
 			}
-			value = params.get(PROPERTIES_SEARCH_DATE_TO);
-			if (value instanceof Date) {
-				searchTerms.add(new SentDateTerm(ComparisonTerm.LE, (Date) value));
-			}
-			value = params.get(PROPERTIES_SEARCH_SUBJECT);
-			if (value != null && !Strings.isNullOrEmpty(value.toString())) {
-				searchTerms.add(new SubjectTerm(value.toString()));
-			}
-			SearchTerm searchTerm;
-			if (searchTerms.isEmpty()) {
-				value = params.get(PROPERTIES_SEARCH_TOP);
+			mbox = store.getFolder(this.paramValue("folder", "INBOX"));
+			mbox.open(Folder.READ_ONLY);
+			if (params != null && params.size() > 0) {
+				List<SearchTerm> searchTerms = new ArrayList<>();
+				Object value = params.get(PROPERTIES_SEARCH_DATE_FROM);
+				if (value instanceof Date) {
+					searchTerms.add(new SentDateTerm(ComparisonTerm.GE, (Date) value));
+				}
+				value = params.get(PROPERTIES_SEARCH_DATE_TO);
+				if (value instanceof Date) {
+					searchTerms.add(new SentDateTerm(ComparisonTerm.LE, (Date) value));
+				}
+				value = params.get(PROPERTIES_SEARCH_SUBJECT);
 				if (value != null && !Strings.isNullOrEmpty(value.toString())) {
-					int top = Integer.valueOf(value.toString());
-					int count = mbox.getMessageCount();
-					int start = top > count ? 1 : count - top + 1;
-					int end = count > 0 ? count : 0;
-					messages = mbox.getMessages(start, end);
+					searchTerms.add(new SubjectTerm(value.toString()));
+				}
+				SearchTerm searchTerm;
+				if (searchTerms.isEmpty()) {
+					value = params.get(PROPERTIES_SEARCH_TOP);
+					if (value != null && !Strings.isNullOrEmpty(value.toString())) {
+						int top = Integer.valueOf(value.toString());
+						int count = mbox.getMessageCount();
+						int start = top > count ? 1 : count - top + 1;
+						int end = count > 0 ? count : 0;
+						messages = mbox.getMessages(start, end);
+					} else {
+						messages = mbox.getMessages();
+					}
 				} else {
-					messages = mbox.getMessages();
+					if (searchTerms.size() > 1) {
+						searchTerm = new AndTerm(searchTerms.toArray(new SearchTerm[] {}));
+					} else {
+						searchTerm = searchTerms.get(0);
+					}
+					messages = mbox.search(searchTerm);
 				}
 			} else {
-				if (searchTerms.size() > 1) {
-					searchTerm = new AndTerm(searchTerms.toArray(new SearchTerm[] {}));
-				} else {
-					searchTerm = searchTerms.get(0);
-				}
-				messages = mbox.search(searchTerm);
+				messages = mbox.getMessages();
 			}
-		} else {
-			messages = mbox.getMessages();
+			Logger.log(MessageLevel.DEBUG, "mail: box [%s] got [%s] messge.", mbox.getName(), messages.length);
+			return new OperationResult<Message>().addResultObjects(messages);
+		} finally {
+			// 修复：确保资源正确关闭
+			if (mbox != null && mbox.isOpen()) {
+				try {
+					mbox.close(false);
+				} catch (MessagingException e) {
+					Logger.log(MessageLevel.ERROR, "mail: failed to close folder: %s", e.getMessage());
+				}
+			}
+			if (store != null && store.isConnected()) {
+				try {
+					store.close();
+				} catch (MessagingException e) {
+					Logger.log(MessageLevel.ERROR, "mail: failed to close store: %s", e.getMessage());
+				}
+			}
 		}
-		Logger.log(MessageLevel.DEBUG, "mail: box [%s] got [%s] messge.", mbox.getName(), messages.length);
-		return new OperationResult<Message>().addResultObjects(messages);
 	}
 
 	protected Properties sendProperties() {
@@ -246,7 +255,8 @@ public class E_Mail extends ApplicationClient {
 	public OperationResult<Message> send(Properties params) throws MessagingException {
 		Properties properties = this.sendProperties();
 		String protocol = "smtp";
-		Session session = Session.getDefaultInstance(properties, new Authenticator() {
+		// 修复：使用Session.getInstance()替代getDefaultInstance()
+		Session session = Session.getInstance(properties, new Authenticator() {
 			@Override
 			protected PasswordAuthentication getPasswordAuthentication() {
 				if (Boolean.valueOf(properties.getProperty(String.format("mail.%s.auth", protocol)))) {
@@ -275,10 +285,21 @@ public class E_Mail extends ApplicationClient {
 		message.setSentDate(DateTimes.now());// 设置发信时间
 		message.saveChanges();// 存储邮件信息
 		// 发送邮件
-		Transport transport = session.getTransport(protocol);
-		transport.connect(this.paramValue("mail.user", "anonymous"), this.paramValue("mail.pass", ""));
-		transport.sendMessage(message, message.getAllRecipients());// 发送邮件,其中第二个参数是所有已设好的收件人地址
-		transport.close();
+		Transport transport = null;
+		try {
+			transport = session.getTransport(protocol);
+			transport.connect(this.paramValue("mail.user", "anonymous"), this.paramValue("mail.pass", ""));
+			transport.sendMessage(message, message.getAllRecipients());// 发送邮件,其中第二个参数是所有已设好的收件人地址
+		} finally {
+			// 修复：确保Transport正确关闭
+			if (transport != null) {
+				try {
+					transport.close();
+				} catch (MessagingException e) {
+					Logger.log(MessageLevel.ERROR, "mail: failed to close transport: %s", e.getMessage());
+				}
+			}
+		}
 		return new OperationResult<Message>().addResultObjects(message);
 	}
 }
