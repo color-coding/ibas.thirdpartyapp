@@ -1,14 +1,14 @@
 package org.colorcoding.ibas.thirdpartyapp.client.openai;
 
 /**
- * OpenAI API 文件引用对象
- * 用于 Assistants API 的文件引用
+ * OpenAI API 文件引用对象 用于 Assistants API 的文件引用
  */
 public class FileReference {
 
 	private String fileId;
-	private String filename;
-	private String data;
+	private String fileName;
+	private String mimeType;
+	private byte[] data;
 
 	public FileReference() {
 	}
@@ -25,19 +25,27 @@ public class FileReference {
 		this.fileId = fileId;
 	}
 
-	public String getFilename() {
-		return filename;
+	public String getFileName() {
+		return fileName;
 	}
 
-	public void setFilename(String filename) {
-		this.filename = filename;
+	public void setFileName(String fileName) {
+		this.fileName = fileName;
 	}
 
-	public String getData() {
+	public final String getMimeType() {
+		return mimeType;
+	}
+
+	public final void setMimeType(String mimeType) {
+		this.mimeType = mimeType;
+	}
+
+	public byte[] getData() {
 		return data;
 	}
 
-	public void setData(String data) {
+	public void setData(byte[] data) {
 		this.data = data;
 	}
 }

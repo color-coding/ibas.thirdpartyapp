@@ -124,9 +124,13 @@ public class ApplicationSettingItem extends Serializable {
 			if (secretKey == null || secretKey.isEmpty()) {
 				return value;
 			}
+			// 不是有效16进制字符
+			if (!Bytes.isHexString(value)) {
+				return null;
+			}
 			MessageDigest digest = MessageDigest.getInstance("MD5");
 			byte[] valueMdBytes, valueBytes, secretBytes, tmpValues;
-			valueBytes = Bytes.toBytes(value);
+			valueBytes = Bytes.fromHexString(value);
 			if (valueBytes != null && valueBytes.length > 16) {
 				// 判断是否已加密，前16字节为值的md信息
 				valueMdBytes = new byte[16];

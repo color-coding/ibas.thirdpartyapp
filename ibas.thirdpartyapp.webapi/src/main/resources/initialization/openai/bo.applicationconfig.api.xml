@@ -21,5 +21,11 @@
 			<Description>模型</Description>
 			<Category>TEXT</Category>
 		</ApplicationConfigItem>
+		<ApplicationConfigItem>
+			<Name>file_mode</Name>
+			<Description>文件模式(base64;upload)</Description>
+			<Category>TEXT</Category>
+			<Value>base64</Value>
+		</ApplicationConfigItem>
 	</ApplicationConfigItems>
 </ns:ApplicationConfig>

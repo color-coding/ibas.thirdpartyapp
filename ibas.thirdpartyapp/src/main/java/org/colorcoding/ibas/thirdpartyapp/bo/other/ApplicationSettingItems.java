@@ -3,7 +3,7 @@ package org.colorcoding.ibas.thirdpartyapp.bo.other;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
-import java.util.Base64;
+import org.colorcoding.ibas.bobas.common.Bytes;
 import java.util.Collection;
 
 import javax.xml.bind.annotation.XmlSeeAlso;
@@ -66,7 +66,7 @@ public class ApplicationSettingItems extends ArrayList<ApplicationSettingItem> {
 		ISerializer serializer = SerializationFactory.createManager().create("json");
 		try (ByteArrayOutputStream writer = new ByteArrayOutputStream()) {
 			serializer.serialize(this, writer, ApplicationSettingItem.class);
-			return Base64.getEncoder().encodeToString(writer.toByteArray());
+			return Bytes.toBase64String(writer.toByteArray());
 		} catch (Exception e) {
 			throw e;
 		}
@@ -75,7 +75,7 @@ public class ApplicationSettingItems extends ArrayList<ApplicationSettingItem> {
 	@SuppressWarnings("unchecked")
 	public void decode(String value) throws Exception {
 		ISerializer serializer = SerializationFactory.createManager().create("json");
-		try (InputStream inputStream = new ByteArrayInputStream(Base64.getDecoder().decode(value))) {
+		try (InputStream inputStream = new ByteArrayInputStream(Bytes.fromBase64String(value))) {
 			Object settings = serializer.deserialize(inputStream, ApplicationSettingItem.class);
 			if (settings instanceof Collection) {
 				for (ApplicationSettingItem item : (Collection<ApplicationSettingItem>) settings) {

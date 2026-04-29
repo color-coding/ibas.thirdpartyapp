@@ -15,6 +15,7 @@ import javax.json.JsonObjectBuilder;
 import javax.json.JsonString;
 import javax.json.JsonValue;
 
+import org.colorcoding.ibas.bobas.common.Bytes;
 import org.colorcoding.ibas.bobas.common.Strings;
 import org.colorcoding.ibas.bobas.data.ArrayList;
 import org.colorcoding.ibas.bobas.serialization.SerializationException;
@@ -27,7 +28,7 @@ public class Serializer extends SerializerJson {
 	public void serialize(ChatCompletionRequest request, OutputStream output) {
 		JsonObjectBuilder b = Json.createObjectBuilder();
 		b.add("model", request.getModel());
-		if (request.getMessages() != null) {
+		if (request.getMessages() != null && !request.getMessages().isEmpty()) {
 			JsonArrayBuilder arr = Json.createArrayBuilder();
 			for (ChatMessage msg : request.getMessages()) {
 				JsonObjectBuilder mb = Json.createObjectBuilder();
@@ -38,7 +39,7 @@ public class Serializer extends SerializerJson {
 					Object content = msg.getContent();
 					if (content instanceof String) {
 						mb.add("content", (String) content);
-					} else if (content instanceof List) {
+					} else if (content instanceof List && !((List<?>) content).isEmpty()) {
 						JsonArrayBuilder ca = Json.createArrayBuilder();
 						for (Object item : (List<?>) content) {
 							if (item instanceof ContentPart) {
@@ -63,7 +64,7 @@ public class Serializer extends SerializerJson {
 								if (part.getInputAudio() != null) {
 									JsonObjectBuilder ab = Json.createObjectBuilder();
 									if (part.getInputAudio().getData() != null) {
-										ab.add("data", part.getInputAudio().getData());
+										ab.add("data", Bytes.toBase64String(part.getInputAudio().getData()));
 									}
 									if (part.getInputAudio().getFormat() != null) {
 										ab.add("format", part.getInputAudio().getFormat());
@@ -74,12 +75,18 @@ public class Serializer extends SerializerJson {
 									JsonObjectBuilder fb = Json.createObjectBuilder();
 									if (part.getFile().getFileId() != null) {
 										fb.add("file_id", part.getFile().getFileId());
-									}
-									if (part.getFile().getFilename() != null) {
-										fb.add("filename", part.getFile().getFilename());
-									}
-									if (part.getFile().getData() != null) {
-										fb.add("data", part.getFile().getData());
+									} else {
+										if (part.getFile().getFileName() != null) {
+											fb.add("filename", part.getFile().getFileName());
+										}
+										if (part.getFile().getMimeType() != null) {
+											fb.add("media_type", part.getFile().getMimeType());
+										}
+										if (part.getFile().getData() != null) {
+											fb.add("file_data",
+													Bytes.toBase64String(part.getFile().getData(),
+															part.getFile().getMimeType()));
+										}
 									}
 									pb.add("file", fb.build());
 								}
@@ -92,7 +99,7 @@ public class Serializer extends SerializerJson {
 				if (msg.getName() != null) {
 					mb.add("name", msg.getName());
 				}
-				if (msg.getToolCalls() != null) {
+				if (msg.getToolCalls() != null && !msg.getToolCalls().isEmpty()) {
 					JsonArrayBuilder ta = Json.createArrayBuilder();
 					for (ToolCall tc : msg.getToolCalls()) {
 						JsonObjectBuilder tcb = Json.createObjectBuilder();
@@ -126,6 +133,23 @@ public class Serializer extends SerializerJson {
 			}
 			b.add("messages", arr.build());
 		}
+			if (request.getModalities() != null && !request.getModalities().isEmpty()) {
+				JsonArrayBuilder ma = Json.createArrayBuilder();
+				for (String modality : request.getModalities()) {
+					ma.add(modality);
+				}
+				b.add("modalities", ma.build());
+			}
+			if (request.getAudio() != null) {
+				JsonObjectBuilder ab = Json.createObjectBuilder();
+				if (request.getAudio().getVoice() != null) {
+					ab.add("voice", request.getAudio().getVoice());
+				}
+				if (request.getAudio().getFormat() != null) {
+					ab.add("format", request.getAudio().getFormat());
+				}
+				b.add("audio", ab.build());
+			}
 		if (request.getTemperature() != null) {
 			b.add("temperature", request.getTemperature());
 		}
@@ -145,7 +169,7 @@ public class Serializer extends SerializerJson {
 			Object stop = request.getStop();
 			if (stop instanceof String) {
 				b.add("stop", (String) stop);
-			} else if (stop instanceof List) {
+			} else if (stop instanceof List && !((List<?>) stop).isEmpty()) {
 				JsonArrayBuilder sa = Json.createArrayBuilder();
 				for (Object item : (List<?>) stop) {
 					sa.add(Strings.valueOf(item));
@@ -165,7 +189,7 @@ public class Serializer extends SerializerJson {
 		if (request.getSeed() != null) {
 			b.add("seed", request.getSeed());
 		}
-		if (request.getTools() != null) {
+		if (request.getTools() != null && !request.getTools().isEmpty()) {
 			JsonArrayBuilder arr = Json.createArrayBuilder();
 			for (Tool tool : request.getTools()) {
 				JsonObjectBuilder tb = Json.createObjectBuilder();
@@ -266,11 +290,7 @@ public class Serializer extends SerializerJson {
 			}
 			b.add("logit_bias", lb.build());
 		}
-		try {
-			output.write(b.build().toString().getBytes("utf-8"));
-		} catch (IOException e) {
-			throw new SerializationException(e);
-		}
+		this.writeJsonObject(b.build(), output);
 	}
 
 	public void serialize(ChatMessage msg, OutputStream output) {
@@ -282,7 +302,7 @@ public class Serializer extends SerializerJson {
 			Object content = msg.getContent();
 			if (content instanceof String) {
 				b.add("content", (String) content);
-			} else if (content instanceof List) {
+			} else if (content instanceof List && !((List<?>) content).isEmpty()) {
 				JsonArrayBuilder arr = Json.createArrayBuilder();
 				for (Object item : (List<?>) content) {
 					if (item instanceof ContentPart) {
@@ -307,7 +327,7 @@ public class Serializer extends SerializerJson {
 						if (part.getInputAudio() != null) {
 							JsonObjectBuilder ab = Json.createObjectBuilder();
 							if (part.getInputAudio().getData() != null) {
-								ab.add("data", part.getInputAudio().getData());
+								ab.add("data", Bytes.toBase64String(part.getInputAudio().getData()));
 							}
 							if (part.getInputAudio().getFormat() != null) {
 								ab.add("format", part.getInputAudio().getFormat());
@@ -318,12 +338,18 @@ public class Serializer extends SerializerJson {
 							JsonObjectBuilder fb = Json.createObjectBuilder();
 							if (part.getFile().getFileId() != null) {
 								fb.add("file_id", part.getFile().getFileId());
-							}
-							if (part.getFile().getFilename() != null) {
-								fb.add("filename", part.getFile().getFilename());
-							}
-							if (part.getFile().getData() != null) {
-								fb.add("data", part.getFile().getData());
+							} else {
+								if (part.getFile().getFileName() != null) {
+									fb.add("filename", part.getFile().getFileName());
+								}
+								if (part.getFile().getMimeType() != null) {
+									fb.add("media_type", part.getFile().getMimeType());
+								}
+								if (part.getFile().getData() != null) {
+									fb.add("file_data",
+											Bytes.toBase64String(part.getFile().getData(),
+													part.getFile().getMimeType()));
+								}
 							}
 							pb.add("file", fb.build());
 						}
@@ -336,7 +362,7 @@ public class Serializer extends SerializerJson {
 		if (msg.getName() != null) {
 			b.add("name", msg.getName());
 		}
-		if (msg.getToolCalls() != null) {
+		if (msg.getToolCalls() != null && !msg.getToolCalls().isEmpty()) {
 			JsonArrayBuilder arr = Json.createArrayBuilder();
 			for (ToolCall tc : msg.getToolCalls()) {
 				JsonObjectBuilder tcb = Json.createObjectBuilder();
@@ -366,11 +392,7 @@ public class Serializer extends SerializerJson {
 		if (msg.getRefusal() != null) {
 			b.add("refusal", msg.getRefusal());
 		}
-		try {
-			output.write(b.build().toString().getBytes("utf-8"));
-		} catch (IOException e) {
-			throw new SerializationException(e);
-		}
+		this.writeJsonObject(b.build(), output);
 	}
 
 	public void serialize(ContentPart part, OutputStream output) {
@@ -394,7 +416,7 @@ public class Serializer extends SerializerJson {
 		if (part.getInputAudio() != null) {
 			JsonObjectBuilder ab = Json.createObjectBuilder();
 			if (part.getInputAudio().getData() != null) {
-				ab.add("data", part.getInputAudio().getData());
+				ab.add("data", Bytes.toBase64String(part.getInputAudio().getData()));
 			}
 			if (part.getInputAudio().getFormat() != null) {
 				ab.add("format", part.getInputAudio().getFormat());
@@ -405,20 +427,22 @@ public class Serializer extends SerializerJson {
 			JsonObjectBuilder fb = Json.createObjectBuilder();
 			if (part.getFile().getFileId() != null) {
 				fb.add("file_id", part.getFile().getFileId());
-			}
-			if (part.getFile().getFilename() != null) {
-				fb.add("filename", part.getFile().getFilename());
-			}
-			if (part.getFile().getData() != null) {
-				fb.add("data", part.getFile().getData());
+			} else {
+				if (part.getFile().getFileName() != null) {
+					fb.add("filename", part.getFile().getFileName());
+				}
+				if (part.getFile().getMimeType() != null) {
+					fb.add("media_type", part.getFile().getMimeType());
+				}
+				if (part.getFile().getData() != null) {
+					fb.add("file_data",
+							Bytes.toBase64String(part.getFile().getData(),
+									part.getFile().getMimeType()));
+				}
 			}
 			b.add("file", fb.build());
 		}
-		try {
-			output.write(b.build().toString().getBytes("utf-8"));
-		} catch (IOException e) {
-			throw new SerializationException(e);
-		}
+		this.writeJsonObject(b.build(), output);
 	}
 
 	public void serialize(ImageUrl imageUrl, OutputStream output) {
@@ -429,44 +453,35 @@ public class Serializer extends SerializerJson {
 		if (imageUrl.getDetail() != null) {
 			b.add("detail", imageUrl.getDetail());
 		}
-		try {
-			output.write(b.build().toString().getBytes("utf-8"));
-		} catch (IOException e) {
-			throw new SerializationException(e);
-		}
+		this.writeJsonObject(b.build(), output);
 	}
 
 	public void serialize(InputAudio inputAudio, OutputStream output) {
 		JsonObjectBuilder b = Json.createObjectBuilder();
 		if (inputAudio.getData() != null) {
-			b.add("data", inputAudio.getData());
+			b.add("data", Bytes.toBase64String(inputAudio.getData()));
 		}
 		if (inputAudio.getFormat() != null) {
 			b.add("format", inputAudio.getFormat());
 		}
-		try {
-			output.write(b.build().toString().getBytes("utf-8"));
-		} catch (IOException e) {
-			throw new SerializationException(e);
-		}
+		this.writeJsonObject(b.build(), output);
 	}
 
 	public void serialize(FileReference file, OutputStream output) {
 		JsonObjectBuilder b = Json.createObjectBuilder();
 		if (file.getFileId() != null) {
+			// 引用方式
 			b.add("file_id", file.getFileId());
+		} else {
+			// base64方式
+			if (file.getFileName() != null) {
+				b.add("filename", file.getFileName());
+			}
+			if (file.getData() != null) {
+				b.add("file_data", Bytes.toBase64String(file.getData(), file.getMimeType()));
+			}
 		}
-		if (file.getFilename() != null) {
-			b.add("filename", file.getFilename());
-		}
-		if (file.getData() != null) {
-			b.add("data", file.getData());
-		}
-		try {
-			output.write(b.build().toString().getBytes("utf-8"));
-		} catch (IOException e) {
-			throw new SerializationException(e);
-		}
+		this.writeJsonObject(b.build(), output);
 	}
 
 	public void serialize(ToolCall toolCall, OutputStream output) {
@@ -487,11 +502,7 @@ public class Serializer extends SerializerJson {
 			}
 			b.add("function", fb.build());
 		}
-		try {
-			output.write(b.build().toString().getBytes("utf-8"));
-		} catch (IOException e) {
-			throw new SerializationException(e);
-		}
+		this.writeJsonObject(b.build(), output);
 	}
 
 	public void serialize(FunctionCall func, OutputStream output) {
@@ -502,11 +513,7 @@ public class Serializer extends SerializerJson {
 		if (func.getArguments() != null) {
 			b.add("arguments", func.getArguments());
 		}
-		try {
-			output.write(b.build().toString().getBytes("utf-8"));
-		} catch (IOException e) {
-			throw new SerializationException(e);
-		}
+		this.writeJsonObject(b.build(), output);
 	}
 
 	public void serialize(Tool tool, OutputStream output) {
@@ -534,11 +541,7 @@ public class Serializer extends SerializerJson {
 			}
 			b.add("function", fb.build());
 		}
-		try {
-			output.write(b.build().toString().getBytes("utf-8"));
-		} catch (IOException e) {
-			throw new SerializationException(e);
-		}
+		this.writeJsonObject(b.build(), output);
 	}
 
 	public void serialize(ToolFunction func, OutputStream output) {
@@ -559,11 +562,7 @@ public class Serializer extends SerializerJson {
 				b.add("parameters", p.toString());
 			}
 		}
-		try {
-			output.write(b.build().toString().getBytes("utf-8"));
-		} catch (IOException e) {
-			throw new SerializationException(e);
-		}
+		this.writeJsonObject(b.build(), output);
 	}
 
 	public void serialize(ResponseFormat format, OutputStream output) {
@@ -581,11 +580,7 @@ public class Serializer extends SerializerJson {
 				b.add("json_schema", js.toString());
 			}
 		}
-		try {
-			output.write(b.build().toString().getBytes("utf-8"));
-		} catch (IOException e) {
-			throw new SerializationException(e);
-		}
+		this.writeJsonObject(b.build(), output);
 	}
 
 	private JsonObject toJsonObject(Map<?, ?> map) {
@@ -611,6 +606,13 @@ public class Serializer extends SerializerJson {
 		return b.build();
 	}
 
+	private void writeJsonObject(JsonObject jsonObject, OutputStream output) {
+		try {
+			output.write(jsonObject.toString().getBytes("utf-8"));
+		} catch (IOException e) {
+			throw new SerializationException(e);
+		}
+	}
 	// ==================== 反序列化（响应） ====================
 
 	public ChatCompletionResponse deserialize(JsonObject json, ChatCompletionResponse response) {
@@ -661,7 +663,7 @@ public class Serializer extends SerializerJson {
 		}
 		return error;
 	}
-	
+
 	public ChatCompletionResponse.Choice deserialize(JsonObject json, ChatCompletionResponse.Choice choice) {
 		JsonValue jsonValue = null;
 		for (Entry<String, JsonValue> item : json.entrySet()) {
@@ -835,6 +837,8 @@ public class Serializer extends SerializerJson {
 				message.setToolCallId(((JsonString) jsonValue).getString());
 			} else if (Strings.equals(item.getKey(), "refusal") && jsonValue instanceof JsonString) {
 				message.setRefusal(((JsonString) jsonValue).getString());
+			} else if (Strings.equals(item.getKey(), "output_audio") && jsonValue instanceof JsonObject) {
+				message.setOutputAudio(this.deserialize((JsonObject) jsonValue, new OutputAudio()));
 			}
 		}
 		return message;
@@ -882,6 +886,10 @@ public class Serializer extends SerializerJson {
 				contentPart.setInputAudio(this.deserialize((JsonObject) jsonValue, new InputAudio()));
 			} else if (Strings.equals(item.getKey(), "file") && jsonValue instanceof JsonObject) {
 				contentPart.setFile(this.deserialize((JsonObject) jsonValue, new FileReference()));
+				} else if (Strings.equals(item.getKey(), "thinking") && jsonValue instanceof JsonString) {
+					contentPart.setThinking(((JsonString) jsonValue).getString());
+			} else if (Strings.equals(item.getKey(), "refusal") && jsonValue instanceof JsonString) {
+				contentPart.setRefusal(((JsonString) jsonValue).getString());
 			}
 		}
 		return contentPart;
@@ -905,13 +913,32 @@ public class Serializer extends SerializerJson {
 		for (Entry<String, JsonValue> item : json.entrySet()) {
 			jsonValue = item.getValue();
 			if (Strings.equals(item.getKey(), "data") && jsonValue instanceof JsonString) {
-				inputAudio.setData(((JsonString) jsonValue).getString());
+				inputAudio.setData(Bytes.fromBase64String(((JsonString) jsonValue).getString()));
 			} else if (Strings.equals(item.getKey(), "format") && jsonValue instanceof JsonString) {
 				inputAudio.setFormat(((JsonString) jsonValue).getString());
 			}
 		}
 		return inputAudio;
 	}
+
+		public OutputAudio deserialize(JsonObject json, OutputAudio outputAudio) {
+			JsonValue jsonValue = null;
+			for (Entry<String, JsonValue> item : json.entrySet()) {
+				jsonValue = item.getValue();
+				if (Strings.equals(item.getKey(), "id") && jsonValue instanceof JsonString) {
+					outputAudio.setId(((JsonString) jsonValue).getString());
+				} else if (Strings.equals(item.getKey(), "data") && jsonValue instanceof JsonString) {
+					outputAudio.setData(Bytes.fromBase64String(((JsonString) jsonValue).getString()));
+				} else if (Strings.equals(item.getKey(), "format") && jsonValue instanceof JsonString) {
+					outputAudio.setFormat(((JsonString) jsonValue).getString());
+				} else if (Strings.equals(item.getKey(), "expires_at") && jsonValue instanceof JsonNumber) {
+					outputAudio.setExpiresAt(((JsonNumber) jsonValue).longValue());
+				} else if (Strings.equals(item.getKey(), "transcript") && jsonValue instanceof JsonString) {
+					outputAudio.setTranscript(((JsonString) jsonValue).getString());
+				}
+			}
+			return outputAudio;
+		}
 
 	public FileReference deserialize(JsonObject json, FileReference file) {
 		JsonValue jsonValue = null;
@@ -920,11 +947,81 @@ public class Serializer extends SerializerJson {
 			if (Strings.equals(item.getKey(), "file_id") && jsonValue instanceof JsonString) {
 				file.setFileId(((JsonString) jsonValue).getString());
 			} else if (Strings.equals(item.getKey(), "filename") && jsonValue instanceof JsonString) {
-				file.setFilename(((JsonString) jsonValue).getString());
-			} else if (Strings.equals(item.getKey(), "data") && jsonValue instanceof JsonString) {
-				file.setData(((JsonString) jsonValue).getString());
+				file.setFileName(((JsonString) jsonValue).getString());
+			} else if (Strings.equals(item.getKey(), "media_type") && jsonValue instanceof JsonString) {
+				file.setMimeType(((JsonString) jsonValue).getString());
+			} else if (Strings.equals(item.getKey(), "file_data") && jsonValue instanceof JsonString) {
+				file.setData(Bytes.fromBase64String(((JsonString) jsonValue).getString()));
 			}
 		}
 		return file;
 	}
+
+	// ==================== Files API ====================
+
+	public void serialize(FileUploadRequest request, OutputStream output) {
+		JsonObjectBuilder b = Json.createObjectBuilder();
+		if (request.getPurpose() != null) {
+			b.add("purpose", request.getPurpose());
+		}
+		if (request.getFileName() != null) {
+			b.add("filename", request.getFileName());
+		}
+		this.writeJsonObject(b.build(), output);
+	}
+
+	public void serialize(FileUploadResponse response, OutputStream output) {
+		JsonObjectBuilder b = Json.createObjectBuilder();
+		if (response.getId() != null) {
+			b.add("id", response.getId());
+		}
+		if (response.getObject() != null) {
+			b.add("object", response.getObject());
+		}
+		if (response.getBytes() != null) {
+			b.add("bytes", response.getBytes());
+		}
+		if (response.getCreatedAt() != null) {
+			b.add("created_at", response.getCreatedAt());
+		}
+		if (response.getFileName() != null) {
+			b.add("filename", response.getFileName());
+		}
+		if (response.getPurpose() != null) {
+			b.add("purpose", response.getPurpose());
+		}
+		if (response.getStatus() != null) {
+			b.add("status", response.getStatus());
+		}
+		if (response.getStatusDetails() != null) {
+			b.add("status_details", response.getStatusDetails());
+		}
+		this.writeJsonObject(b.build(), output);
+	}
+
+	public FileUploadResponse deserialize(JsonObject json, FileUploadResponse response) {
+		JsonValue jsonValue = null;
+		for (Entry<String, JsonValue> item : json.entrySet()) {
+			jsonValue = item.getValue();
+			if (Strings.equals(item.getKey(), "id") && jsonValue instanceof JsonString) {
+				response.setId(((JsonString) jsonValue).getString());
+			} else if (Strings.equals(item.getKey(), "object") && jsonValue instanceof JsonString) {
+				response.setObject(((JsonString) jsonValue).getString());
+			} else if (Strings.equals(item.getKey(), "bytes") && jsonValue instanceof JsonNumber) {
+				response.setBytes(((JsonNumber) jsonValue).longValue());
+			} else if (Strings.equals(item.getKey(), "created_at") && jsonValue instanceof JsonNumber) {
+				response.setCreatedAt(((JsonNumber) jsonValue).longValue());
+			} else if (Strings.equals(item.getKey(), "filename") && jsonValue instanceof JsonString) {
+				response.setFileName(((JsonString) jsonValue).getString());
+			} else if (Strings.equals(item.getKey(), "purpose") && jsonValue instanceof JsonString) {
+				response.setPurpose(((JsonString) jsonValue).getString());
+			} else if (Strings.equals(item.getKey(), "status") && jsonValue instanceof JsonString) {
+				response.setStatus(((JsonString) jsonValue).getString());
+			} else if (Strings.equals(item.getKey(), "status_details") && jsonValue instanceof JsonString) {
+				response.setStatusDetails(((JsonString) jsonValue).getString());
+			}
+		}
+		return response;
+	}
+
 }

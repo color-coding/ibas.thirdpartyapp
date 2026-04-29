@@ -3,10 +3,15 @@ package org.colorcoding.ibas.thirdpartyapp.client.openai;
 import java.util.List;
 import java.util.Map;
 
+import java.util.ArrayList;
+
 public class ChatCompletionRequest {
 
 	private String model;
 	private List<ChatMessage> messages;
+	// 多模态输出
+	private List<String> modalities;
+	private AudioConfig audio;
 	// 输出控制
 	private Double temperature;
 	private Double topP;
@@ -42,11 +47,33 @@ public class ChatCompletionRequest {
 	}
 
 	public List<ChatMessage> getMessages() {
+		if (messages == null) {
+			messages = new ArrayList<>();
+		}
 		return messages;
 	}
 
 	public void setMessages(List<ChatMessage> messages) {
 		this.messages = messages;
+	}
+
+	public List<String> getModalities() {
+		if (modalities == null) {
+			modalities = new ArrayList<>();
+		}
+		return modalities;
+	}
+
+	public void setModalities(List<String> modalities) {
+		this.modalities = modalities;
+	}
+
+	public AudioConfig getAudio() {
+		return audio;
+	}
+
+	public void setAudio(AudioConfig audio) {
+		this.audio = audio;
 	}
 
 	public Double getTemperature() {
@@ -130,6 +157,9 @@ public class ChatCompletionRequest {
 	}
 
 	public List<Tool> getTools() {
+		if (tools == null) {
+			tools = new ArrayList<>();
+		}
 		return tools;
 	}
 

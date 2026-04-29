@@ -61,7 +61,8 @@ public class ApplicationClientManager {
 			managerName = String.format("%s.%s", ApplicationClientManager.class.getName().substring(0,
 					ApplicationClientManager.class.getName().lastIndexOf(".")), managerName);
 		}
-		ApplicationClient client = (ApplicationClient) Class.forName(managerName).newInstance();
+		ApplicationClient client = (ApplicationClient) Class.forName(managerName).getDeclaredConstructor()
+				.newInstance();
 		client.setSetting(appSetting);
 		for (ApplicationSettingItem item : appSetting.getSettingItems()) {
 			if (item.getCategory() == emConfigItemCategory.FILE) {

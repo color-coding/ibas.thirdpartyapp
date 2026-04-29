@@ -2,6 +2,8 @@ package org.colorcoding.ibas.thirdpartyapp.client.openai;
 
 import java.util.List;
 
+import java.util.ArrayList;
+
 public class ChatCompletionResponse {
 
 	private String id;
@@ -47,6 +49,9 @@ public class ChatCompletionResponse {
 	}
 
 	public List<Choice> getChoices() {
+		if (choices == null) {
+			choices = new ArrayList<>();
+		}
 		return choices;
 	}
 
@@ -178,6 +183,9 @@ public class ChatCompletionResponse {
 		private List<TokenLogprob> refusal;
 
 		public List<TokenLogprob> getContent() {
+			if (content == null) {
+				content = new ArrayList<>();
+			}
 			return content;
 		}
 
@@ -186,6 +194,9 @@ public class ChatCompletionResponse {
 		}
 
 		public List<TokenLogprob> getRefusal() {
+			if (refusal == null) {
+				refusal = new ArrayList<>();
+			}
 			return refusal;
 		}
 
@@ -216,6 +227,9 @@ public class ChatCompletionResponse {
 			}
 
 			public List<Integer> getBytes() {
+				if (bytes == null) {
+					bytes = new ArrayList<>();
+				}
 				return bytes;
 			}
 
@@ -224,6 +238,9 @@ public class ChatCompletionResponse {
 			}
 
 			public List<TopLogprob> getTopLogprobs() {
+				if (topLogprobs == null) {
+					topLogprobs = new ArrayList<>();
+				}
 				return topLogprobs;
 			}
 
@@ -254,6 +271,9 @@ public class ChatCompletionResponse {
 			}
 
 			public List<Integer> getBytes() {
+				if (bytes == null) {
+					bytes = new ArrayList<>();
+				}
 				return bytes;
 			}
 

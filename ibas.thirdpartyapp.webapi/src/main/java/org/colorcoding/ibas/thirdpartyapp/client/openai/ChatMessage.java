@@ -1,5 +1,6 @@
 package org.colorcoding.ibas.thirdpartyapp.client.openai;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.colorcoding.ibas.bobas.common.Strings;
@@ -7,6 +8,8 @@ import org.colorcoding.ibas.bobas.common.Strings;
 public class ChatMessage {
 
 	public static final String ROLE_VALUE_SYSTEM = "system";
+
+	public static final String ROLE_VALUE_DEVELOPER = "developer";
 
 	public static final String ROLE_VALUE_USER = "user";
 
@@ -30,6 +33,14 @@ public class ChatMessage {
 		return new ChatMessage(ROLE_VALUE_SYSTEM, content);
 	}
 
+	public static ChatMessage createDeveloperMessage() {
+		return createDeveloperMessage(null);
+	}
+
+	public static ChatMessage createDeveloperMessage(String content) {
+		return new ChatMessage(ROLE_VALUE_DEVELOPER, content);
+	}
+
 	public ChatMessage() {
 
 	}
@@ -49,6 +60,7 @@ public class ChatMessage {
 	private String name;
 	private List<ToolCall> toolCalls;
 	private String toolCallId;
+	private OutputAudio outputAudio;
 	private String refusal;
 
 	public String getRole() {
@@ -74,6 +86,9 @@ public class ChatMessage {
 				return (T) this.content;
 			}
 		}
+		if (List.class == type) {
+			return (T) new ArrayList<>(0);
+		}
 		return null;
 	}
 
@@ -95,6 +110,9 @@ public class ChatMessage {
 	}
 
 	public List<ToolCall> getToolCalls() {
+		if (toolCalls == null) {
+			toolCalls = new ArrayList<>();
+		}
 		return toolCalls;
 	}
 
@@ -116,6 +134,14 @@ public class ChatMessage {
 
 	public void setRefusal(String refusal) {
 		this.refusal = refusal;
+	}
+
+	public OutputAudio getOutputAudio() {
+		return outputAudio;
+	}
+
+	public void setOutputAudio(OutputAudio outputAudio) {
+		this.outputAudio = outputAudio;
 	}
 
 	public ChatMessage append(String text) {

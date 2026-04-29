@@ -1,12 +1,16 @@
 package org.colorcoding.ibas.thirdpartyapp.client;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -123,14 +127,30 @@ public abstract class WebApp extends ApplicationClient {
 				builder.append(System.getProperty("NEW_LINE", "\n"));
 				builder.append("Body:");
 				builder.append(System.getProperty("NEW_LINE", "\n"));
-				builder.append("    ");
-				builder.append(new String(body, "utf-8"));
+				if (body.length < 2048) {
+					builder.append(new String(body, "utf-8"));
+				} else {
+					try (ByteArrayInputStream inputStream = new ByteArrayInputStream(body);
+							BufferedReader br = new BufferedReader(
+									new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
+						String line;
+						while ((line = br.readLine()) != null) {
+							builder.append(line);
+							builder.append(System.getProperty("NEW_LINE", "\n"));
+							if (Strings.startsWith(line, "Content-Type: application/octet-stream", true)) {
+								builder.append("<....>");
+								line = null;
+								break;
+							}
+						}
+					}
+				}
 			}
 			Logger.log(MessageLevel.INFO, builder.toString());
 		} else {
 			Logger.log(MessageLevel.INFO, MSG_CONNECTING_URL, this.getName(), method, url);
 		}
-		URL realUrl = new URL(url);
+		URL realUrl = URI.create(url).toURL();
 		// 打开和URL之间的连接
 		HttpURLConnection connection = (HttpURLConnection) realUrl.openConnection();
 		try {
@@ -156,32 +176,32 @@ public abstract class WebApp extends ApplicationClient {
 			}
 			// 建立实际的连接
 			connection.connect();
-			InputStream inputStream = null;
+			InputStream resultStream = null;
 			int responseCode = connection.getResponseCode();
 			if (responseCode == HttpURLConnection.HTTP_OK) {
 				// 正常返回值
-				inputStream = connection.getInputStream();
+				resultStream = connection.getInputStream();
 			} else {
 				// 错误返回值
-				inputStream = connection.getErrorStream();
+				resultStream = connection.getErrorStream();
 			}
 			// 输出返回值
-			if (MyConfiguration.isDebugMode() && !(inputStream == null || inputStream.available() == 0)) {
+			if (MyConfiguration.isDebugMode() && !(resultStream == null || resultStream.available() == 0)) {
 				try (ByteArrayOutputStream result = new ByteArrayOutputStream()) {
-					Files.writeTo(inputStream, result);
+					Files.writeTo(resultStream, result);
 					StringBuilder builder = new StringBuilder();
 					builder.append(String.format(MSG_CONNECTED_URL, this.getName(), responseCode));
 					builder.append(System.getProperty("NEW_LINE", "\n"));
 					builder.append(result.toString("utf-8"));
 					Logger.log(MessageLevel.INFO, builder.toString());
 					// 重置数据
-					inputStream = new ByteArrayInputStream(result.toByteArray());
+					resultStream = new ByteArrayInputStream(result.toByteArray());
 				}
 			} else {
 				Logger.log(MessageLevel.INFO, MSG_CONNECTED_URL, this.getName(), responseCode);
 			}
-			if (inputStream != null && inputStream.available() != 0) {
-				try (InputStream stream = inputStream) {
+			if (resultStream != null && resultStream.available() != 0) {
+				try (InputStream stream = resultStream) {
 					if (responseCode == HttpURLConnection.HTTP_OK
 							// 以下错误也可能返回可解析值
 							|| responseCode == HttpURLConnection.HTTP_BAD_REQUEST
