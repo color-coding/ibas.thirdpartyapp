@@ -57,14 +57,14 @@ public class ALY_IDaaS extends OIDC {
 		headers.put("Content-Type", "application/x-www-form-urlencoded");
 		JsonObject result = this.doPost(stringBuilder.toString(), headers, null);
 		if (result == null) {
-			throw new Exception(I18N.prop("msg_tpa_faild_oauth_request"));
+			throw new Exception(I18N.prop("msg_tpa_failed_oauth_request"));
 		}
 		if (result.containsKey("error")) {
 			throw new Exception(this.paramValue("error", result));
 		}
 		String accessToken = result.getString("access_token");
 		if (accessToken == null) {
-			throw new Exception(I18N.prop("msg_tpa_faild_oauth_request"));
+			throw new Exception(I18N.prop("msg_tpa_failed_oauth_request"));
 		}
 		stringBuilder = new StringBuilder();
 		endpoint = this.paramValue(PARAM_NAME_USERINFO_ENDPOINT, "");
@@ -76,11 +76,11 @@ public class ALY_IDaaS extends OIDC {
 		headers.put("Authorization", String.format("Bearer %s", accessToken.toString()));
 		result = this.doGet(stringBuilder.toString(), headers);
 		if (result == null) {
-			throw new Exception(I18N.prop("msg_tpa_faild_oauth_request"));
+			throw new Exception(I18N.prop("msg_tpa_failed_oauth_request"));
 		}
 		String userName = this.paramValue("preferred_username", result);
 		if (Strings.isNullOrEmpty(userName)) {
-			throw new Exception(I18N.prop("msg_tpa_faild_user_info_request"));
+			throw new Exception(I18N.prop("msg_tpa_failed_user_info_request"));
 		}
 		Criteria criteria = new Criteria();
 		criteria.setResultCount(1);

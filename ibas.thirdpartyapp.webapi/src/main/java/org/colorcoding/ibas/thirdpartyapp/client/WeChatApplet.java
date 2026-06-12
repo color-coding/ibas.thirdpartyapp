@@ -49,7 +49,7 @@ public class WeChatApplet extends WeChat {
 		headers.put("Content-Type", "application/x-www-form-urlencoded");
 		JsonObject result = this.doGet(stringBuilder.toString(), headers);
 		if (result == null) {
-			throw new Exception(I18N.prop("msg_tpa_faild_oauth_request"));
+			throw new Exception(I18N.prop("msg_tpa_failed_oauth_request"));
 		}
 		// 是否有错误
 		if (result.containsKey("errmsg")) {
@@ -78,7 +78,7 @@ public class WeChatApplet extends WeChat {
 		}
 		if (criteria.getConditions().size() == count) {
 			// 未能获取有效用户信息
-			throw new Exception(I18N.prop("msg_tpa_faild_user_info_request"));
+			throw new Exception(I18N.prop("msg_tpa_failed_user_info_request"));
 		}
 		if (criteria.getConditions().size() > count + 1) {
 			condition = criteria.getConditions().get(count - 1);

@@ -64,14 +64,14 @@ public class SAP_IAS extends OIDC {
 		headers.put("Content-Type", "application/x-www-form-urlencoded");
 		JsonObject result = this.doPost(endpoint, headers, stringBuilder.toString().getBytes("utf-8"));
 		if (result == null) {
-			throw new Exception(I18N.prop("msg_tpa_faild_oauth_request"));
+			throw new Exception(I18N.prop("msg_tpa_failed_oauth_request"));
 		}
 		if (result.containsKey("error_description")) {
 			throw new Exception(this.paramValue("error_description", result));
 		}
 		String accessToken = result.getString("access_token");
 		if (accessToken == null) {
-			throw new Exception(I18N.prop("msg_tpa_faild_oauth_request"));
+			throw new Exception(I18N.prop("msg_tpa_failed_oauth_request"));
 		}
 		stringBuilder = new StringBuilder();
 		endpoint = this.paramValue(PARAM_NAME_USERINFO_ENDPOINT, "");
@@ -83,7 +83,7 @@ public class SAP_IAS extends OIDC {
 		headers.put("Authorization", String.format("Bearer %s", accessToken));
 		result = this.doGet(stringBuilder.toString(), headers);
 		if (result == null) {
-			throw new Exception(I18N.prop("msg_tpa_faild_oauth_request"));
+			throw new Exception(I18N.prop("msg_tpa_failed_oauth_request"));
 		}
 		ICriteria criteria = new Criteria();
 		criteria.setResultCount(1);
@@ -107,7 +107,7 @@ public class SAP_IAS extends OIDC {
 		}
 		if (criteria.getConditions().size() == count) {
 			// 未能获取有效用户信息
-			throw new Exception(I18N.prop("msg_tpa_faild_user_info_request"));
+			throw new Exception(I18N.prop("msg_tpa_failed_user_info_request"));
 		}
 		if (criteria.getConditions().size() > count + 1) {
 			condition = criteria.getConditions().get(count - 1);

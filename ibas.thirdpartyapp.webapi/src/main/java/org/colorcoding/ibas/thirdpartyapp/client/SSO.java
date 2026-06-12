@@ -82,7 +82,7 @@ public abstract class SSO extends WebApp {
 			condition = criteria.getConditions().create();
 			condition.setBracketClose(2);
 			condition.setAlias(org.colorcoding.ibas.initialfantasy.bo.organization.User.PROPERTY_INVALIDDATE.getName());
-			condition.setOperation(ConditionOperation.GRATER_EQUAL);
+			condition.setOperation(ConditionOperation.GREATER_EQUAL);
 			condition.setValue(date);
 
 			try (BORepositoryInitialFantasy boRepository = new BORepositoryInitialFantasy()) {

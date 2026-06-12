@@ -206,7 +206,7 @@ namespace thirdpartyapp {
                             this.view.showSettingItems(this.applicationSetting.settingItems);
                             this.messages({
                                 type: ibas.emMessageType.SUCCESS,
-                                message: ibas.i18n.prop("shell_data_save") + ibas.i18n.prop("shell_sucessful"),
+                                message: ibas.i18n.prop("shell_data_save") + ibas.i18n.prop("shell_successful"),
                                 onCompleted: () => {
                                     this.fireCompleted(this.applicationSetting);
                                 }

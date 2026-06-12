@@ -131,7 +131,7 @@ public class ApplicationClientManager {
 					throw opRslt.getError();
 				}
 				if (opRslt.getResultObjects().isEmpty()) {
-					throw new Exception(I18N.prop("msg_tpa_invaild_application", appCode));
+					throw new Exception(I18N.prop("msg_tpa_invalid_application", appCode));
 				}
 				return this.create(opRslt.getResultObjects().firstOrDefault());
 			}
@@ -164,7 +164,7 @@ public class ApplicationClientManager {
 				throw opRslt.getError();
 			}
 			if (opRslt.getResultObjects().isEmpty()) {
-				throw new Exception(I18N.prop("msg_tpa_invaild_application_user_mapping", appCode, user));
+				throw new Exception(I18N.prop("msg_tpa_invalid_application_user_mapping", appCode, user));
 			}
 			return this.create(opRslt.getResultObjects().firstOrDefault());
 		} catch (Exception e) {

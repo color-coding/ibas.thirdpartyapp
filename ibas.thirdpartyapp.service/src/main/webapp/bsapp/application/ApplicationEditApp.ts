@@ -130,7 +130,7 @@ namespace thirdpartyapp {
                             if (opRslt.resultObjects.length === 0) {
                                 // 删除成功，释放当前对象
                                 that.messages(ibas.emMessageType.SUCCESS,
-                                    ibas.i18n.prop("shell_data_delete") + ibas.i18n.prop("shell_sucessful"));
+                                    ibas.i18n.prop("shell_data_delete") + ibas.i18n.prop("shell_successful"));
                                 that.editData = undefined;
                                 // 刷新当前视图
                                 that.viewShowed();
@@ -155,7 +155,7 @@ namespace thirdpartyapp {
                                                 }
                                                 that.view.showApplicationSettingItems(opRslt.resultObjects.firstOrDefault().settingItems);
                                                 that.messages(ibas.emMessageType.SUCCESS,
-                                                    ibas.i18n.prop("shell_data_save") + ibas.i18n.prop("shell_sucessful"));
+                                                    ibas.i18n.prop("shell_data_save") + ibas.i18n.prop("shell_successful"));
                                             } catch (error) {
                                                 that.view.showApplicationSettingItems([]);
                                                 that.messages(error);
@@ -166,7 +166,7 @@ namespace thirdpartyapp {
                                     // 刷新当前视图
                                     that.viewShowed();
                                     that.messages(ibas.emMessageType.SUCCESS,
-                                        ibas.i18n.prop("shell_data_save") + ibas.i18n.prop("shell_sucessful"));
+                                        ibas.i18n.prop("shell_data_save") + ibas.i18n.prop("shell_successful"));
                                 }
                             }
                         } catch (error) {
@@ -274,7 +274,7 @@ namespace thirdpartyapp {
                                 throw new Error(opRslt.message);
                             }
                             that.proceeding(ibas.emMessageType.INFORMATION,
-                                ibas.i18n.prop("shell_upload") + ibas.i18n.prop("shell_sucessful"));
+                                ibas.i18n.prop("shell_upload") + ibas.i18n.prop("shell_successful"));
                             let fileData: ibas.FileItem = opRslt.resultObjects.firstOrDefault();
                             that.editData.picture = fileData.name;
                         } catch (error) {

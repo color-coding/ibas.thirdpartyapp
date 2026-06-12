@@ -59,7 +59,7 @@ public abstract class OIDC extends SSO {
 				String endpoint = this.paramValue(PARAM_NAME_AUTHORIZE_ENDPOINT, "");
 				if (Strings.isNullOrEmpty(endpoint)) {
 					throw new Exception(
-							I18N.prop("msg_tpa_invaild_application_setting_item", PARAM_NAME_AUTHORIZE_ENDPOINT));
+							I18N.prop("msg_tpa_invalid_application_setting_item", PARAM_NAME_AUTHORIZE_ENDPOINT));
 				}
 				String request = this.paramValue(PARAM_NAME_REQUEST, "", params);
 

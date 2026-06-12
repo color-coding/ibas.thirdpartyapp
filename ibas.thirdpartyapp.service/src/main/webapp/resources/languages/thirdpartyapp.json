@@ -36,6 +36,5 @@
     "thirdpartyapp_disconnect_application": "Disconnect Application",
     "thirdpartyapp_not_found_user": "User not found",
     "thirdpartyapp_not_found_application": "Application not found",
-    "thirdpartyapp_not_found_application_config": "Application configuration not found",
-    "thirdpartyapp_closing_delimiter": "---- End ----"
+    "thirdpartyapp_not_found_application_config": "Application configuration not found"
 }

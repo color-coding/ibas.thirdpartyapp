@@ -148,7 +148,7 @@ public class FileService extends FileRepositoryService {
 				}
 				IApplication application = opRslt.getResultObjects().firstOrDefault();
 				if (application == null) {
-					throw new Exception(I18N.prop("msg_tpa_invaild_application", appCode));
+					throw new Exception(I18N.prop("msg_tpa_invalid_application", appCode));
 				}
 				operationResult.addResultObjects(boRepository.createApplicationSetting(application));
 			} else {
@@ -165,7 +165,7 @@ public class FileService extends FileRepositoryService {
 				}
 				IUserMapping userMapping = opRslt.getResultObjects().firstOrDefault();
 				if (userMapping == null) {
-					throw new Exception(I18N.prop("msg_tpa_invaild_application_user_mapping", appCode, user));
+					throw new Exception(I18N.prop("msg_tpa_invalid_application_user_mapping", appCode, user));
 				}
 				operationResult.addResultObjects(boRepository.createApplicationSetting(userMapping));
 			}
@@ -194,7 +194,7 @@ public class FileService extends FileRepositoryService {
 			}
 			IApplication application = opRsltApp.getResultObjects().firstOrDefault();
 			if (application == null) {
-				throw new Exception(I18N.prop("msg_tpa_invaild_application", appCode));
+				throw new Exception(I18N.prop("msg_tpa_invalid_application", appCode));
 			}
 
 			ApplicationSettingItems savingItems = new ApplicationSettingItems();
@@ -225,7 +225,7 @@ public class FileService extends FileRepositoryService {
 							FileItem fileItem = opRsltFile.getResultObjects().firstOrDefault();
 							if (fileItem == null) {
 								throw new Exception(
-										I18N.prop("msg_tpa_invaild_application_setting_item", settingItem.getName()));
+										I18N.prop("msg_tpa_invalid_application_setting_item", settingItem.getName()));
 							}
 							settingItem.setValue(ApplicationSettingItem.URL_HEAD_FILE + fileItem.relativePath());
 						} else {

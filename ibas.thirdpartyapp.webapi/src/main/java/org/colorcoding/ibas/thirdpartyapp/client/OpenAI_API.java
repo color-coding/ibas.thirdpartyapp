@@ -165,11 +165,11 @@ public class OpenAI_API extends WebApp {
 					outputStream.toByteArray());
 		}
 		if (result == null) {
-			throw new Exception(I18N.prop("msg_tpa_faild_oauth_request"));
+			throw new Exception(I18N.prop("msg_tpa_failed_oauth_request"));
 		}
 		ChatCompletionResponse response = serializer.deserialize(result, new ChatCompletionResponse());
 		if (response == null) {
-			throw new Exception(I18N.prop("msg_tpa_faild_oauth_request"));
+			throw new Exception(I18N.prop("msg_tpa_failed_oauth_request"));
 		}
 		return response;
 	}
@@ -267,12 +267,12 @@ public class OpenAI_API extends WebApp {
 					outputStream.toByteArray());
 		}
 		if (result == null) {
-			throw new Exception(I18N.prop("msg_tpa_faild_oauth_request"));
+			throw new Exception(I18N.prop("msg_tpa_failed_oauth_request"));
 		}
 		Serializer serializer = new Serializer();
 		FileUploadResponse response = serializer.deserialize(result, new FileUploadResponse());
 		if (response == null) {
-			throw new Exception(I18N.prop("msg_tpa_faild_oauth_request"));
+			throw new Exception(I18N.prop("msg_tpa_failed_oauth_request"));
 		}
 		return response;
 	}

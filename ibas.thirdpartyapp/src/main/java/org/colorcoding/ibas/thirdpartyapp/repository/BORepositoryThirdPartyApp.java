@@ -44,7 +44,7 @@ public class BORepositoryThirdPartyApp extends BORepositoryServiceApplication
 		IOperationResult<IApplicationConfig> opRsltConfig = this.fetchApplicationConfig(criteria);
 		IApplicationConfig applicationConfig = opRsltConfig.getResultObjects().firstOrDefault();
 		if (applicationConfig == null) {
-			throw new Exception(I18N.prop("msg_tpa_invaild_application_config", application.getConfig()));
+			throw new Exception(I18N.prop("msg_tpa_invalid_application_config", application.getConfig()));
 		}
 		ApplicationSetting appSetting = new ApplicationSetting();
 		appSetting.setName(application.getCode());
@@ -94,7 +94,7 @@ public class BORepositoryThirdPartyApp extends BORepositoryServiceApplication
 		IOperationResult<IApplication> opRsltApp = this.fetchApplication(criteria);
 		IApplication application = opRsltApp.getResultObjects().firstOrDefault();
 		if (application == null) {
-			throw new Exception(I18N.prop("msg_tpa_invaild_application", userMapping.getApplication()));
+			throw new Exception(I18N.prop("msg_tpa_invalid_application", userMapping.getApplication()));
 		}
 		ApplicationSetting appSetting = this.createApplicationSetting(application, false);
 		if (!Strings.isNullOrEmpty(userMapping.getSettings())) {

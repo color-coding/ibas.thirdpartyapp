@@ -88,7 +88,7 @@ public class JointService {
 			}
 			ApplicationClient appClient = ApplicationClientManager.newInstance().create(app);
 			if (!(appClient instanceof SSO)) {
-				throw new Exception(I18N.prop("msg_tpa_invaild_application", PARAMETER_APP));
+				throw new Exception(I18N.prop("msg_tpa_invalid_application", PARAMETER_APP));
 			}
 			SSO ssoClient = (SSO) appClient;
 			User user = ssoClient.authenticate(params);
