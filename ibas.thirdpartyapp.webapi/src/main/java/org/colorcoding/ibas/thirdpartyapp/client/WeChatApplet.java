@@ -44,6 +44,10 @@ public class WeChatApplet extends WeChat {
 		stringBuilder.append("appid");
 		stringBuilder.append("=");
 		stringBuilder.append(this.paramValue(PARAM_NAME_CLIENT_ID, ""));
+		stringBuilder.append("&");
+		stringBuilder.append("secret");
+		stringBuilder.append("=");
+		stringBuilder.append(this.paramValue(PARAM_NAME_CLIENT_SECRET, ""));
 
 		Map<String, String> headers = new HashMap<String, String>();
 		headers.put("Content-Type", "application/x-www-form-urlencoded");
@@ -62,26 +66,26 @@ public class WeChatApplet extends WeChat {
 		int count = criteria.getConditions().size();
 		// 尝试使用统一用户编码
 		if (result.containsKey("unionid")) {
-			params.put("UnionId", this.paramValue("unionid", result));
+			params.put("unionid", this.paramValue("unionid", result));
 			condition = criteria.getConditions().create();
 			condition.setAlias(UserMapping.PROPERTY_ACCOUNT.getName());
 			condition.setOperation(ConditionOperation.CONTAIN);
-			condition.setValue(Strings.format("UnionId: %s;", params.get("UnionId")));
+			condition.setValue(Strings.format("UnionId: %s;", params.get("unionid")));
 		}
 		// 尝试使用应用用户编码
 		if (result.containsKey("openid")) {
-			params.put("OpenId", this.paramValue("openid", result));
+			params.put("openid", this.paramValue("openid", result));
 			condition = criteria.getConditions().create();
 			condition.setAlias(UserMapping.PROPERTY_ACCOUNT.getName());
 			condition.setOperation(ConditionOperation.CONTAIN);
-			condition.setValue(Strings.format("OpenId: %s;", params.get("OpenId")));
+			condition.setValue(Strings.format("OpenId: %s;", params.get("openid")));
 		}
 		if (criteria.getConditions().size() == count) {
 			// 未能获取有效用户信息
 			throw new Exception(I18N.prop("msg_tpa_failed_user_info_request"));
 		}
 		if (criteria.getConditions().size() > count + 1) {
-			condition = criteria.getConditions().get(count - 1);
+			condition = criteria.getConditions().get(count);
 			condition.setBracketOpen(1);
 			condition = criteria.getConditions().get(criteria.getConditions().size() - 1);
 			condition.setRelationship(ConditionRelationship.OR);
@@ -95,10 +99,14 @@ public class WeChatApplet extends WeChat {
 			}
 			IUserMapping user = operationResult.getResultObjects().firstOrDefault();
 			if (user == null) {
-				params.put("AccessToken", this.paramValue("access_token", result));
-				user = this.createUser(params);
+				user = this.createUser(params, result);
 			}
 			return user;
 		}
+	}
+
+	@Override
+	public <P> IOperationResult<P> execute(String instruct, Properties params) throws ApplicationException {
+		throw new ApplicationException("not implemented.");
 	}
 }

@@ -1,5 +1,8 @@
 package org.colorcoding.ibas.thirdpartyapp.client;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -27,10 +30,12 @@ import org.colorcoding.ibas.bobas.common.OperationResult;
 import org.colorcoding.ibas.bobas.common.Strings;
 import org.colorcoding.ibas.bobas.message.Logger;
 import org.colorcoding.ibas.bobas.message.MessageLevel;
-import org.colorcoding.ibas.thirdpartyapp.MyConfiguration;
 import org.colorcoding.ibas.thirdpartyapp.bo.other.ApplicationSetting;
 
 public class E_Mail extends ApplicationClient {
+	private static final String DEFAULT_CONNECTION_TIMEOUT = "10000";
+	private static final String DEFAULT_READ_TIMEOUT = "300000";
+	private static final String DEFAULT_WRITE_TIMEOUT = "300000";
 	/**
 	 * 运行命令 - 收邮件
 	 */
@@ -106,23 +111,26 @@ public class E_Mail extends ApplicationClient {
 	protected Properties receiveProperties() {
 		Properties properties = new Properties();
 		properties.setProperty("mail.debug", this.paramValue("mail.debug", "false"));
-		if (MyConfiguration.isDebugMode() && this.paramValue("mail.debug", true)) {
-			properties.setProperty("mail.debug.auth", "true");
-		}
+		properties.setProperty("mail.debug.auth", this.paramValue("mail.debug.auth", "false"));
 		if ("imap".equalsIgnoreCase(this.paramValue("mail.store.protocol", "pop3"))) {
 			properties.setProperty("mail.store.protocol", "imap");
 			properties.setProperty("mail.imap.host", this.paramValue("mail.imap.host", ""));
 			// IMAP默认端口应为993
 			properties.setProperty("mail.imap.port", this.paramValue("mail.imap.port", "993"));
 			properties.setProperty("mail.imap.auth", this.paramValue("mail.imap.auth", "true"));
-			// 使用ssl
-			if (this.paramValue("mail.imap.ssl", true) == true) {
+			properties.setProperty("mail.imap.connectiontimeout",
+					this.paramValue("mail.imap.connectiontimeout", DEFAULT_CONNECTION_TIMEOUT));
+			properties.setProperty("mail.imap.timeout", this.paramValue("mail.imap.timeout", DEFAULT_READ_TIMEOUT));
+			properties.setProperty("mail.imap.writetimeout",
+					this.paramValue("mail.imap.writetimeout", DEFAULT_WRITE_TIMEOUT));
+			if (this.paramValue("mail.imap.ssl", true)) {
 				properties.setProperty("mail.imap.ssl.enable", "true");
+				properties.setProperty("mail.imap.ssl.checkserveridentity", "true");
+			} else if (this.paramValue("mail.imap.starttls", false)) {
 				properties.setProperty("mail.imap.starttls.enable", "true");
-				properties.setProperty("mail.imap.socketFactory.fallback", "false");
-				// 统一使用标准SSLSocketFactory
-				properties.setProperty("mail.imap.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
-				properties.setProperty("mail.imap.socketFactory.port", this.paramValue("mail.imap.port", "993"));
+				properties.setProperty("mail.imap.starttls.required",
+						this.paramValue("mail.imap.starttls.required", "true"));
+				properties.setProperty("mail.imap.ssl.checkserveridentity", "true");
 			}
 		} else {
 			properties.setProperty("mail.store.protocol", "pop3");
@@ -130,14 +138,19 @@ public class E_Mail extends ApplicationClient {
 			// POP3默认端口应为995
 			properties.setProperty("mail.pop3.port", this.paramValue("mail.pop3.port", "995"));
 			properties.setProperty("mail.pop3.auth", this.paramValue("mail.pop3.auth", "true"));
-			// 使用ssl
-			if (this.paramValue("mail.pop3.ssl", true) == true) {
+			properties.setProperty("mail.pop3.connectiontimeout",
+					this.paramValue("mail.pop3.connectiontimeout", DEFAULT_CONNECTION_TIMEOUT));
+			properties.setProperty("mail.pop3.timeout", this.paramValue("mail.pop3.timeout", DEFAULT_READ_TIMEOUT));
+			properties.setProperty("mail.pop3.writetimeout",
+					this.paramValue("mail.pop3.writetimeout", DEFAULT_WRITE_TIMEOUT));
+			if (this.paramValue("mail.pop3.ssl", true)) {
 				properties.setProperty("mail.pop3.ssl.enable", "true");
+				properties.setProperty("mail.pop3.ssl.checkserveridentity", "true");
+			} else if (this.paramValue("mail.pop3.starttls", false)) {
 				properties.setProperty("mail.pop3.starttls.enable", "true");
-				properties.setProperty("mail.pop3.socketFactory.fallback", "false");
-				// 统一使用标准SSLSocketFactory
-				properties.setProperty("mail.pop3.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
-				properties.setProperty("mail.pop3.socketFactory.port", this.paramValue("mail.pop3.port", "995"));
+				properties.setProperty("mail.pop3.starttls.required",
+						this.paramValue("mail.pop3.starttls.required", "true"));
+				properties.setProperty("mail.pop3.ssl.checkserveridentity", "true");
 			}
 		}
 		return properties;
@@ -193,10 +206,16 @@ public class E_Mail extends ApplicationClient {
 					value = params.get(PROPERTIES_SEARCH_TOP);
 					if (value != null && !Strings.isNullOrEmpty(value.toString())) {
 						int top = Integer.valueOf(value.toString());
+						if (top <= 0) {
+							throw new IllegalArgumentException("TOP must be greater than zero.");
+						}
 						int count = mbox.getMessageCount();
-						int start = top > count ? 1 : count - top + 1;
-						int end = count > 0 ? count : 0;
-						messages = mbox.getMessages(start, end);
+						if (count == 0) {
+							messages = new Message[0];
+						} else {
+							int start = top > count ? 1 : count - top + 1;
+							messages = mbox.getMessages(start, count);
+						}
 					} else {
 						messages = mbox.getMessages();
 					}
@@ -212,6 +231,18 @@ public class E_Mail extends ApplicationClient {
 				messages = mbox.getMessages();
 			}
 			Logger.log(MessageLevel.DEBUG, "mail: box [%s] got [%s] messge.", mbox.getName(), messages.length);
+			Message[] detachedMessages = new Message[messages.length];
+			for (int i = 0; i < messages.length; i++) {
+				try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+					messages[i].writeTo(outputStream);
+					try (ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray())) {
+						detachedMessages[i] = new MimeMessage(session, inputStream);
+					}
+				} catch (IOException e) {
+					throw new MessagingException("failed to load mail message.", e);
+				}
+			}
+			messages = detachedMessages;
 			return new OperationResult<Message>().addResultObjects(messages);
 		} finally {
 			// 修复：确保资源正确关闭
@@ -234,20 +265,25 @@ public class E_Mail extends ApplicationClient {
 
 	protected Properties sendProperties() {
 		Properties properties = new Properties();
-		properties.setProperty("mail.transport.protocol", "smtps");
+		properties.setProperty("mail.transport.protocol", "smtp");
 		properties.setProperty("mail.debug", this.paramValue("mail.debug", "false"));
-		if (MyConfiguration.isDebugMode() && this.paramValue("mail.debug", true)) {
-			properties.setProperty("mail.debug.auth", "true");
-		}
+		properties.setProperty("mail.debug.auth", this.paramValue("mail.debug.auth", "false"));
 		properties.setProperty("mail.smtp.host", this.paramValue("mail.smtp.host", ""));
 		properties.setProperty("mail.smtp.port", this.paramValue("mail.smtp.port", "465"));
 		properties.setProperty("mail.smtp.auth", this.paramValue("mail.smtp.auth", "true"));
-		if (this.paramValue("mail.smtp.ssl", true) == true) {
+		properties.setProperty("mail.smtp.connectiontimeout",
+				this.paramValue("mail.smtp.connectiontimeout", DEFAULT_CONNECTION_TIMEOUT));
+		properties.setProperty("mail.smtp.timeout", this.paramValue("mail.smtp.timeout", DEFAULT_READ_TIMEOUT));
+		properties.setProperty("mail.smtp.writetimeout",
+				this.paramValue("mail.smtp.writetimeout", DEFAULT_WRITE_TIMEOUT));
+		if (this.paramValue("mail.smtp.ssl", true)) {
 			properties.setProperty("mail.smtp.ssl.enable", "true");
+			properties.setProperty("mail.smtp.ssl.checkserveridentity", "true");
+		} else if (this.paramValue("mail.smtp.starttls", false)) {
 			properties.setProperty("mail.smtp.starttls.enable", "true");
-			properties.setProperty("mail.smtp.socketFactory.fallback", "false");
-			properties.setProperty("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
-			properties.setProperty("mail.smtp.socketFactory.port", this.paramValue("mail.smtp.port", "465"));
+			properties.setProperty("mail.smtp.starttls.required",
+					this.paramValue("mail.smtp.starttls.required", "true"));
+			properties.setProperty("mail.smtp.ssl.checkserveridentity", "true");
 		}
 		return properties;
 	}
@@ -274,8 +310,16 @@ public class E_Mail extends ApplicationClient {
 		// 设置发件人的地址
 		message.setFrom(new InternetAddress(this.paramValue("mail.user", "anonymous")));
 		// 设置收件人
+		int recipientCount = 0;
 		for (String item : this.paramValue(PROPERTIES_SEND_RECIPIENT, "", params).split(";")) {
-			message.addRecipient(Message.RecipientType.TO, new InternetAddress(item));// 设置收件人,并设置其接收类型为TO
+			if (Strings.isNullOrEmpty(item) || Strings.isNullOrEmpty(item.trim())) {
+				continue;
+			}
+			message.addRecipient(Message.RecipientType.TO, new InternetAddress(item.trim(), true));
+			recipientCount++;
+		}
+		if (recipientCount == 0) {
+			throw new MessagingException("recipient is required.");
 		}
 		message.setSubject(this.paramValue(PROPERTIES_SEND_SUBJECT, "", params));// 设置标题
 		// 设置信件内容

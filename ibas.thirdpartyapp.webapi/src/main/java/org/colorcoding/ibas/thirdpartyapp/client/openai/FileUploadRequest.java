@@ -9,6 +9,8 @@ public class FileUploadRequest {
 	public static final String PURPOSE_VALUE_BATCH = "batch";// 批处理
 	public static final String PURPOSE_VALUE_FINE_TUNE = "fine-tune";// ：微调
 	public static final String PURPOSE_VALUE_USER_DATA = "user_data";// 通用文件（最新推荐）
+	public static final String PURPOSE_VALUE_VISION = "vision";// 视觉微调
+	public static final String PURPOSE_VALUE_EVALS = "evals";// 评估数据
 
 	private String purpose;
 	private String fileName;

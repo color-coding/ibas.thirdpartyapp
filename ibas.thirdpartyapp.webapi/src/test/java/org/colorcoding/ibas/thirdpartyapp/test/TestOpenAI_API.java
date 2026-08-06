@@ -12,9 +12,12 @@ import org.colorcoding.ibas.thirdpartyapp.client.OpenAI_API;
 import org.colorcoding.ibas.thirdpartyapp.client.openai.ChatCompletionResponse;
 import org.colorcoding.ibas.thirdpartyapp.client.openai.ChatMessage;
 import org.colorcoding.ibas.thirdpartyapp.client.openai.FileUploadRequest;
+import org.colorcoding.ibas.thirdpartyapp.client.openai.FileUploadResponse;
 
 import junit.framework.TestCase;
+import org.junit.Ignore;
 
+@Ignore("Requires configured credentials and calls the real OpenAI-compatible service")
 public class TestOpenAI_API extends TestCase {
 
 	public void testSendMessage() throws Exception {
@@ -22,7 +25,7 @@ public class TestOpenAI_API extends TestCase {
 		Properties properties = new Properties();
 		ChatMessage message = ChatMessage.createUserMessage();
 		message.setContent("who are you?");
-		properties.put(Strings.concat(OpenAI_API.PARAM_NAME_MESSAGE, String.valueOf(message.hashCode())), message);
+		properties.put(Strings.concat(OpenAI_API.PARAM_NAME_MESSAGE, ".0"), message);
 
 		IOperationResult<ChatCompletionResponse> operationResult = client
 				.execute(OpenAI_API.EXECUT_NAME_CHAT_COMPLETIONS, properties);
@@ -41,14 +44,14 @@ public class TestOpenAI_API extends TestCase {
 		request.setPurpose(FileUploadRequest.PURPOSE_VALUE_ASSISTANTS);
 		request.setFileName("app.xml");
 		request.setData(Files.readAllBytes(Files.valueOf(MyConfiguration.getWorkFolder(), "..", "..", "app.xml")));
-		properties.put(Strings.concat(OpenAI_API.PARAM_NAME_FILE, String.valueOf(request.hashCode())), request);
+		properties.put(Strings.concat(OpenAI_API.PARAM_NAME_FILE, ".0"), request);
 
-		IOperationResult<ChatCompletionResponse> operationResult = client.execute(OpenAI_API.EXECUT_NAME_FILES_UPLOAD,
+		IOperationResult<FileUploadResponse> operationResult = client.execute(OpenAI_API.EXECUT_NAME_FILES_UPLOAD,
 				properties);
 		if (operationResult.getError() != null) {
 			throw operationResult.getError();
 		}
-		for (ChatCompletionResponse item : operationResult.getResultObjects()) {
+		for (FileUploadResponse item : operationResult.getResultObjects()) {
 			System.out.println(item.getId());
 		}
 

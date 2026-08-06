@@ -88,6 +88,9 @@ public abstract class SSO extends WebApp {
 			try (BORepositoryInitialFantasy boRepository = new BORepositoryInitialFantasy()) {
 				boRepository.setUserToken(OrganizationFactory.SYSTEM_USER.getToken());
 				IOperationResult<IUser> opRsltUser = boRepository.fetchUser(criteria);
+				if (opRsltUser.getError() != null) {
+					throw opRsltUser.getError();
+				}
 				IUser boUser = opRsltUser.getResultObjects().firstOrDefault();
 				if (boUser == null) {
 					throw new Exception(I18N.prop("msg_tpa_no_matching_user"));

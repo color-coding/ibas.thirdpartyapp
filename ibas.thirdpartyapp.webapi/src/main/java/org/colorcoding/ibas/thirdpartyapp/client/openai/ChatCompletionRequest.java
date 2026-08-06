@@ -29,7 +29,11 @@ public class ChatCompletionRequest {
 	private Object toolChoice;
 	private Boolean parallelToolCalls;
 	// 用户标识
+	@Deprecated
 	private String user;
+	private String safetyIdentifier;
+	private String promptCacheKey;
+	private String verbosity;
 	// 日志概率
 	private Boolean logprobs;
 	private Integer topLogprobs;
@@ -37,6 +41,10 @@ public class ChatCompletionRequest {
 	private ResponseFormat responseFormat;
 	// logit偏差
 	private Map<String, Integer> logitBias;
+	// OpenAI 标准推理强度
+	private String reasoningEffort;
+	// 第三方 OpenAI 兼容服务扩展，并非 OpenAI 标准字段
+	private Object thinking;
 
 	public String getModel() {
 		return model;
@@ -191,6 +199,30 @@ public class ChatCompletionRequest {
 		this.user = user;
 	}
 
+	public String getSafetyIdentifier() {
+		return safetyIdentifier;
+	}
+
+	public void setSafetyIdentifier(String safetyIdentifier) {
+		this.safetyIdentifier = safetyIdentifier;
+	}
+
+	public String getPromptCacheKey() {
+		return promptCacheKey;
+	}
+
+	public void setPromptCacheKey(String promptCacheKey) {
+		this.promptCacheKey = promptCacheKey;
+	}
+
+	public String getVerbosity() {
+		return verbosity;
+	}
+
+	public void setVerbosity(String verbosity) {
+		this.verbosity = verbosity;
+	}
+
 	public Boolean getLogprobs() {
 		return logprobs;
 	}
@@ -221,5 +253,24 @@ public class ChatCompletionRequest {
 
 	public void setLogitBias(Map<String, Integer> logitBias) {
 		this.logitBias = logitBias;
+	}
+
+	public String getReasoningEffort() {
+		return reasoningEffort;
+	}
+
+	public void setReasoningEffort(String reasoningEffort) {
+		this.reasoningEffort = reasoningEffort;
+	}
+
+	/**
+	 * 第三方兼容字段。官方 OpenAI 请使用 {@link #setReasoningEffort(String)}。
+	 */
+	public Object getThinking() {
+		return thinking;
+	}
+
+	public void setThinking(Object thinking) {
+		this.thinking = thinking;
 	}
 }

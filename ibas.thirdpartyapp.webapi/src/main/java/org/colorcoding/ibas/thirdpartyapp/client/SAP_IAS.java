@@ -110,7 +110,7 @@ public class SAP_IAS extends OIDC {
 			throw new Exception(I18N.prop("msg_tpa_failed_user_info_request"));
 		}
 		if (criteria.getConditions().size() > count + 1) {
-			condition = criteria.getConditions().get(count - 1);
+			condition = criteria.getConditions().get(count);
 			condition.setBracketOpen(1);
 			condition = criteria.getConditions().get(criteria.getConditions().size() - 1);
 			condition.setRelationship(ConditionRelationship.OR);
@@ -124,11 +124,14 @@ public class SAP_IAS extends OIDC {
 			}
 			// 没有应用用户映射，则按编码直查用户
 			if (opRsltMap.getResultObjects().isEmpty()) {
+				String unionId = result.containsKey("user_uuid") ? this.paramValue("user_uuid", result) : "";
+				String subject = result.containsKey("sub") ? this.paramValue("sub", result) : "";
+				String userCode = Strings.isNullOrEmpty(subject) ? unionId : subject;
 				criteria = new Criteria();
 				criteria.setResultCount(1);
 				condition = criteria.getConditions().create();
 				condition.setAlias(User.PROPERTY_CODE.getName());
-				condition.setValue(this.paramValue("sub", result));
+				condition.setValue(userCode);
 				try (BORepositoryInitialFantasy boRepositoryIF = new BORepositoryInitialFantasy()) {
 					boRepositoryIF.setTransaction(boRepository3RD.getTransaction());
 					IOperationResult<IUser> opRsltUsr = boRepositoryIF.fetchUser(criteria);
@@ -141,9 +144,11 @@ public class SAP_IAS extends OIDC {
 						user = new User();
 						user.setDataSource("SAP_ISS");
 						// 统一编码
-						user.setCreateActionId(this.paramValue("user_uuid", result));
+						if (!Strings.isNullOrEmpty(unionId)) {
+							user.setCreateActionId(unionId);
+						}
 						// 系统编码
-						user.setCode(this.paramValue("sub", result));
+						user.setCode(userCode);
 						user.setName(Strings.concat(this.paramValue("last_name", result),
 								this.paramValue("first_name", result)));
 						user.setMail(this.paramValue("mail", result));
@@ -163,7 +168,14 @@ public class SAP_IAS extends OIDC {
 					IUserMapping userMapping = new UserMapping();
 					userMapping.setApplication(this.getName());
 					userMapping.setUser(user.getCode());
-					userMapping.setAccount(Strings.format("Sub: %s;", user.getCode()));
+					if (!Strings.isNullOrEmpty(unionId)) {
+						userMapping.setAccount(Strings.concat(userMapping.getAccount(),
+								Strings.format("UnionId: %s;", unionId)));
+					}
+					if (!Strings.isNullOrEmpty(subject)) {
+						userMapping.setAccount(Strings.concat(userMapping.getAccount(),
+								Strings.format("Sub: %s;", subject)));
+					}
 					opRsltMap.getResultObjects().add(userMapping);
 				}
 			}

@@ -2,6 +2,10 @@ package org.colorcoding.ibas.thirdpartyapp.client.openai;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.lang.reflect.Array;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -26,6 +30,9 @@ public class Serializer extends SerializerJson {
 	// ==================== 序列化（请求） ====================
 
 	public void serialize(ChatCompletionRequest request, OutputStream output) {
+		if (Boolean.TRUE.equals(request.getStream())) {
+			throw new SerializationException("stream=true requires an SSE client and is not supported by this serializer.");
+		}
 		JsonObjectBuilder b = Json.createObjectBuilder();
 		b.add("model", request.getModel());
 		if (request.getMessages() != null && !request.getMessages().isEmpty()) {
@@ -79,16 +86,17 @@ public class Serializer extends SerializerJson {
 										if (part.getFile().getFileName() != null) {
 											fb.add("filename", part.getFile().getFileName());
 										}
-										if (part.getFile().getMimeType() != null) {
-											fb.add("media_type", part.getFile().getMimeType());
-										}
 										if (part.getFile().getData() != null) {
-											fb.add("file_data",
-													Bytes.toBase64String(part.getFile().getData(),
-															part.getFile().getMimeType()));
+											fb.add("file_data", Bytes.toBase64String(part.getFile().getData()));
 										}
 									}
 									pb.add("file", fb.build());
+								}
+								if (part.getThinking() != null) {
+									pb.add("thinking", part.getThinking());
+								}
+								if (part.getRefusal() != null) {
+									pb.add("refusal", part.getRefusal());
 								}
 								ca.add(pb.build());
 							}
@@ -128,6 +136,12 @@ public class Serializer extends SerializerJson {
 				}
 				if (msg.getRefusal() != null) {
 					mb.add("refusal", msg.getRefusal());
+				}
+				if (msg.getReasoningContent() != null) {
+					mb.add("reasoning_content", msg.getReasoningContent());
+				}
+				if (msg.getOutputAudio() != null && msg.getOutputAudio().getId() != null) {
+					mb.add("audio", Json.createObjectBuilder().add("id", msg.getOutputAudio().getId()).build());
 				}
 				arr.add(mb.build());
 			}
@@ -205,14 +219,10 @@ public class Serializer extends SerializerJson {
 						fb.add("description", tool.getFunction().getDescription());
 					}
 					if (tool.getFunction().getParameters() != null) {
-						Object p = tool.getFunction().getParameters();
-						if (p instanceof String) {
-							fb.add("parameters", (String) p);
-						} else if (p instanceof Map) {
-							fb.add("parameters", toJsonObject((Map<?, ?>) p));
-						} else {
-							fb.add("parameters", p.toString());
-						}
+						this.addJsonValue(fb, "parameters", tool.getFunction().getParameters());
+					}
+					if (tool.getFunction().getStrict() != null) {
+						fb.add("strict", tool.getFunction().getStrict());
 					}
 					tb.add("function", fb.build());
 				}
@@ -239,14 +249,10 @@ public class Serializer extends SerializerJson {
 						fb.add("description", tool.getFunction().getDescription());
 					}
 					if (tool.getFunction().getParameters() != null) {
-						Object p = tool.getFunction().getParameters();
-						if (p instanceof String) {
-							fb.add("parameters", (String) p);
-						} else if (p instanceof Map) {
-							fb.add("parameters", toJsonObject((Map<?, ?>) p));
-						} else {
-							fb.add("parameters", p.toString());
-						}
+						this.addJsonValue(fb, "parameters", tool.getFunction().getParameters());
+					}
+					if (tool.getFunction().getStrict() != null) {
+						fb.add("strict", tool.getFunction().getStrict());
 					}
 					tb.add("function", fb.build());
 				}
@@ -258,6 +264,15 @@ public class Serializer extends SerializerJson {
 		}
 		if (request.getUser() != null) {
 			b.add("user", request.getUser());
+		}
+		if (request.getSafetyIdentifier() != null) {
+			b.add("safety_identifier", request.getSafetyIdentifier());
+		}
+		if (request.getPromptCacheKey() != null) {
+			b.add("prompt_cache_key", request.getPromptCacheKey());
+		}
+		if (request.getVerbosity() != null) {
+			b.add("verbosity", request.getVerbosity());
 		}
 		if (request.getLogprobs() != null) {
 			b.add("logprobs", request.getLogprobs());
@@ -272,14 +287,7 @@ public class Serializer extends SerializerJson {
 				fb.add("type", format.getType());
 			}
 			if (format.getJsonSchema() != null) {
-				Object js = format.getJsonSchema();
-				if (js instanceof String) {
-					fb.add("json_schema", (String) js);
-				} else if (js instanceof Map) {
-					fb.add("json_schema", toJsonObject((Map<?, ?>) js));
-				} else {
-					fb.add("json_schema", js.toString());
-				}
+				this.addJsonValue(fb, "json_schema", format.getJsonSchema());
 			}
 			b.add("response_format", fb.build());
 		}
@@ -289,6 +297,12 @@ public class Serializer extends SerializerJson {
 				lb.add(entry.getKey(), entry.getValue());
 			}
 			b.add("logit_bias", lb.build());
+		}
+		if (request.getReasoningEffort() != null) {
+			b.add("reasoning_effort", request.getReasoningEffort());
+		}
+		if (request.getThinking() != null) {
+			this.addJsonValue(b, "thinking", request.getThinking());
 		}
 		this.writeJsonObject(b.build(), output);
 	}
@@ -342,16 +356,17 @@ public class Serializer extends SerializerJson {
 								if (part.getFile().getFileName() != null) {
 									fb.add("filename", part.getFile().getFileName());
 								}
-								if (part.getFile().getMimeType() != null) {
-									fb.add("media_type", part.getFile().getMimeType());
-								}
 								if (part.getFile().getData() != null) {
-									fb.add("file_data",
-											Bytes.toBase64String(part.getFile().getData(),
-													part.getFile().getMimeType()));
+									fb.add("file_data", Bytes.toBase64String(part.getFile().getData()));
 								}
 							}
 							pb.add("file", fb.build());
+						}
+						if (part.getThinking() != null) {
+							pb.add("thinking", part.getThinking());
+						}
+						if (part.getRefusal() != null) {
+							pb.add("refusal", part.getRefusal());
 						}
 						arr.add(pb.build());
 					}
@@ -392,6 +407,12 @@ public class Serializer extends SerializerJson {
 		if (msg.getRefusal() != null) {
 			b.add("refusal", msg.getRefusal());
 		}
+		if (msg.getReasoningContent() != null) {
+			b.add("reasoning_content", msg.getReasoningContent());
+		}
+		if (msg.getOutputAudio() != null && msg.getOutputAudio().getId() != null) {
+			b.add("audio", Json.createObjectBuilder().add("id", msg.getOutputAudio().getId()).build());
+		}
 		this.writeJsonObject(b.build(), output);
 	}
 
@@ -431,16 +452,17 @@ public class Serializer extends SerializerJson {
 				if (part.getFile().getFileName() != null) {
 					fb.add("filename", part.getFile().getFileName());
 				}
-				if (part.getFile().getMimeType() != null) {
-					fb.add("media_type", part.getFile().getMimeType());
-				}
 				if (part.getFile().getData() != null) {
-					fb.add("file_data",
-							Bytes.toBase64String(part.getFile().getData(),
-									part.getFile().getMimeType()));
+					fb.add("file_data", Bytes.toBase64String(part.getFile().getData()));
 				}
 			}
 			b.add("file", fb.build());
+		}
+		if (part.getThinking() != null) {
+			b.add("thinking", part.getThinking());
+		}
+		if (part.getRefusal() != null) {
+			b.add("refusal", part.getRefusal());
 		}
 		this.writeJsonObject(b.build(), output);
 	}
@@ -478,7 +500,7 @@ public class Serializer extends SerializerJson {
 				b.add("filename", file.getFileName());
 			}
 			if (file.getData() != null) {
-				b.add("file_data", Bytes.toBase64String(file.getData(), file.getMimeType()));
+				b.add("file_data", Bytes.toBase64String(file.getData()));
 			}
 		}
 		this.writeJsonObject(b.build(), output);
@@ -530,14 +552,10 @@ public class Serializer extends SerializerJson {
 				fb.add("description", tool.getFunction().getDescription());
 			}
 			if (tool.getFunction().getParameters() != null) {
-				Object p = tool.getFunction().getParameters();
-				if (p instanceof String) {
-					fb.add("parameters", (String) p);
-				} else if (p instanceof Map) {
-					fb.add("parameters", toJsonObject((Map<?, ?>) p));
-				} else {
-					fb.add("parameters", p.toString());
-				}
+				this.addJsonValue(fb, "parameters", tool.getFunction().getParameters());
+			}
+			if (tool.getFunction().getStrict() != null) {
+				fb.add("strict", tool.getFunction().getStrict());
 			}
 			b.add("function", fb.build());
 		}
@@ -553,14 +571,10 @@ public class Serializer extends SerializerJson {
 			b.add("description", func.getDescription());
 		}
 		if (func.getParameters() != null) {
-			Object p = func.getParameters();
-			if (p instanceof String) {
-				b.add("parameters", (String) p);
-			} else if (p instanceof Map) {
-				b.add("parameters", toJsonObject((Map<?, ?>) p));
-			} else {
-				b.add("parameters", p.toString());
-			}
+			this.addJsonValue(b, "parameters", func.getParameters());
+		}
+		if (func.getStrict() != null) {
+			b.add("strict", func.getStrict());
 		}
 		this.writeJsonObject(b.build(), output);
 	}
@@ -571,14 +585,7 @@ public class Serializer extends SerializerJson {
 			b.add("type", format.getType());
 		}
 		if (format.getJsonSchema() != null) {
-			Object js = format.getJsonSchema();
-			if (js instanceof String) {
-				b.add("json_schema", (String) js);
-			} else if (js instanceof Map) {
-				b.add("json_schema", toJsonObject((Map<?, ?>) js));
-			} else {
-				b.add("json_schema", js.toString());
-			}
+			this.addJsonValue(b, "json_schema", format.getJsonSchema());
 		}
 		this.writeJsonObject(b.build(), output);
 	}
@@ -586,24 +593,77 @@ public class Serializer extends SerializerJson {
 	private JsonObject toJsonObject(Map<?, ?> map) {
 		JsonObjectBuilder b = Json.createObjectBuilder();
 		for (Entry<?, ?> entry : map.entrySet()) {
-			Object value = entry.getValue();
-			if (value instanceof String) {
-				b.add(entry.getKey().toString(), (String) value);
-			} else if (value instanceof Integer) {
-				b.add(entry.getKey().toString(), (Integer) value);
-			} else if (value instanceof Long) {
-				b.add(entry.getKey().toString(), (Long) value);
-			} else if (value instanceof Double) {
-				b.add(entry.getKey().toString(), (Double) value);
-			} else if (value instanceof Boolean) {
-				b.add(entry.getKey().toString(), (Boolean) value);
-			} else if (value instanceof Map) {
-				b.add(entry.getKey().toString(), toJsonObject((Map<?, ?>) value));
-			} else {
-				b.add(entry.getKey().toString(), value.toString());
-			}
+			this.addJsonValue(b, String.valueOf(entry.getKey()), entry.getValue());
 		}
 		return b.build();
+	}
+
+	private void addJsonValue(JsonObjectBuilder builder, String name, Object value) {
+		if (value == null) {
+			builder.addNull(name);
+		} else if (value instanceof JsonValue) {
+			builder.add(name, (JsonValue) value);
+		} else if (value instanceof String || value instanceof Character) {
+			builder.add(name, value.toString());
+		} else if (value instanceof Boolean) {
+			builder.add(name, (Boolean) value);
+		} else if (value instanceof BigDecimal) {
+			builder.add(name, (BigDecimal) value);
+		} else if (value instanceof BigInteger) {
+			builder.add(name, (BigInteger) value);
+		} else if (value instanceof Byte || value instanceof Short || value instanceof Integer
+				|| value instanceof Long) {
+			builder.add(name, ((Number) value).longValue());
+		} else if (value instanceof Number) {
+			builder.add(name, ((Number) value).doubleValue());
+		} else if (value instanceof Map) {
+			builder.add(name, this.toJsonObject((Map<?, ?>) value));
+		} else if (value instanceof Collection || value.getClass().isArray()) {
+			builder.add(name, this.toJsonArray(value));
+		} else {
+			throw new SerializationException("Unsupported JSON value type: " + value.getClass().getName());
+		}
+	}
+
+	private JsonArray toJsonArray(Object values) {
+		JsonArrayBuilder builder = Json.createArrayBuilder();
+		if (values.getClass().isArray()) {
+			for (int i = 0; i < Array.getLength(values); i++) {
+				this.addJsonValue(builder, Array.get(values, i));
+			}
+		} else {
+			for (Object value : (Collection<?>) values) {
+				this.addJsonValue(builder, value);
+			}
+		}
+		return builder.build();
+	}
+
+	private void addJsonValue(JsonArrayBuilder builder, Object value) {
+		if (value == null) {
+			builder.addNull();
+		} else if (value instanceof JsonValue) {
+			builder.add((JsonValue) value);
+		} else if (value instanceof String || value instanceof Character) {
+			builder.add(value.toString());
+		} else if (value instanceof Boolean) {
+			builder.add((Boolean) value);
+		} else if (value instanceof BigDecimal) {
+			builder.add((BigDecimal) value);
+		} else if (value instanceof BigInteger) {
+			builder.add((BigInteger) value);
+		} else if (value instanceof Byte || value instanceof Short || value instanceof Integer
+				|| value instanceof Long) {
+			builder.add(((Number) value).longValue());
+		} else if (value instanceof Number) {
+			builder.add(((Number) value).doubleValue());
+		} else if (value instanceof Map) {
+			builder.add(this.toJsonObject((Map<?, ?>) value));
+		} else if (value instanceof Collection || value.getClass().isArray()) {
+			builder.add(this.toJsonArray(value));
+		} else {
+			throw new SerializationException("Unsupported JSON value type: " + value.getClass().getName());
+		}
 	}
 
 	private void writeJsonObject(JsonObject jsonObject, OutputStream output) {
@@ -837,8 +897,13 @@ public class Serializer extends SerializerJson {
 				message.setToolCallId(((JsonString) jsonValue).getString());
 			} else if (Strings.equals(item.getKey(), "refusal") && jsonValue instanceof JsonString) {
 				message.setRefusal(((JsonString) jsonValue).getString());
-			} else if (Strings.equals(item.getKey(), "output_audio") && jsonValue instanceof JsonObject) {
+			} else if ((Strings.equals(item.getKey(), "audio") || Strings.equals(item.getKey(), "output_audio"))
+					&& jsonValue instanceof JsonObject) {
 				message.setOutputAudio(this.deserialize((JsonObject) jsonValue, new OutputAudio()));
+			} else if ((Strings.equals(item.getKey(), "reasoning_content")
+					|| Strings.equals(item.getKey(), "reasoning"))
+					&& jsonValue instanceof JsonString) {
+				message.setReasoningContent(((JsonString) jsonValue).getString());
 			}
 		}
 		return message;
@@ -984,6 +1049,9 @@ public class Serializer extends SerializerJson {
 		if (response.getCreatedAt() != null) {
 			b.add("created_at", response.getCreatedAt());
 		}
+		if (response.getExpiresAt() != null) {
+			b.add("expires_at", response.getExpiresAt());
+		}
 		if (response.getFileName() != null) {
 			b.add("filename", response.getFileName());
 		}
@@ -1011,6 +1079,8 @@ public class Serializer extends SerializerJson {
 				response.setBytes(((JsonNumber) jsonValue).longValue());
 			} else if (Strings.equals(item.getKey(), "created_at") && jsonValue instanceof JsonNumber) {
 				response.setCreatedAt(((JsonNumber) jsonValue).longValue());
+			} else if (Strings.equals(item.getKey(), "expires_at") && jsonValue instanceof JsonNumber) {
+				response.setExpiresAt(((JsonNumber) jsonValue).longValue());
 			} else if (Strings.equals(item.getKey(), "filename") && jsonValue instanceof JsonString) {
 				response.setFileName(((JsonString) jsonValue).getString());
 			} else if (Strings.equals(item.getKey(), "purpose") && jsonValue instanceof JsonString) {

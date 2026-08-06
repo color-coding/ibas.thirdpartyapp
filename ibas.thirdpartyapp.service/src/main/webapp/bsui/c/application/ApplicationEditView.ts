@@ -183,6 +183,7 @@ namespace thirdpartyapp {
                                 label: ibas.i18n.prop("bo_applicationsettingitem_value"),
                                 template: new sap.extension.m.Input("", {
                                     autocomplete: false,
+                                    disableAutofill: true,
                                 }).bindProperty("bindingValue", {
                                     path: "value",
                                     type: new sap.extension.data.Unknown({
