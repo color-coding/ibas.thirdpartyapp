@@ -138,6 +138,7 @@ public class JointService {
 				tmpUser.setName(user.getName());
 				tmpUser.setSuper(false);
 				tmpUser.setTokenTimeStamp();
+				tmpUser.setTokenCreateTime(tmpUser.getTokenTimeStamp());
 				tmpUser.setIdentities(Strings.VALUE_EMPTY);
 				tmpUser.setToken(EncryptMD5.md5(UUID.randomUUID().toString()));
 				OrganizationFactory.createManager().register(tmpUser);

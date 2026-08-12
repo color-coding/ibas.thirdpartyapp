@@ -51,6 +51,13 @@ public abstract class OIDC extends SSO {
 	 * 参数名称-请求地址
 	 */
 	public static final String PARAM_NAME_REQUEST = "request";
+	protected String getAuthorizeClientIdParameterName() {
+		return PARAM_NAME_CLIENT_ID;
+	}
+
+	protected String getAuthorizeUrlSuffix() {
+		return "";
+	}
 
 	@Override
 	public <P> IOperationResult<P> execute(String instruct, Properties params) throws ApplicationException {
@@ -66,7 +73,7 @@ public abstract class OIDC extends SSO {
 				StringBuilder stringBuilder = new StringBuilder();
 				stringBuilder.append(endpoint);
 				stringBuilder.append("?");
-				stringBuilder.append("client_id");
+				stringBuilder.append(this.getAuthorizeClientIdParameterName());
 				stringBuilder.append("=");
 				stringBuilder.append(this.paramValue(PARAM_NAME_CLIENT_ID, ""));
 				stringBuilder.append("&");
@@ -88,6 +95,7 @@ public abstract class OIDC extends SSO {
 				stringBuilder.append("=");
 				stringBuilder.append(URLEncoder.encode(this.paramValue(PARAM_NAME_REDIRECT_URI,
 						request.replace("/authorize", "/login?app=" + this.getName())), "utf-8"));
+				stringBuilder.append(this.getAuthorizeUrlSuffix());
 				return new OperationResult<P>().addResultObjects(stringBuilder.toString());
 			}
 		} catch (Exception e) {

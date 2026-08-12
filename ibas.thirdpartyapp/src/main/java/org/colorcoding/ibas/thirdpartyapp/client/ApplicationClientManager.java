@@ -3,7 +3,12 @@ package org.colorcoding.ibas.thirdpartyapp.client;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.lang.reflect.Modifier;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
+import org.colorcoding.ibas.bobas.bo.BOFactory;
 import org.colorcoding.ibas.bobas.common.Criteria;
 import org.colorcoding.ibas.bobas.common.Files;
 import org.colorcoding.ibas.bobas.common.ICondition;
@@ -48,21 +53,74 @@ public class ApplicationClientManager {
 	}
 
 	private ApplicationClientManager() {
+		this.applicationProviders = new ConcurrentHashMap<String, Class<? extends ApplicationClient>>();
+	}
+
+	private final Map<String, Class<? extends ApplicationClient>> applicationProviders;
+
+	private volatile boolean applicationProvidersLoaded;
+
+	/**
+	 * 从注解扫描应用客户端。
+	 */
+	@SuppressWarnings("unchecked")
+	private synchronized void loadApplicationProviders() {
+		if (this.applicationProvidersLoaded) {
+			return;
+		}
+		String clientPackage = ApplicationClient.class.getPackage().getName();
+		for (Class<?> item : BOFactory.loadClasses(clientPackage)) {
+			ApplicationProvider provider = item.getAnnotation(ApplicationProvider.class);
+			if (provider == null || !ApplicationClient.class.isAssignableFrom(item)
+					|| !Modifier.isPublic(item.getModifiers()) || Modifier.isAbstract(item.getModifiers())) {
+				continue;
+			}
+			String code = MyConfiguration.applyVariables(provider.value());
+			if (Strings.isNullOrEmpty(code)) {
+				continue;
+			}
+			this.applicationProviders.putIfAbsent(code, (Class<? extends ApplicationClient>) item);
+		}
+		this.applicationProvidersLoaded = true;
+	}
+
+	private Class<? extends ApplicationClient> getApplicationProvider(String appCode) {
+		this.loadApplicationProviders();
+		return this.applicationProviders.get(appCode);
 	}
 
 	protected ApplicationClient create(ApplicationSetting appSetting) throws Exception {
+		if (appSetting == null) {
+			throw new IllegalArgumentException(I18N.prop("msg_tpa_no_param", "appSetting"));
+		}
+		if (Strings.isNullOrEmpty(appSetting.getName())) {
+			throw new IllegalArgumentException(I18N.prop("msg_tpa_no_param", "name"));
+		}
+		if (Strings.isNullOrEmpty(appSetting.getGroup())) {
+			throw new IllegalArgumentException(I18N.prop("msg_tpa_no_param", "group"));
+		}
+		String clientPackage = ApplicationClientManager.class.getPackage().getName();
 		String managerName = MyConfiguration
 				.getConfigValue(String.format(CONFIG_ITEM_TEMPLATE_APPLICATION_CLINET, appSetting.getGroup()));
 		if (Strings.isNullOrEmpty(managerName)) {
-			throw new Exception(I18N.prop("msg_tpa_not_found_application_client", appSetting.getDescription()));
+			Class<? extends ApplicationClient> provider = this.getApplicationProvider(appSetting.getGroup());
+			if (provider == null) {
+				throw new Exception(I18N.prop("msg_tpa_not_found_application_client", appSetting.getDescription()));
+			}
+			managerName = provider.getName();
 		}
 		if (managerName.indexOf(".") < 0) {
 			// 补充命名空间
-			managerName = String.format("%s.%s", ApplicationClientManager.class.getName().substring(0,
-					ApplicationClientManager.class.getName().lastIndexOf(".")), managerName);
+			managerName = String.format("%s.%s", clientPackage, managerName);
 		}
-		ApplicationClient client = (ApplicationClient) Class.forName(managerName).getDeclaredConstructor()
-				.newInstance();
+		Class<?> managerClass = Class.forName(managerName, false, ApplicationClientManager.class.getClassLoader());
+		Package managerPackage = managerClass.getPackage();
+		if (managerPackage == null || !clientPackage.equals(managerPackage.getName())
+				|| !ApplicationClient.class.isAssignableFrom(managerClass)
+				|| !Modifier.isPublic(managerClass.getModifiers()) || Modifier.isAbstract(managerClass.getModifiers())) {
+			throw new SecurityException(String.format("invalid application client class [%s].", managerName));
+		}
+		ApplicationClient client = managerClass.asSubclass(ApplicationClient.class).getDeclaredConstructor().newInstance();
 		client.setSetting(appSetting);
 		for (ApplicationSettingItem item : appSetting.getSettingItems()) {
 			if (item.getCategory() == emConfigItemCategory.FILE) {
@@ -73,12 +131,20 @@ public class ApplicationClientManager {
 				if (Strings.startsWith(fileName, ApplicationSettingItem.URL_HEAD_FILE)) {
 					fileName = fileName.substring(ApplicationSettingItem.URL_HEAD_FILE.length());
 				}
+				// 目标文件必须位于本地模块文档目录内
+				File documentsFolder = Files
+						.valueOf(MyConfiguration.getDataFolder(), MyConfiguration.getDocumetsFolder()).getCanonicalFile();
+				File file = new File(documentsFolder, fileName).getCanonicalFile();
+				if (file.equals(documentsFolder) || !file.toPath().startsWith(documentsFolder.toPath())) {
+					throw new IOException(String.format("invalid file path [%s].", item.getValue()));
+				}
 				// 检查本地模块目录是否存在
-				File file = Files.valueOf(MyConfiguration.getDataFolder(), MyConfiguration.getDocumetsFolder(),
-						fileName);
 				if (file.exists() && file.isFile()) {
 					item.setValue(file.getPath());
 					continue;
+				}
+				if (file.exists()) {
+					throw new IOException(String.format("invalid file [%s].", file.getPath()));
 				}
 				// 复制到本地模块目录
 				try (FileRepository fileRepository = new FileRepository()) {
@@ -95,17 +161,18 @@ public class ApplicationClientManager {
 					if (opRsltFile.getResultObjects().isEmpty()) {
 						throw new FileNotFoundException(item.getValue());
 					}
-					for (FileItem fileItem : opRsltFile.getResultObjects()) {
-						if (file.getParentFile().mkdirs()) {
-							try (FileOutputStream outputStream = new FileOutputStream(file)) {
-								fileItem.writeTo(outputStream);
-								outputStream.flush();
-							}
-							item.setValue(file.getPath());
-							Logger.log(MessageLevel.DEBUG, "%s: write file [%s] to [%s].", client.getName(),
-									fileItem.getName(), file.getPath());
-						}
+					FileItem fileItem = opRsltFile.getResultObjects().firstOrDefault();
+					File parent = file.getParentFile();
+					if ((!parent.exists() && !parent.mkdirs()) || !parent.isDirectory()) {
+						throw new IOException(String.format("failed to create directory [%s].", parent.getPath()));
 					}
+					try (FileOutputStream outputStream = new FileOutputStream(file)) {
+						fileItem.writeTo(outputStream);
+						outputStream.flush();
+					}
+					item.setValue(file.getPath());
+					Logger.log(MessageLevel.DEBUG, "%s: write file [%s] to [%s].", client.getName(),
+							fileItem.getName(), file.getPath());
 				}
 			}
 		}
@@ -141,6 +208,10 @@ public class ApplicationClientManager {
 	}
 
 	public ApplicationClient create(IApplication application) {
+		if (application == null || application.getActivated() != emYesNo.YES) {
+			throw new IllegalArgumentException(I18N.prop("msg_tpa_invalid_application",
+					application == null ? Strings.VALUE_EMPTY : application.getCode()));
+		}
 		try (BORepositoryThirdPartyApp boRepository = new BORepositoryThirdPartyApp()) {
 			boRepository.setUserToken(OrganizationFactory.SYSTEM_USER.getToken());
 			return this.create(boRepository.createApplicationSetting(application));
@@ -173,6 +244,10 @@ public class ApplicationClientManager {
 	}
 
 	public ApplicationClient create(IUserMapping userMapping) {
+		if (userMapping == null) {
+			throw new IllegalArgumentException(I18N.prop("msg_tpa_invalid_application_user_mapping",
+					Strings.VALUE_EMPTY, Strings.VALUE_EMPTY));
+		}
 		try (BORepositoryThirdPartyApp boRepository = new BORepositoryThirdPartyApp()) {
 			boRepository.setUserToken(OrganizationFactory.SYSTEM_USER.getToken());
 			return this.create(boRepository.createApplicationSetting(userMapping));

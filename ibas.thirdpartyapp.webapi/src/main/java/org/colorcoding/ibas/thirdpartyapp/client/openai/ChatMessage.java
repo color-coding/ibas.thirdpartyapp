@@ -62,6 +62,7 @@ public class ChatMessage {
 	private String toolCallId;
 	private OutputAudio outputAudio;
 	private String refusal;
+	private String reasoningContent;
 
 	public String getRole() {
 		return role;
@@ -94,7 +95,19 @@ public class ChatMessage {
 
 	@SuppressWarnings("unchecked")
 	public List<ContentPart> getContentAsParts() {
-		return (List<ContentPart>) this.getContentAs(List.class);
+		if (this.content == null) {
+			return new ArrayList<>(0);
+		}
+		if (this.content instanceof List) {
+			return (List<ContentPart>) this.content;
+		}
+		if (this.content instanceof String) {
+			// 纯文本统一包装为文本 part，保证方法语义一致
+			List<ContentPart> parts = new ArrayList<>(1);
+			parts.add(new ContentPart((String) this.content));
+			return parts;
+		}
+		return new ArrayList<>(0);
 	}
 
 	public String getContentAsString() {
@@ -142,6 +155,17 @@ public class ChatMessage {
 
 	public void setOutputAudio(OutputAudio outputAudio) {
 		this.outputAudio = outputAudio;
+	}
+
+	/**
+	 * 第三方兼容服务返回的 reasoning_content；不是 OpenAI 标准响应字段。
+	 */
+	public String getReasoningContent() {
+		return reasoningContent;
+	}
+
+	public void setReasoningContent(String reasoningContent) {
+		this.reasoningContent = reasoningContent;
 	}
 
 	public ChatMessage append(String text) {

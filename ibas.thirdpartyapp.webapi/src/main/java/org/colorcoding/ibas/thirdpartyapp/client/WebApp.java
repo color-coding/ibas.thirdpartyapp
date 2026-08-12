@@ -1,16 +1,12 @@
 package org.colorcoding.ibas.thirdpartyapp.client;
 
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -34,6 +30,21 @@ public abstract class WebApp extends ApplicationClient {
 
 	static final String MSG_CONNECTING_URL = "[%s]: connecting [%s] [%s].";
 	static final String MSG_CONNECTED_URL = "[%s]: connection status [%s].";
+	private static final int DEFAULT_CONNECT_TIMEOUT = 10000;
+	private static final int DEFAULT_READ_TIMEOUT = 300000;
+
+	@FunctionalInterface
+	protected interface RequestBodyWriter {
+		void write(OutputStream output) throws IOException;
+	}
+
+	protected int getConnectTimeout() {
+		return DEFAULT_CONNECT_TIMEOUT;
+	}
+
+	protected int getReadTimeout() {
+		return DEFAULT_READ_TIMEOUT;
+	}
 
 	protected String normalizeUrl(String... values) {
 		StringBuilder builder = new StringBuilder();
@@ -104,12 +115,30 @@ public abstract class WebApp extends ApplicationClient {
 		return this.connection("POST", url, headers, body);
 	}
 
+	protected JsonObject doPost(String url, Map<String, String> headers, long contentLength,
+			RequestBodyWriter bodyWriter) throws IOException {
+		Map<String, String> requestHeaders = new HashMap<String, String>(headers);
+		if (!requestHeaders.containsKey("Accept")) {
+			requestHeaders.put("Accept", "*/*");
+		}
+		if (!requestHeaders.containsKey("Connection")) {
+			requestHeaders.put("Connection", "keep-alive");
+		}
+		return this.connection("POST", url, requestHeaders, contentLength, bodyWriter);
+	}
+
 	protected JsonObject connection(String method, String url, Map<String, String> headers) throws IOException {
 		return this.connection(method, url, headers, null);
 	}
 
 	protected JsonObject connection(String method, String url, Map<String, String> headers, byte[] body)
 			throws IOException {
+		return this.connection(method, url, headers, body == null ? 0L : body.length,
+				body == null ? null : output -> output.write(body));
+	}
+
+	private JsonObject connection(String method, String url, Map<String, String> headers, long contentLength,
+			RequestBodyWriter bodyWriter) throws IOException {
 		if (MyConfiguration.isDebugMode()) {
 			// 显示请求
 			StringBuilder builder = new StringBuilder();
@@ -121,30 +150,11 @@ public abstract class WebApp extends ApplicationClient {
 				builder.append("    ");
 				builder.append(item.getKey());
 				builder.append(": ");
-				builder.append(item.getValue());
+				builder.append(this.isSensitiveHeader(item.getKey()) ? "<redacted>" : item.getValue());
 			}
-			if (body != null) {
+			if (bodyWriter != null) {
 				builder.append(System.getProperty("NEW_LINE", "\n"));
-				builder.append("Body:");
-				builder.append(System.getProperty("NEW_LINE", "\n"));
-				if (body.length < 2048) {
-					builder.append(new String(body, "utf-8"));
-				} else {
-					try (ByteArrayInputStream inputStream = new ByteArrayInputStream(body);
-							BufferedReader br = new BufferedReader(
-									new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
-						String line;
-						while ((line = br.readLine()) != null) {
-							builder.append(line);
-							builder.append(System.getProperty("NEW_LINE", "\n"));
-							if (Strings.startsWith(line, "Content-Type: application/octet-stream", true)) {
-								builder.append("<....>");
-								line = null;
-								break;
-							}
-						}
-					}
-				}
+				builder.append(String.format("Body: <%s bytes; content omitted>", contentLength));
 			}
 			Logger.log(MessageLevel.INFO, builder.toString());
 		} else {
@@ -155,6 +165,8 @@ public abstract class WebApp extends ApplicationClient {
 		HttpURLConnection connection = (HttpURLConnection) realUrl.openConnection();
 		try {
 			connection.setRequestMethod(method);
+			connection.setConnectTimeout(this.getConnectTimeout());
+			connection.setReadTimeout(this.getReadTimeout());
 			if (headers != null && !headers.isEmpty()) {
 				for (String key : headers.keySet()) {
 					if (Strings.isNullOrEmpty(key)) {
@@ -166,59 +178,54 @@ public abstract class WebApp extends ApplicationClient {
 			// POST请求
 			if (Strings.equalsIgnoreCase("POST", method)) {
 				connection.setUseCaches(false);
-				if (body != null && body.length > 0) {
+				if (bodyWriter != null) {
 					connection.setDoOutput(true);
+					if (contentLength >= 0) {
+						connection.setFixedLengthStreamingMode(contentLength);
+					}
 					try (OutputStream stream = connection.getOutputStream()) {
-						stream.write(body);
+						bodyWriter.write(stream);
 						stream.flush();
 					}
 				}
 			}
 			// 建立实际的连接
 			connection.connect();
-			InputStream resultStream = null;
 			int responseCode = connection.getResponseCode();
-			if (responseCode == HttpURLConnection.HTTP_OK) {
+			InputStream resultStream;
+			if (responseCode >= 200 && responseCode < 300) {
 				// 正常返回值
 				resultStream = connection.getInputStream();
 			} else {
 				// 错误返回值
 				resultStream = connection.getErrorStream();
 			}
-			// 输出返回值
-			if (MyConfiguration.isDebugMode() && !(resultStream == null || resultStream.available() == 0)) {
-				try (ByteArrayOutputStream result = new ByteArrayOutputStream()) {
-					Files.writeTo(resultStream, result);
-					StringBuilder builder = new StringBuilder();
-					builder.append(String.format(MSG_CONNECTED_URL, this.getName(), responseCode));
-					builder.append(System.getProperty("NEW_LINE", "\n"));
-					builder.append(result.toString("utf-8"));
-					Logger.log(MessageLevel.INFO, builder.toString());
-					// 重置数据
-					resultStream = new ByteArrayInputStream(result.toByteArray());
-				}
-			} else {
-				Logger.log(MessageLevel.INFO, MSG_CONNECTED_URL, this.getName(), responseCode);
+			if (resultStream == null) {
+				throw new WebApplicationException(responseCode);
 			}
-			if (resultStream != null && resultStream.available() != 0) {
-				try (InputStream stream = resultStream) {
-					if (responseCode == HttpURLConnection.HTTP_OK
-							// 以下错误也可能返回可解析值
-							|| responseCode == HttpURLConnection.HTTP_BAD_REQUEST
-							|| responseCode == HttpURLConnection.HTTP_UNAUTHORIZED
-							|| responseCode == HttpURLConnection.HTTP_FORBIDDEN) {
-						try {
-							return Json.createReader(stream).readObject();
-						} catch (Exception e) {
-							throw new WebApplicationException(responseCode);
-						}
-					}
-				}
+			byte[] responseBody;
+			try (InputStream stream = resultStream; ByteArrayOutputStream result = new ByteArrayOutputStream()) {
+				Files.writeTo(stream, result);
+				responseBody = result.toByteArray();
 			}
-			throw new WebApplicationException(I18N.prop("msg_tpa_no_return_value", this.getName()));
+			Logger.log(MessageLevel.INFO, MSG_CONNECTED_URL, this.getName(), responseCode);
+			if (responseBody.length == 0) {
+				throw new WebApplicationException(I18N.prop("msg_tpa_no_return_value", this.getName()), responseCode);
+			}
+			try (InputStream stream = new java.io.ByteArrayInputStream(responseBody)) {
+				return Json.createReader(stream).readObject();
+			} catch (Exception e) {
+				throw new WebApplicationException(responseCode);
+			}
 		} finally {
 			connection.disconnect();
 		}
+	}
+
+	private boolean isSensitiveHeader(String name) {
+		return Strings.equalsIgnoreCase(name, "Authorization") || Strings.equalsIgnoreCase(name, "Proxy-Authorization")
+				|| Strings.equalsIgnoreCase(name, "Cookie") || Strings.equalsIgnoreCase(name, "Set-Cookie")
+				|| Strings.equalsIgnoreCase(name, "X-API-Key") || Strings.equalsIgnoreCase(name, "Api-Key");
 	}
 
 	protected String paramValue(String name, JsonObject data) throws IndexOutOfBoundsException {

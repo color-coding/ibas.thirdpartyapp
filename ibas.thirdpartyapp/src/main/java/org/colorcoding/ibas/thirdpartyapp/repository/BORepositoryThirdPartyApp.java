@@ -87,11 +87,20 @@ public class BORepositoryThirdPartyApp extends BORepositoryServiceApplication
 	 * @throws Exception
 	 */
 	public ApplicationSetting createApplicationSetting(IUserMapping userMapping) throws Exception {
+		if (userMapping == null) {
+			throw new IllegalArgumentException("user mapping is required.");
+		}
 		ICriteria criteria = new Criteria();
 		ICondition condition = criteria.getConditions().create();
 		condition.setAlias(Application.PROPERTY_CODE.getName());
 		condition.setValue(userMapping.getApplication());
+		condition = criteria.getConditions().create();
+		condition.setAlias(Application.PROPERTY_ACTIVATED.getName());
+		condition.setValue(emYesNo.YES);
 		IOperationResult<IApplication> opRsltApp = this.fetchApplication(criteria);
+		if (opRsltApp.getError() != null) {
+			throw opRsltApp.getError();
+		}
 		IApplication application = opRsltApp.getResultObjects().firstOrDefault();
 		if (application == null) {
 			throw new Exception(I18N.prop("msg_tpa_invalid_application", userMapping.getApplication()));

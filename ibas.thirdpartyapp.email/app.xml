@@ -28,7 +28,5 @@
         <add key="ConfigurationWay" value="initial" />
         <!-- 配置项目-自定义字段管理方式 -->
         <add key="UserFieldsWay" value="initial" />
-        <!-- 配置项目-应用客户端-邮件 -->
-        <add key="ApplicationClient|E_Mail" value="E_Mail" />
     </appSettings>
 </ns2:configuration>

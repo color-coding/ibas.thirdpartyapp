@@ -5,6 +5,7 @@ public class ToolFunction {
 	private String name;
 	private String description;
 	private Object parameters;
+	private Boolean strict;
 
 	public ToolFunction() {
 	}
@@ -37,5 +38,13 @@ public class ToolFunction {
 
 	public void setParameters(Object parameters) {
 		this.parameters = parameters;
+	}
+
+	public Boolean getStrict() {
+		return strict;
+	}
+
+	public void setStrict(Boolean strict) {
+		this.strict = strict;
 	}
 }

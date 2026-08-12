@@ -12,6 +12,7 @@ public class ContentPart {
 	public static final String TYPE_IMAGE_URL = "image_url";
 	public static final String TYPE_INPUT_AUDIO = "input_audio";
 	public static final String TYPE_FILE = "file";
+	/** 第三方兼容扩展，并非 OpenAI 标准内容类型。 */
 	public static final String TYPE_THINKING = "thinking";
 	public static final String TYPE_REFUSAL = "refusal";
 
@@ -111,7 +112,7 @@ public class ContentPart {
 	}
 
 
-	// ========== Thinking ==========
+	// ========== 第三方 Thinking 扩展 ==========
 
 	public static ContentPart createThinkingPart(String thinking) {
 		ContentPart part = new ContentPart();

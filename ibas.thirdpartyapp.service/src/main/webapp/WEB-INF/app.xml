@@ -28,14 +28,6 @@
         <add key="ConfigurationWay" value="initial" />
         <!-- 配置项目-自定义字段管理方式 -->
         <add key="UserFieldsWay" value="initial" />
-        <!-- 配置项目-应用客户端-阿里身份认证 -->
-        <add key="ApplicationClient|ALY_IDAAS" value="ALY_IDaaS" />
-        <!-- 配置项目-应用客户端-SAP身份认证 -->
-        <add key="ApplicationClient|SAP_IAS" value="SAP_IAS" />
-        <!-- 配置项目-应用客户端-微信身份认证 -->
-        <add key="ApplicationClient|TX_WECHAT" value="WeChat" />
-        <!-- 配置项目-应用客户端-邮件 -->
-        <add key="ApplicationClient|E_Mail" value="E_Mail" />
         <!-- 配置项目-应用登录地址 -->
         <add key="LoginUrl" value="http://localhost:15486/shell/index.html" />
         <!-- 配置项目-启用登录Token（服务） -->

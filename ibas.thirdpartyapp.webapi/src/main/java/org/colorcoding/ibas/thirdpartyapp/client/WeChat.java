@@ -30,11 +30,22 @@ import org.colorcoding.ibas.thirdpartyapp.bo.usermapping.IUserMapping;
 import org.colorcoding.ibas.thirdpartyapp.bo.usermapping.UserMapping;
 import org.colorcoding.ibas.thirdpartyapp.repository.BORepositoryThirdPartyApp;
 
+@ApplicationProvider("TX_WECHAT")
 public class WeChat extends OIDC {
 	/**
 	 * 用户模板-编码
 	 */
 	public final static String USER_TEMPLATE_CODE = "#_3RD_WC";
+
+	@Override
+	protected String getAuthorizeClientIdParameterName() {
+		return "appid";
+	}
+
+	@Override
+	protected String getAuthorizeUrlSuffix() {
+		return "#wechat_redirect";
+	}
 
 	@Override
 	public IUserMapping fetchUser(Properties params) throws Exception {
@@ -81,26 +92,26 @@ public class WeChat extends OIDC {
 		int count = criteria.getConditions().size();
 		// 尝试使用统一用户编码
 		if (result.containsKey("unionid")) {
-			params.put("UnionId", this.paramValue("unionid", result));
+			params.put("unionid", this.paramValue("unionid", result));
 			condition = criteria.getConditions().create();
 			condition.setAlias(UserMapping.PROPERTY_ACCOUNT.getName());
 			condition.setOperation(ConditionOperation.CONTAIN);
-			condition.setValue(Strings.format("UnionId: %s;", params.get("UnionId")));
+			condition.setValue(Strings.format("UnionId: %s;", params.get("unionid")));
 		}
 		// 尝试使用应用用户编码
 		if (result.containsKey("openid")) {
-			params.put("OpenId", this.paramValue("openid", result));
+			params.put("openid", this.paramValue("openid", result));
 			condition = criteria.getConditions().create();
 			condition.setAlias(UserMapping.PROPERTY_ACCOUNT.getName());
 			condition.setOperation(ConditionOperation.CONTAIN);
-			condition.setValue(Strings.format("OpenId: %s;", params.get("OpenId")));
+			condition.setValue(Strings.format("OpenId: %s;", params.get("openid")));
 		}
 		if (criteria.getConditions().size() == count) {
 			// 未能获取有效用户信息
 			throw new Exception(I18N.prop("msg_tpa_failed_user_info_request"));
 		}
 		if (criteria.getConditions().size() > count + 1) {
-			condition = criteria.getConditions().get(count - 1);
+			condition = criteria.getConditions().get(count);
 			condition.setBracketOpen(1);
 			condition = criteria.getConditions().get(criteria.getConditions().size() - 1);
 			condition.setRelationship(ConditionRelationship.OR);
@@ -114,7 +125,7 @@ public class WeChat extends OIDC {
 			}
 			IUserMapping user = operationResult.getResultObjects().firstOrDefault();
 			if (user == null) {
-				params.put("AccessToken", this.paramValue("access_token", result));
+				params.put("access_token", this.paramValue("access_token", result));
 				user = this.createUser(params);
 			}
 			return user;
@@ -151,6 +162,10 @@ public class WeChat extends OIDC {
 		if (data.containsKey("errmsg")) {
 			throw new Exception(this.paramValue("errmsg", data));
 		}
+		return this.createUser(params, data);
+	}
+
+	protected IUserMapping createUser(Properties params, JsonObject data) throws Exception {
 		// 创建系统用户
 		try (BORepositoryInitialFantasy boRepositoryIF = new BORepositoryInitialFantasy()) {
 			boRepositoryIF.setUserToken(OrganizationFactory.SYSTEM_USER.getToken());
@@ -219,20 +234,20 @@ public class WeChat extends OIDC {
 				condition.setAlias(UserMapping.PROPERTY_APPLICATION.getName());
 				condition.setValue(this.getName());
 				int count = criteria.getConditions().size();
-				if (params.containsKey("UnionId")) {
+				if (params.containsKey("unionid")) {
 					condition = criteria.getConditions().create();
 					condition.setAlias(UserMapping.PROPERTY_ACCOUNT.getName());
 					condition.setOperation(ConditionOperation.CONTAIN);
-					condition.setValue(Strings.format("UnionId: %s;", params.get("UnionId")));
+					condition.setValue(Strings.format("UnionId: %s;", params.get("unionid")));
 				}
-				if (params.containsKey("OpenId")) {
+				if (params.containsKey("openid")) {
 					condition = criteria.getConditions().create();
 					condition.setAlias(UserMapping.PROPERTY_ACCOUNT.getName());
 					condition.setOperation(ConditionOperation.CONTAIN);
-					condition.setValue(Strings.format("OpenId: %s;", params.get("OpenId")));
+					condition.setValue(Strings.format("OpenId: %s;", params.get("openid")));
 				}
 				if (criteria.getConditions().size() > count + 1) {
-					condition = criteria.getConditions().get(count - 1);
+					condition = criteria.getConditions().get(count);
 					condition.setBracketOpen(1);
 					condition = criteria.getConditions().get(criteria.getConditions().size() - 1);
 					condition.setRelationship(ConditionRelationship.OR);
@@ -252,14 +267,14 @@ public class WeChat extends OIDC {
 				userMapping.setApplication(this.getName());
 				userMapping.setUser(user.getCode());
 				// 尝试使用统一用户编码
-				if (params.containsKey("UnionId")) {
+				if (params.containsKey("unionid")) {
 					userMapping.setAccount(Strings.concat(userMapping.getAccount(),
-							Strings.format("UnionId: %s;", params.get("UnionId"))));
+							Strings.format("UnionId: %s;", params.get("unionid"))));
 				}
 				// 尝试使用应用用户编码
-				if (params.containsKey("OpenId")) {
+				if (params.containsKey("openid")) {
 					userMapping.setAccount(Strings.concat(userMapping.getAccount(),
-							Strings.format("OpenId: %s;", params.get("OpenId"))));
+							Strings.format("OpenId: %s;", params.get("openid"))));
 				}
 				opRslt3rd = boRepository3rd.saveUserMapping(userMapping);
 				if (opRslt3rd.getError() != null) {
@@ -272,10 +287,5 @@ public class WeChat extends OIDC {
 				throw e;
 			}
 		}
-	}
-
-	@Override
-	public <P> IOperationResult<P> execute(String instruct, Properties params) throws ApplicationException {
-		throw new ApplicationException("not implemented.");
 	}
 }

@@ -9,6 +9,7 @@ public class FileUploadResponse {
 	private String object;
 	private Long bytes;
 	private Long createdAt;
+	private Long expiresAt;
 	private String fileName;
 	private String purpose;
 	private String status;
@@ -44,6 +45,14 @@ public class FileUploadResponse {
 
 	public void setCreatedAt(Long createdAt) {
 		this.createdAt = createdAt;
+	}
+
+	public Long getExpiresAt() {
+		return expiresAt;
+	}
+
+	public void setExpiresAt(Long expiresAt) {
+		this.expiresAt = expiresAt;
 	}
 
 	public String getFileName() {

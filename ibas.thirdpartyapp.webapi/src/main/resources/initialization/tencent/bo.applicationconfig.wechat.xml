@@ -19,7 +19,7 @@
 		<ApplicationConfigItem>
 			<Name>scope</Name>
 			<Description>获取用户信息内容</Description>
-			<Value>openid email profile</Value>
+			<Value>snsapi_userinfo</Value>
 			<Category>TEXT</Category>
 		</ApplicationConfigItem>
 		<ApplicationConfigItem>
