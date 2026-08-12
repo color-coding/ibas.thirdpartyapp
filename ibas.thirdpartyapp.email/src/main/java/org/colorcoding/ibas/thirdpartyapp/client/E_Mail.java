@@ -32,6 +32,7 @@ import org.colorcoding.ibas.bobas.message.Logger;
 import org.colorcoding.ibas.bobas.message.MessageLevel;
 import org.colorcoding.ibas.thirdpartyapp.bo.other.ApplicationSetting;
 
+@ApplicationProvider("E_MAIL")
 public class E_Mail extends ApplicationClient {
 	private static final String DEFAULT_CONNECTION_TIMEOUT = "10000";
 	private static final String DEFAULT_READ_TIMEOUT = "300000";

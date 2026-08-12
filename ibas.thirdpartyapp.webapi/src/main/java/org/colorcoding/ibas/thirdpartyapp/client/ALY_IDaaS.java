@@ -19,6 +19,7 @@ import org.colorcoding.ibas.thirdpartyapp.bo.usermapping.IUserMapping;
 import org.colorcoding.ibas.thirdpartyapp.bo.usermapping.UserMapping;
 import org.colorcoding.ibas.thirdpartyapp.repository.BORepositoryThirdPartyApp;
 
+@ApplicationProvider("ALY_IDAAS")
 public class ALY_IDaaS extends OIDC {
 
 	@Override

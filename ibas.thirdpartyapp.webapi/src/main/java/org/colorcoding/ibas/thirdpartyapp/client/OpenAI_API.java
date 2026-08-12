@@ -26,6 +26,7 @@ import org.colorcoding.ibas.thirdpartyapp.client.openai.FileUploadRequest;
 import org.colorcoding.ibas.thirdpartyapp.client.openai.FileUploadResponse;
 import org.colorcoding.ibas.thirdpartyapp.client.openai.Serializer;
 
+@ApplicationProvider("OPENAI_API")
 public class OpenAI_API extends WebApp {
 	private static final long MAX_INLINE_FILE_BYTES = 50L * 1024L * 1024L;
 	private static final long MAX_UPLOAD_FILE_BYTES = 512L * 1024L * 1024L;

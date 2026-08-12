@@ -30,6 +30,7 @@ import org.colorcoding.ibas.thirdpartyapp.bo.usermapping.IUserMapping;
 import org.colorcoding.ibas.thirdpartyapp.bo.usermapping.UserMapping;
 import org.colorcoding.ibas.thirdpartyapp.repository.BORepositoryThirdPartyApp;
 
+@ApplicationProvider("TX_WECHAT")
 public class WeChat extends OIDC {
 	/**
 	 * 用户模板-编码

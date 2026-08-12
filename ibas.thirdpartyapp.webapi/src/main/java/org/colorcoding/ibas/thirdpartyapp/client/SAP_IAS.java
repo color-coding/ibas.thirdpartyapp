@@ -25,6 +25,7 @@ import org.colorcoding.ibas.thirdpartyapp.bo.usermapping.IUserMapping;
 import org.colorcoding.ibas.thirdpartyapp.bo.usermapping.UserMapping;
 import org.colorcoding.ibas.thirdpartyapp.repository.BORepositoryThirdPartyApp;
 
+@ApplicationProvider("SAP_IAS")
 public class SAP_IAS extends OIDC {
 	@Override
 	protected IUserMapping fetchUser(Properties params) throws Exception {

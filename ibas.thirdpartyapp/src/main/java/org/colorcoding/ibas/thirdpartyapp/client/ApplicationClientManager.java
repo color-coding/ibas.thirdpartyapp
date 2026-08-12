@@ -5,7 +5,10 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Modifier;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
+import org.colorcoding.ibas.bobas.bo.BOFactory;
 import org.colorcoding.ibas.bobas.common.Criteria;
 import org.colorcoding.ibas.bobas.common.Files;
 import org.colorcoding.ibas.bobas.common.ICondition;
@@ -50,6 +53,40 @@ public class ApplicationClientManager {
 	}
 
 	private ApplicationClientManager() {
+		this.applicationProviders = new ConcurrentHashMap<String, Class<? extends ApplicationClient>>();
+	}
+
+	private final Map<String, Class<? extends ApplicationClient>> applicationProviders;
+
+	private volatile boolean applicationProvidersLoaded;
+
+	/**
+	 * 从注解扫描应用客户端。
+	 */
+	@SuppressWarnings("unchecked")
+	private synchronized void loadApplicationProviders() {
+		if (this.applicationProvidersLoaded) {
+			return;
+		}
+		String clientPackage = ApplicationClient.class.getPackage().getName();
+		for (Class<?> item : BOFactory.loadClasses(clientPackage)) {
+			ApplicationProvider provider = item.getAnnotation(ApplicationProvider.class);
+			if (provider == null || !ApplicationClient.class.isAssignableFrom(item)
+					|| !Modifier.isPublic(item.getModifiers()) || Modifier.isAbstract(item.getModifiers())) {
+				continue;
+			}
+			String code = MyConfiguration.applyVariables(provider.value());
+			if (Strings.isNullOrEmpty(code)) {
+				continue;
+			}
+			this.applicationProviders.putIfAbsent(code, (Class<? extends ApplicationClient>) item);
+		}
+		this.applicationProvidersLoaded = true;
+	}
+
+	private Class<? extends ApplicationClient> getApplicationProvider(String appCode) {
+		this.loadApplicationProviders();
+		return this.applicationProviders.get(appCode);
 	}
 
 	protected ApplicationClient create(ApplicationSetting appSetting) throws Exception {
@@ -66,7 +103,11 @@ public class ApplicationClientManager {
 		String managerName = MyConfiguration
 				.getConfigValue(String.format(CONFIG_ITEM_TEMPLATE_APPLICATION_CLINET, appSetting.getGroup()));
 		if (Strings.isNullOrEmpty(managerName)) {
-			throw new Exception(I18N.prop("msg_tpa_not_found_application_client", appSetting.getDescription()));
+			Class<? extends ApplicationClient> provider = this.getApplicationProvider(appSetting.getGroup());
+			if (provider == null) {
+				throw new Exception(I18N.prop("msg_tpa_not_found_application_client", appSetting.getDescription()));
+			}
+			managerName = provider.getName();
 		}
 		if (managerName.indexOf(".") < 0) {
 			// 补充命名空间

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!DOCTYPE ApplicationConfig>
+<ns:ApplicationConfig
+	xmlns:ns="https://colorcoding.org/ibas/thirdpartyapp/bo">
+	<Code>SAP_AI_CORE</Code>
+	<Name>SAP BTP AI Core接口</Name>
+	<Group>AI</Group>
+	<Remarks>客户端名：SAP_AI_CORE_API</Remarks>
+	<ApplicationConfigItems>
+		<ApplicationConfigItem>
+			<Name>api_url</Name>
+			<Description>AI Core API地址</Description>
+			<Category>TEXT</Category>
+		</ApplicationConfigItem>
+		<ApplicationConfigItem>
+			<Name>auth_url</Name>
+			<Description>OAuth令牌地址</Description>
+			<Category>TEXT</Category>
+		</ApplicationConfigItem>
+		<ApplicationConfigItem>
+			<Name>client_id</Name>
+			<Description>客户端ID</Description>
+			<Category>TEXT</Category>
+		</ApplicationConfigItem>
+		<ApplicationConfigItem>
+			<Name>client_secret</Name>
+			<Description>客户端密钥</Description>
+			<Category>PASSWORD</Category>
+		</ApplicationConfigItem>
+		<ApplicationConfigItem>
+			<Name>resource_group</Name>
+			<Description>资源组</Description>
+			<Category>TEXT</Category>
+			<Value>default</Value>
+		</ApplicationConfigItem>
+		<ApplicationConfigItem>
+			<Name>deployment_id</Name>
+			<Description>部署ID</Description>
+			<Category>TEXT</Category>
+		</ApplicationConfigItem>
+		<ApplicationConfigItem>
+			<Name>api_version</Name>
+			<Description>API版本（可选）</Description>
+			<Category>TEXT</Category>
+		</ApplicationConfigItem>
+		<ApplicationConfigItem>
+			<Name>model</Name>
+			<Description>模型（可选）</Description>
+			<Category>TEXT</Category>
+		</ApplicationConfigItem>
+	</ApplicationConfigItems>
+</ns:ApplicationConfig>
