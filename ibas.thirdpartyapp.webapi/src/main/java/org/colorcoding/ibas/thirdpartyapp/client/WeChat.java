@@ -5,7 +5,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
 
-import javax.json.JsonObject;
+import jakarta.json.JsonObject;
 
 import org.colorcoding.ibas.bobas.bo.BOUtilities;
 import org.colorcoding.ibas.bobas.common.ConditionOperation;

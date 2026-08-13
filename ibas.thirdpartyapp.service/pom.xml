@@ -16,6 +16,8 @@
     </organization>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.war.version>3.5.1</maven.war.version>
+        <jakarta.servlet.version>6.1.0</jakarta.servlet.version>
     </properties>
     <profiles>
         <profile>
@@ -28,7 +30,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-war-plugin</artifactId>
-                        <version>3.4.0</version>
+                        <version>${maven.war.version}</version>
                         <configuration>
                             <archiveClasses>true</archiveClasses>
                             <webXml>src/main/webapp/WEB-INF/web.xml</webXml>
@@ -47,7 +49,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-war-plugin</artifactId>
-                        <version>3.4.0</version>
+                        <version>${maven.war.version}</version>
                         <configuration>
                             <archiveClasses>true</archiveClasses>
                             <webXml>src/main/webapp/WEB-INF/web-prod.xml</webXml>
@@ -75,11 +77,29 @@
             <groupId>org.colorcoding.apps</groupId>
             <artifactId>ibas.thirdpartyapp.email</artifactId>
             <version>${project.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>jakarta.mail</groupId>
+                    <artifactId>jakarta.mail-api</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.eclipse.angus</groupId>
+                    <artifactId>angus-mail</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.eclipse.angus</groupId>
+                    <artifactId>angus-activation</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.ow2.asm</groupId>
+                    <artifactId>asm</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>jakarta.servlet</groupId>
             <artifactId>jakarta.servlet-api</artifactId>
-            <version>4.0.4</version>
+            <version>${jakarta.servlet.version}</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

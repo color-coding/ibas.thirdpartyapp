@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
 
-import javax.json.JsonObject;
+import jakarta.json.JsonObject;
 
 import org.colorcoding.ibas.bobas.common.IOperationResult;
 import org.colorcoding.ibas.bobas.common.OperationResult;
@@ -308,16 +308,16 @@ public class OpenAI_API extends WebApp {
 		if (response.getError() == null && response.getChoices().isEmpty()) {
 			ChatCompletionResponse.Error error = new ChatCompletionResponse.Error();
 			if (result.containsKey("detail")) {
-				javax.json.JsonValue detailNode = result.get("detail");
-				if (detailNode instanceof javax.json.JsonString) {
-					error.setMessage(((javax.json.JsonString) detailNode).getString());
+				jakarta.json.JsonValue detailNode = result.get("detail");
+				if (detailNode instanceof jakarta.json.JsonString) {
+					error.setMessage(((jakarta.json.JsonString) detailNode).getString());
 				} else {
 					error.setMessage(detailNode.toString());
 				}
 			} else if (result.containsKey("message")) {
-				javax.json.JsonValue msgNode = result.get("message");
-				if (msgNode instanceof javax.json.JsonString) {
-					error.setMessage(((javax.json.JsonString) msgNode).getString());
+				jakarta.json.JsonValue msgNode = result.get("message");
+				if (msgNode instanceof jakarta.json.JsonString) {
+					error.setMessage(((jakarta.json.JsonString) msgNode).getString());
 				} else {
 					error.setMessage(msgNode.toString());
 				}
@@ -424,14 +424,14 @@ public class OpenAI_API extends WebApp {
 	private String getApiErrorMessage(JsonObject result) {
 		if (result != null && result.get("error") instanceof JsonObject) {
 			JsonObject error = (JsonObject) result.get("error");
-			if (error.get("message") instanceof javax.json.JsonString) {
+			if (error.get("message") instanceof jakarta.json.JsonString) {
 				return error.getString("message");
 			}
 		}
-		if (result != null && result.get("detail") instanceof javax.json.JsonString) {
+		if (result != null && result.get("detail") instanceof jakarta.json.JsonString) {
 			return result.getString("detail");
 		}
-		if (result != null && result.get("message") instanceof javax.json.JsonString) {
+		if (result != null && result.get("message") instanceof jakarta.json.JsonString) {
 			return result.getString("message");
 		}
 		return I18N.prop("msg_tpa_failed_oauth_request");

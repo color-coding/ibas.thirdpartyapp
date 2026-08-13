@@ -3,9 +3,9 @@ package org.colorcoding.ibas.thirdpartyapp.bo.other;
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
+import jakarta.xml.bind.annotation.XmlAccessType;
+import jakarta.xml.bind.annotation.XmlAccessorType;
+import jakarta.xml.bind.annotation.XmlElement;
 
 import org.colorcoding.ibas.bobas.common.Bytes;
 import org.colorcoding.ibas.bobas.core.Serializable;
