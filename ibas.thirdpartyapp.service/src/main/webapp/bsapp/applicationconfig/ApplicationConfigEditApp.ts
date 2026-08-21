@@ -8,7 +8,7 @@
 namespace thirdpartyapp {
     export namespace app {
         /** 编辑应用-应用配置 */
-        export class ApplicationConfigEditApp extends ibas.BOEditApplication<IApplicationConfigEditView, bo.ApplicationConfig> {
+        export class ApplicationConfigEditApp extends ibas.BOEditService<IApplicationConfigEditView, bo.ApplicationConfig> {
             /** 应用标识 */
             static APPLICATION_ID: string = "0204e086-0f1a-4394-8808-27986f1f174b";
             /** 应用名称 */
@@ -216,6 +216,21 @@ namespace thirdpartyapp {
             removeApplicationConfigItemEvent: Function;
             /** 显示数据-应用配置-项目 */
             showApplicationConfigItems(datas: bo.ApplicationConfigItem[]): void;
+        }
+        /** ApplicationConfig编辑服务映射 */
+        export class ApplicationConfigEditServiceMapping extends ibas.BOEditServiceMapping {
+            /** 构造函数 */
+            constructor() {
+                super();
+                this.id = ApplicationConfigEditApp.APPLICATION_ID;
+                this.name = ApplicationConfigEditApp.APPLICATION_NAME;
+                this.boCode = ApplicationConfigEditApp.BUSINESS_OBJECT_CODE;
+                this.description = ibas.i18n.prop(this.name);
+            }
+            /** 创建服务实例 */
+            create(): ibas.IService<ibas.IBOEditServiceCaller<bo.ApplicationConfig>> {
+                return new ApplicationConfigEditApp();
+            }
         }
     }
 }
