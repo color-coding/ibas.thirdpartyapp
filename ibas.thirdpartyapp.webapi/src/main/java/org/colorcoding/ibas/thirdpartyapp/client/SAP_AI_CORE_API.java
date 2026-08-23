@@ -25,6 +25,12 @@ import org.colorcoding.ibas.thirdpartyapp.client.openai.Serializer;
  */
 @ApplicationProvider("SAP_AI_CORE")
 public class SAP_AI_CORE_API extends OpenAI_API {
+	/** AI Core 当前保留同步行为，避免改变既有客户端兼容性。 */
+	@Override
+	public void streamCompletions(ChatCompletionRequest request, OpenAIStreamListener listener) throws Exception {
+		throw new IllegalArgumentException("streaming responses are not supported by this client.");
+	}
+
 	public static final String PARAM_NAME_API_URL = "api_url";
 	public static final String PARAM_NAME_AUTH_URL = "auth_url";
 	public static final String PARAM_NAME_CLIENT_ID = "client_id";
@@ -76,7 +82,7 @@ public class SAP_AI_CORE_API extends OpenAI_API {
 	@Override
 	public ChatCompletionResponse completions(ChatCompletionRequest request) throws Exception {
 		if (request == null || request.getMessages() == null || request.getMessages().isEmpty()) {
-			throw new IllegalArgumentException("messages are required.");
+			throw new IllegalArgumentException(I18N.prop("msg_tpa_messages_required"));
 		}
 		if (request.getStream() != null && request.getStream()) {
 			throw new IllegalArgumentException("streaming responses are not supported by this client.");

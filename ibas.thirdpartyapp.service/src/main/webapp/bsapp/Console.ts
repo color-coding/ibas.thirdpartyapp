@@ -28,6 +28,8 @@ namespace thirdpartyapp {
                 this.register(new ApplicationFunc());
                 this.register(new UserMappingFunc());
                 // 注册服务应用
+                this.register(new ApplicationConfigEditServiceMapping());
+                this.register(new ApplicationEditServiceMapping());
                 this.register(new ApplicationChooseServiceMapping());
                 this.register(new ApplicationLinkServiceMapping());
                 this.register(new ApplicationConfigChooseServiceMapping());

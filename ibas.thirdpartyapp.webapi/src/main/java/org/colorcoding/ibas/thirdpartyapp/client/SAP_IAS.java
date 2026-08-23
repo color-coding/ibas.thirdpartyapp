@@ -160,8 +160,7 @@ public class SAP_IAS extends OIDC {
 							throw opRsltUsr.getError();
 						}
 						user = opRsltUsr.getResultObjects().firstOrDefault();
-						Logger.log(MessageLevel.WARN, "%s: create user [%s], password [%s].", this.getName(),
-								user.getCode(), this.paramValue("code", "", params));
+						Logger.log(MessageLevel.WARN, "[%s]: create user [%s].", this.getName(), user.getCode());
 						// 组织注册用户，使之生效
 						OrganizationFactory.createManager()
 								.register(org.colorcoding.ibas.initialfantasy.bo.shell.User.create(user));
