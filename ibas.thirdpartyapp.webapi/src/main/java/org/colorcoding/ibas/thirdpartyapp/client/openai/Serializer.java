@@ -30,9 +30,6 @@ public class Serializer extends SerializerJson {
 	// ==================== 序列化（请求） ====================
 
 	public void serialize(ChatCompletionRequest request, OutputStream output) {
-		if (Boolean.TRUE.equals(request.getStream())) {
-			throw new SerializationException("stream=true requires an SSE client and is not supported by this serializer.");
-		}
 		JsonObjectBuilder b = Json.createObjectBuilder();
 		b.add("model", request.getModel());
 		if (request.getMessages() != null && !request.getMessages().isEmpty()) {

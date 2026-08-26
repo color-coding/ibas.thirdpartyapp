@@ -151,7 +151,7 @@ public class OpenAI_API extends WebApp {
 	public <P> IOperationResult<P> execute(String instruct, Properties params) throws ApplicationException {
 		try {
 			if (params == null) {
-				throw new ApplicationException("params are required.");
+				throw new ApplicationException(I18N.prop("msg_tpa_params_required"));
 			}
 			if (EXECUT_NAME_CHAT_COMPLETIONS.equalsIgnoreCase(instruct)) {
 				// 按名称排序
@@ -168,18 +168,18 @@ public class OpenAI_API extends WebApp {
 					} else if (value instanceof Collection) {
 						for (Object item : (Collection<?>) value) {
 							if (!(item instanceof ChatMessage)) {
-								throw new ApplicationException("invalid message collection item.");
+								throw new ApplicationException(I18N.prop("msg_tpa_invalid_message"));
 							}
 							messages.add((ChatMessage) item);
 						}
 					} else {
-						throw new ApplicationException(String.format("invalid message [%s].", key));
+						throw new ApplicationException(I18N.prop("msg_tpa_invalid_message_with_key", key));
 					}
 				}
 				if (!messages.isEmpty()) {
 					return new OperationResult<P>().addResultObjects(this.completions(messages));
 				} else {
-					throw new ApplicationException("not found message.");
+					throw new ApplicationException(I18N.prop("msg_tpa_message_required"));
 				}
 			} else if (EXECUT_NAME_FILES_UPLOAD.equalsIgnoreCase(instruct)) {
 				// 按名称排序
@@ -196,11 +196,11 @@ public class OpenAI_API extends WebApp {
 					} else if (value instanceof FileUploadRequest) {
 						operationResult.addResultObjects(this.fileUpload((FileUploadRequest) value));
 					} else {
-						throw new ApplicationException(String.format("invalid file [%s].", key));
+						throw new ApplicationException(I18N.prop("msg_tpa_invalid_file", key));
 					}
 				}
 				if (operationResult.getResultObjects().isEmpty()) {
-					throw new ApplicationException("not found file.");
+					throw new ApplicationException(I18N.prop("msg_tpa_file_required"));
 				}
 				return operationResult;
 			}
@@ -218,7 +218,7 @@ public class OpenAI_API extends WebApp {
 
 	public ChatCompletionResponse completions(Collection<ChatMessage> messages) throws Exception {
 		if (messages == null || messages.isEmpty()) {
-			throw new IllegalArgumentException("messages are required.");
+			throw new IllegalArgumentException(I18N.prop("msg_tpa_messages_required"));
 		}
 		ChatCompletionRequest request = new ChatCompletionRequest();
 		request.setMessages(ArrayList.create(messages));
@@ -230,7 +230,7 @@ public class OpenAI_API extends WebApp {
 	 */
 	public ChatCompletionResponse completions(ChatCompletionRequest request) throws Exception {
 		if (request == null || request.getMessages() == null || request.getMessages().isEmpty()) {
-			throw new IllegalArgumentException("messages are required.");
+			throw new IllegalArgumentException(I18N.prop("msg_tpa_messages_required"));
 		}
 		String baseUrl = this.paramValue(PARAM_NAME_BASE_URL, Strings.VALUE_EMPTY);
 		if (Strings.isNullOrEmpty(baseUrl)) {
@@ -330,9 +330,73 @@ public class OpenAI_API extends WebApp {
 		return response;
 	}
 
+	/**
+	 * 以 SSE 方式调用 Chat Completions。该方法是新增能力，旧的 completions/execute 调用保持同步行为。
+	 */
+	public void streamCompletions(ChatCompletionRequest request, OpenAIStreamListener listener) throws Exception {
+		if (request == null || request.getMessages() == null || request.getMessages().isEmpty()) {
+		throw new IllegalArgumentException(I18N.prop("msg_tpa_messages_required"));
+		}
+		if (listener == null) {
+		throw new IllegalArgumentException(I18N.prop("msg_tpa_listener_required"));
+		}
+		String baseUrl = this.paramValue(PARAM_NAME_BASE_URL, Strings.VALUE_EMPTY);
+		if (Strings.isNullOrEmpty(baseUrl)) {
+			throw new Exception(I18N.prop("msg_tpa_no_param", PARAM_NAME_BASE_URL));
+		}
+		String apiKey = this.paramValue(PARAM_NAME_API_KEY, Strings.VALUE_EMPTY);
+		if (Strings.isNullOrEmpty(apiKey)) {
+			throw new Exception(I18N.prop("msg_tpa_no_param", PARAM_NAME_API_KEY));
+		}
+		for (ChatMessage message : request.getMessages()) {
+			java.util.List<ContentPart> contentParts = message.getContentAsParts();
+			if (contentParts == null) {
+				continue;
+			}
+			for (ContentPart contentPart : contentParts) {
+				if (contentPart.isFile() && contentPart.getFile() != null
+						&& Strings.isNullOrEmpty(contentPart.getFile().getFileId())
+						&& contentPart.getFile().getData() != null
+						&& (!Strings.equalsIgnoreCase(this.paramValue(PARAM_NAME_FILE_MODE, "base64"), "base64")
+								|| contentPart.getFile().getData().length > MAX_INLINE_FILE_BYTES)) {
+					contentPart.getFile().setFileId(this.fileUpload(contentPart.getFile()).getId());
+				}
+			}
+		}
+		request.setStream(Boolean.TRUE);
+		if (Strings.isNullOrEmpty(request.getModel())) {
+			request.setModel(this.paramValue(PARAM_NAME_MODEL, Strings.VALUE_EMPTY));
+		}
+		if (Strings.isNullOrEmpty(request.getReasoningEffort()) && !Strings.isNullOrEmpty(this.reasoningEffort)) {
+			request.setReasoningEffort(this.reasoningEffort);
+		}
+		if (request.getThinking() == null && this.thinking != null) {
+			request.setThinking(this.thinking);
+		}
+		StringBuilder stringBuilder = new StringBuilder();
+		stringBuilder.append(baseUrl);
+		stringBuilder.append(Strings.VALUE_SLASH);
+		stringBuilder.append("chat");
+		stringBuilder.append(Strings.VALUE_SLASH);
+		stringBuilder.append("completions");
+		Map<String, String> headers = new HashMap<String, String>();
+		headers.put("Authorization", String.format("Bearer %s", apiKey));
+		if (this.customHeaders != null && !this.customHeaders.isEmpty()) {
+			for (Map.Entry<String, String> item : this.customHeaders.entrySet()) {
+				this.validateCustomHeader(item.getKey());
+				headers.put(item.getKey(), item.getValue());
+			}
+		}
+		Serializer serializer = new Serializer();
+		try (ByteArrayOutputStream output = new ByteArrayOutputStream()) {
+			serializer.serialize(request, output);
+			this.streamPost(new URI(stringBuilder.toString()).normalize().toString(), headers, output.toByteArray(), listener);
+		}
+	}
+
 	public FileUploadResponse fileUpload(FileReference file) throws Exception {
 		if (file == null) {
-			throw new IllegalArgumentException("file is required.");
+			throw new IllegalArgumentException(I18N.prop("msg_tpa_file_required"));
 		}
 		FileUploadRequest request = new FileUploadRequest();
 		request.setPurpose(FileUploadRequest.PURPOSE_VALUE_USER_DATA);
@@ -397,23 +461,23 @@ public class OpenAI_API extends WebApp {
 
 	private void validateFileUploadRequest(FileUploadRequest request) {
 		if (request == null) {
-			throw new IllegalArgumentException("file upload request is required.");
+			throw new IllegalArgumentException(I18N.prop("msg_tpa_file_upload_request_required"));
 		}
 		if (Strings.isNullOrEmpty(request.getPurpose())) {
-			throw new IllegalArgumentException("purpose is required.");
+			throw new IllegalArgumentException(I18N.prop("msg_tpa_purpose_required"));
 		}
 		if (Strings.isNullOrEmpty(request.getFileName())) {
-			throw new IllegalArgumentException("file name is required.");
+			throw new IllegalArgumentException(I18N.prop("msg_tpa_file_name_required"));
 		}
 		if (request.getData() == null) {
-			throw new IllegalArgumentException("file data is required.");
+			throw new IllegalArgumentException(I18N.prop("msg_tpa_file_data_required"));
 		}
 		if (request.getData().length > MAX_UPLOAD_FILE_BYTES) {
-			throw new IllegalArgumentException("file data exceeds the 512 MB Files API limit.");
+			throw new IllegalArgumentException(I18N.prop("msg_tpa_file_data_too_large"));
 		}
 		if (this.containsMultipartControl(request.getPurpose())
 				|| this.containsMultipartControl(request.getFileName())) {
-			throw new IllegalArgumentException("purpose and file name must not contain quotes or line breaks.");
+			throw new IllegalArgumentException(I18N.prop("msg_tpa_invalid_file_metadata"));
 		}
 	}
 
