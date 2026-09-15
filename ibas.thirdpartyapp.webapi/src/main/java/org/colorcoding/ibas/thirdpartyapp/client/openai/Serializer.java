@@ -301,6 +301,9 @@ public class Serializer extends SerializerJson {
 		if (request.getThinking() != null) {
 			this.addJsonValue(b, "thinking", request.getThinking());
 		}
+		if (request.getExtra() != null) {
+			this.addJsonValue(b, "extra", request.getExtra());
+		}
 		this.writeJsonObject(b.build(), output);
 	}
 

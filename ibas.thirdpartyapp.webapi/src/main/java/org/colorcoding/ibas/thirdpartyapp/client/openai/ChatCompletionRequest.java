@@ -45,6 +45,8 @@ public class ChatCompletionRequest {
 	private String reasoningEffort;
 	// 第三方 OpenAI 兼容服务扩展，并非 OpenAI 标准字段
 	private Object thinking;
+	// 第三方 OpenAI 兼容服务扩展，用于传递任务控制上下文。
+	private Object extra;
 
 	public String getModel() {
 		return model;
@@ -272,5 +274,13 @@ public class ChatCompletionRequest {
 
 	public void setThinking(Object thinking) {
 		this.thinking = thinking;
+	}
+
+	public Object getExtra() {
+		return extra;
+	}
+
+	public void setExtra(Object extra) {
+		this.extra = extra;
 	}
 }
