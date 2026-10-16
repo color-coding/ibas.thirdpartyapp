@@ -7874,6 +7874,10 @@ declare namespace initialfantasy {
             protected viewShowed(): void;
             private datas;
             run(data?: bo.BOLogst | bo.BOLogst[]): void;
+            /** 解析日志内容；仅在标准JSON解析失败时兼容旧日志中的控制字符 */
+            private parseContent;
+            /** 展开日志中的用户字段，使其可以按普通业务对象属性参与显示和比较 */
+            private expandUserFields;
             onViewShowed: () => void;
             private template;
             showSummary: boolean;
